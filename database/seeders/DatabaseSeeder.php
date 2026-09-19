@@ -1,25 +1,23 @@
 <?php
-
 namespace Database\Seeders;
-
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
-class DatabaseSeeder extends Seeder
-{
-    use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
-    public function run(): void
-    {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+class DatabaseSeeder extends Seeder {
+    public function run(): void {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        $this->call([
+            RoleSeeder::class,
+            UserSeeder::class,
+            PlantTypeSeeder::class,
+            PlantingSeeder::class,
+            MaintenanceLogSeeder::class,
+            WaterQualityLogSeeder::class,
+            HarvestSeeder::class,
+            ProductSeeder::class,
+            TransactionSeeder::class,
+            TransactionDetailSeeder::class,
         ]);
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
     }
 }

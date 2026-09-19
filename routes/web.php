@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PlantTypeController;
+// use App\Http\Controllers\PlantTypeController;
 use App\Http\Controllers\PlantingController;
 use App\Http\Controllers\MaintenanceLogController;
 use App\Http\Controllers\WaterQualityLogController;
@@ -27,7 +27,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Farm Management — accessible by admin & petani
     Route::middleware(['role:admin,petani'])->group(function () {
-        Route::resource('plant-types', PlantTypeController::class);
+        // Route::resource('plant-types', PlantTypeController::class);
         Route::resource('plantings', PlantingController::class);
         Route::patch('plantings/{planting}/status', [PlantingController::class, 'updateStatus'])->name('plantings.updateStatus');
         Route::resource('maintenance-logs', MaintenanceLogController::class)->except(['edit', 'update', 'destroy']);
