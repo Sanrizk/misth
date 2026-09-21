@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+{{-- @section('titleDash', 'Dashboard') --}}
+
+{{-- @section('titleTab', 'testHydro') --}}
+
 @section('content')
 <div class="row mb-4">
     <div class="col-md-3">

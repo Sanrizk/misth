@@ -3,7 +3,7 @@
         <button class="btn btn-outline-secondary d-lg-none me-3" id="sidebarToggle">
             <i class="bi bi-list"></i>
         </button>
-        <h4 class="mb-0 fw-bold">@yield('title', 'Dashboard')</h4>
+        <h4 class="mb-0 fw-bold">@yield('titleDash', 'Dash')</h4>
     </div>
     
     <div class="d-flex align-items-center">
