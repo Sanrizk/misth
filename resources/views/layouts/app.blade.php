@@ -76,7 +76,7 @@
     @include('layouts.partials.sidebar')
     @include('layouts.partials.navbar')
 
-    <div class="main-content p-4">
+    <div class="main-content pt-8 px-4">
         @include('layouts.partials.flash')
         @yield('content')
     </div>

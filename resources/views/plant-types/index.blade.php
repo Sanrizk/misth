@@ -1,47 +1,59 @@
 @extends('layouts.app')
 
-@section('content')
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Jenis Tanaman</h2>
-    <a href="{{ route('plant-types.create') }}" class="btn btn-primary">Add New</a>
-</div>
+@section('title', 'Jenis Tanaman')
 
-<div class="card">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-striped table-hover mb-0">
-                <thead>
+@section('content')
+    @include('layouts.partials.flash')
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3">Jenis Tanaman</h1>
+        <a href="{{ route('plant-types.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Tambah Jenis Tanaman
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>No</th>
+                    <th>Nama</th>
+                    <th>Hari Panen (perkiraan)</th>
+                    <th>Deskripsi</th>
+                    <th>Dibuat Pada</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($plantTypes as $index => $plantType)
                     <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Harvest Days</th>
-                        <th>Description</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($plantTypes ?? [] as $type)
-                    <tr>
-                        <td>{{ $type->id }}</td>
-                        <td>{{ $type->name }}</td>
-                        <td>{{ $type->estimated_harvest_days }} days</td>
-                        <td>{{ Str::limit($type->description, 50) }}</td>
+                        <td>{{ $plantTypes->firstItem() + $index }}</td>
+                        <td>{{ $plantType->name }}</td>
+                        <td>{{ $plantType->estimated_harvest_days }}</td>
+                        <td>{{ \Illuminate\Support\Str::limit($plantType->description, 50) }}</td>
+                        <td>{{ $plantType->created_at->format('d M Y') }}</td>
                         <td>
-                            <a href="{{ route('plant-types.edit', $type->id) }}" class="btn btn-sm btn-warning">Edit</a>
-                            <form action="{{ route('plant-types.destroy', $type->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this item?');">
+                            <a href="{{ route('plant-types.edit', $plantType->id) }}" class="btn btn-sm btn-warning me-1">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            <form action="{{ route('plant-types.destroy', $plantType->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus jenis tanaman ini?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i> Hapus
+                                </button>
                             </form>
                         </td>
                     </tr>
-                    @empty
-                    <tr><td colspan="5" class="text-center">No records found.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                @empty
+                    <tr>
+                        <td colspan="6" class="text-center">Tidak ada data jenis tanaman.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
-</div>
-@endsection
 
+    <div class="d-flex justify-content-center">
+        {{ $plantTypes->links() }}
+    </div>
+@endsection
