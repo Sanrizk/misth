@@ -16,7 +16,7 @@ class MaintenanceLogController extends Controller
     public function index()
     {
         $maintenanceLogs = MaintenanceLog::with(['planting.plantType', 'user'])
-            ->orderByDesc('created_at')
+            ->latest()
             ->paginate(10);
 
         return view('maintenance-logs.index', compact('maintenanceLogs'));
