@@ -1,57 +1,73 @@
 @extends('layouts.app')
 
-@section('content')
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Penanaman (Plantings)</h2>
-    <a href="{{ route('plantings.create') }}" class="btn btn-primary">Add New</a>
-</div>
+@section('title', 'Penanaman')
 
-<div class="card">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-striped table-hover mb-0">
-                <thead>
+@section('content')
+    @include('layouts.partials.flash')
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3">Penanaman</h1>
+        <a href="{{ route('plantings.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Tambah Penanaman
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>No</th>
+                    <th>Kode Batch</th>
+                    <th>Jenis Tanaman</th>
+                    <th>Petani</th>
+                    <th>Jumlah Bibit</th>
+                    <th>Tanggal Mulai</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($plantings as $index => $planting)
                     <tr>
-                        <th>Batch Code</th>
-                        <th>Plant Type</th>
-                        <th>Farmer</th>
-                        <th>Start Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($plantings ?? [] as $planting)
-                    <tr>
+                        <td>{{ $plantings->firstItem() + $index }}</td>
                         <td>{{ $planting->batch_code }}</td>
-                        <td>{{ $planting->plantType->name ?? 'N/A' }}</td>
-                        <td>{{ $planting->user->name ?? 'N/A' }}</td>
-                        <td>{{ $planting->start_date }}</td>
+                        <td>{{ $planting->plantType->name }}</td>
+                        <td>{{ $planting->user->name }}</td>
+                        <td>{{ $planting->quantity_seeds }}</td>
+                        <td>{{ $planting->start_date->format('d M Y') }}</td>
                         <td>
-                            @if($planting->status == 'in_progress')
-                                <span class="badge bg-primary">In Progress</span>
-                            @elseif($planting->status == 'harvested')
-                                <span class="badge bg-success">Harvested</span>
-                            @else
-                                <span class="badge bg-danger">Failed</span>
-                            @endif
+                            @php
+                                $statusMap = ['in_progress' => 'bg-primary', 'harvested' => 'bg-success', 'failed' => 'bg-danger'];
+                            @endphp
+                            <span class="badge {{ $statusMap[$planting->status] ?? 'bg-secondary' }}">
+                                {{ ucfirst(str_replace('_', ' ', $planting->status)) }}
+                            </span>
                         </td>
                         <td>
-                            <a href="{{ route('plantings.show', $planting->id) }}" class="btn btn-sm btn-info text-white">Detail</a>
-                            <form action="{{ route('plantings.destroy', $planting->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this planting?');">
+                            <a href="{{ route('plantings.show', $planting->id) }}" class="btn btn-sm btn-info me-1">
+                                <i class="bi bi-eye"></i> Show
+                            </a>
+                            <a href="{{ route('plantings.edit', $planting->id) }}" class="btn btn-sm btn-warning me-1">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            <form action="{{ route('plantings.destroy', $planting->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah yakin menghapus penanaman ini?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
                             </form>
                         </td>
                     </tr>
-                    @empty
-                    <tr><td colspan="6" class="text-center">No records found.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                @empty
+                    <tr>
+                        <td colspan="8" class="text-center">Tidak ada data penanaman.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
-</div>
-@endsection
 
+    <div class="d-flex justify-content-center">
+        {{ $plantings->links() }}
+    </div>
+@endsection

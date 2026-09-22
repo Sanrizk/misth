@@ -20,6 +20,11 @@ class Planting extends Model
         'start_date',
         'status',
     ];
+    
+    protected $casts = [
+        'start_date' => 'datetime',
+    ];
+
 
     public function plantType(): BelongsTo
     {
