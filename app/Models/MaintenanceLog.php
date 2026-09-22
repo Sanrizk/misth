@@ -10,6 +10,8 @@ class MaintenanceLog extends Model
 {
     use HasFactory;
 
+    protected $table = 'maintenance_logs';
+
     protected $fillable = [
         'planting_id',
         'user_id',
@@ -21,12 +23,11 @@ class MaintenanceLog extends Model
 
     public function planting(): BelongsTo
     {
-        return $this->belongsTo(Planting::class);
+        return $this->belongsTo(Planting::class, 'planting_id');
     }
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 }
-

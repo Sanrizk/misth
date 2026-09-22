@@ -16,7 +16,7 @@ class MaintenanceLogController extends Controller
     public function index()
     {
         $maintenanceLogs = MaintenanceLog::with(['planting.plantType', 'user'])
-            ->latest()
+            ->latest('activity_date')
             ->paginate(10);
 
         return view('maintenance-logs.index', compact('maintenanceLogs'));
@@ -42,7 +42,7 @@ class MaintenanceLogController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'penanaman_id' => 'required|exists:plantings,id',
+            'planting_id' => 'required|exists:plantings,id',
             'activity_date' => 'required|date',
             'action_type' => 'required|string|max:100',
             'nutrients_ppm' => 'nullable|integer|min:0',
@@ -55,7 +55,7 @@ class MaintenanceLogController extends Controller
 
         return redirect()
             ->route('maintenance-logs.index')
-            ->with('success', 'Log perawatan berhasil ditambahkan');
+            ->with('success', 'Log perawatan berhasil ditambahkan.');
     }
 
     /**
@@ -79,6 +79,6 @@ class MaintenanceLogController extends Controller
 
         return redirect()
             ->route('maintenance-logs.index')
-            ->with('success', 'Log perawatan berhasil dihapus');
+            ->with('success', 'Log perawatan berhasil dihapus.');
     }
 }

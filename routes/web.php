@@ -30,7 +30,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('plant-types', PlantTypeController::class);
         Route::resource('plantings', PlantingController::class);
         Route::patch('plantings/{planting}/status', [PlantingController::class, 'updateStatus'])->name('plantings.updateStatus');
-        Route::resource('maintenance-logs', MaintenanceLogController::class)->except(['edit', 'update', 'destroy']);
+        Route::resource('maintenance-logs', MaintenanceLogController::class)->except(['edit', 'update']);
         Route::resource('water-quality-logs', WaterQualityLogController::class)->except(['edit', 'update', 'destroy']);
         Route::resource('harvests', HarvestController::class)->except(['edit', 'update']);
     });
