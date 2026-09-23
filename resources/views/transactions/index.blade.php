@@ -1,51 +1,62 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Transaksi (Transactions)</h2>
-</div>
+<div class="container">
+    <h2 class="mb-4">Daftar Transaksi</h2>
+    
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
 
-<div class="card">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-striped table-hover mb-0">
-                <thead>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Nomor Invoice</th>
+                    <th>Pelanggan</th>
+                    <th>Total Harga (Rupiah)</th>
+                    <th>Status</th>
+                    <th>Metode Pembayaran</th>
+                    <th>Tanggal</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($transactions as $index => $transaction)
                     <tr>
-                        <th>Invoice Number</th>
-                        <th>Customer</th>
-                        <th>Total Amount</th>
-                        <th>Status</th>
-                        <th>Payment Method</th>
-                        <th>Date</th>
-                        <th>Actions</th>
+                        <td>{{ $transactions->firstItem() + $index }}</td>
+                        <td>{{ $transaction->invoice_number }}</td>
+                        <td>{{ optional($transaction->user)->name }}</td>
+                        <td>Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}</td>
+                        <td>
+                            @php
+                                $badgeClass = 'bg-secondary';
+                                if($transaction->status == 'pending') $badgeClass = 'bg-warning text-dark';
+                                elseif($transaction->status == 'paid') $badgeClass = 'bg-primary';
+                                elseif($transaction->status == 'shipping') $badgeClass = 'bg-info';
+                                elseif($transaction->status == 'completed') $badgeClass = 'bg-success';
+                                elseif($transaction->status == 'cancelled') $badgeClass = 'bg-danger';
+                            @endphp
+                            <span class="badge {{ $badgeClass }}">{{ ucfirst($transaction->status) }}</span>
+                        </td>
+                        <td>{{ $transaction->payment_method }}</td>
+                        <td>{{ $transaction->created_at->format('d M Y H:i') }}</td>
+                        <td>
+                            <a href="{{ route('transactions.show', $transaction->id) }}" class="btn btn-info btn-sm">Detail</a>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    @forelse($transactions ?? [] as $tx)
+                @empty
                     <tr>
-                        <td>{{ $tx->invoice_number }}</td>
-                        <td>{{ $tx->user->name ?? 'N/A' }}</td>
-                        <td>${{ number_format($tx->total_amount, 2) }}</td>
-                        <td>
-                            @if($tx->status == 'pending') <span class="badge bg-warning text-dark">Pending</span>
-                            @elseif($tx->status == 'paid') <span class="badge bg-info text-white">Paid</span>
-                            @elseif($tx->status == 'shipping') <span class="badge bg-primary">Shipping</span>
-                            @elseif($tx->status == 'completed') <span class="badge bg-success">Completed</span>
-                            @else <span class="badge bg-danger">Cancelled</span> @endif
-                        </td>
-                        <td>{{ $tx->payment_method }}</td>
-                        <td>{{ $tx->created_at->format('Y-m-d H:i') }}</td>
-                        <td>
-                            <a href="{{ route('transactions.show', $tx->id) }}" class="btn btn-sm btn-info text-white">View Detail</a>
-                        </td>
+                        <td colspan="8" class="text-center">Tidak ada transaksi ditemukan.</td>
                     </tr>
-                    @empty
-                    <tr><td colspan="7" class="text-center">No transactions found.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-center mt-3">
+        {{ $transactions->links('pagination::bootstrap-5') }}
     </div>
 </div>
 @endsection
-

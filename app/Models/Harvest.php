@@ -4,14 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Harvest extends Model
 {
     use HasFactory;
-    
-    public $timestamps = false;
+
+    protected $table = 'harvests';
 
     protected $fillable = [
         'planting_id',
@@ -22,14 +20,13 @@ class Harvest extends Model
         'notes',
     ];
 
-    public function planting(): BelongsTo
+    public function planting()
     {
-        return $this->belongsTo(Planting::class);
+        return $this->belongsTo(Planting::class, 'planting_id');
     }
 
-    public function product(): HasOne
+    public function product()
     {
-        return $this->hasOne(Product::class);
+        return $this->hasOne(Product::class, 'harvest_id');
     }
 }
-

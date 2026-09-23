@@ -8,86 +8,111 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\JsonResponse;
 
 class TransactionController extends Controller
 {
-    public function index(): JsonResponse
+    public function index()
     {
-        $transactions = Transaction::where('user_id', Auth::id())
-            ->with('transactionDetails.product')
-            ->get();
-            
-        return response()->json($transactions);
+        $transactions = Transaction::with(['user', 'transactionDetails.product'])->paginate(10);
+        return view('transactions.index', compact('transactions'));
     }
 
-    public function store(Request $request): JsonResponse
+    public function show($id)
     {
-        $validated = $request->validate([
-            'payment_method' => 'required|string|max:50',
-            'items' => 'required|array|min:1',
+        $transaction = Transaction::with(['user', 'transactionDetails.product'])->findOrFail($id);
+        return view('transactions.show', compact('transaction'));
+    }
+
+    public function create()
+    {
+        $products = Product::where('stock', '>', 0)->get();
+        return view('transactions.create', compact('products'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'items' => 'required|array',
             'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.quantity' => 'required|integer|min:0', // Allowing 0 to filter out easily from form
+            'payment_method' => 'required|string',
         ]);
 
-        $transaction = DB::transaction(function () use ($validated) {
-            $userId = Auth::id();
-            $timestamp = time();
-            $invoiceNumber = "INV-{$timestamp}-{$userId}";
+        $hasItems = false;
+        foreach ($request->items as $item) {
+            if ($item['quantity'] > 0) {
+                $hasItems = true;
+                break;
+            }
+        }
 
+        if (!$hasItems) {
+            return redirect()->back()->with('error', 'Silakan pilih setidaknya satu produk dengan kuantitas lebih dari 0.')->withInput();
+        }
+
+        DB::beginTransaction();
+        try {
+            $invoiceNumber = 'INV-' . now()->format('YmdHis') . '-' . Auth::id();
+            
             $transaction = Transaction::create([
-                'user_id' => $userId,
+                'user_id' => Auth::id(),
                 'invoice_number' => $invoiceNumber,
                 'total_amount' => 0,
                 'status' => 'pending',
-                'payment_method' => $validated['payment_method'],
+                'payment_method' => $request->payment_method,
             ]);
 
             $totalAmount = 0;
 
-            foreach ($validated['items'] as $item) {
-                $product = Product::lockForUpdate()->findOrFail($item['product_id']);
-
+            foreach ($request->items as $item) {
+                if ($item['quantity'] <= 0) continue;
+                
+                $product = Product::lockForUpdate()->find($item['product_id']);
+                
                 if ($product->stock < $item['quantity']) {
-                    throw new \Exception("Insufficient stock for product: {$product->name}");
+                    throw new \Exception('Stok tidak mencukupi untuk produk: ' . $product->name);
                 }
-
-                $product->stock -= $item['quantity'];
-                
-                if ($product->stock === 0) {
-                    $product->status = 'out_of_stock';
-                }
-                
-                $product->save();
 
                 $subtotal = $product->price * $item['quantity'];
-                $totalAmount += $subtotal;
-
+                
                 TransactionDetail::create([
                     'transaction_id' => $transaction->id,
                     'product_id' => $product->id,
                     'quantity' => $item['quantity'],
                     'subtotal' => $subtotal,
                 ]);
+
+                $product->stock -= $item['quantity'];
+                if ($product->stock == 0) {
+                    $product->status = 'out_of_stock';
+                }
+                $product->save();
+
+                $totalAmount += $subtotal;
             }
 
-            $transaction->update(['total_amount' => $totalAmount]);
+            $transaction->total_amount = $totalAmount;
+            $transaction->save();
 
-            return $transaction->load('transactionDetails');
-        });
+            DB::commit();
 
-        return response()->json($transaction, 201);
+            return redirect()->route('transactions.index')->with('success', 'Transaksi berhasil dibuat.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', $e->getMessage())->withInput();
+        }
     }
 
-    public function updateStatus(Request $request, Transaction $transaction): JsonResponse
+    public function updateStatus(Request $request, $id)
     {
-        $validated = $request->validate([
-            'status' => 'required|in:pending,paid,shipping,completed,cancelled',
+        $request->validate([
+            'status' => 'required|in:pending,paid,shipping,completed,cancelled'
         ]);
 
-        $transaction->update(['status' => $validated['status']]);
+        $transaction = Transaction::findOrFail($id);
+        $transaction->status = $request->status;
+        $transaction->save();
 
-        return response()->json($transaction);
+        return redirect()->route('transactions.show', $transaction->id)->with('success', 'Status transaksi berhasil diperbarui.');
     }
 }
-

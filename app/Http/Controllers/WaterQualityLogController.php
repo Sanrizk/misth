@@ -3,38 +3,50 @@
 namespace App\Http\Controllers;
 
 use App\Models\WaterQualityLog;
+use App\Models\Planting;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 
 class WaterQualityLogController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    public function index()
     {
-        $request->validate(['planting_id' => 'required|exists:plantings,id']);
-        $logs = WaterQualityLog::where('planting_id', $request->planting_id)->get();
-        return response()->json($logs);
+        $waterQualityLogs = WaterQualityLog::with('planting.plantType')->paginate(10);
+        return view('water-quality-logs.index', compact('waterQualityLogs'));
     }
 
-    public function store(Request $request): JsonResponse
+    public function create()
+    {
+        $plantings = Planting::with('plantType')->where('status', 'in_progress')->get();
+        return view('water-quality-logs.create', compact('plantings'));
+    }
+
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'planting_id' => 'required|exists:plantings,id',
-            'ph_level' => 'required|numeric',
-            'tds_ppm' => 'required|integer',
+            'checked_at' => 'required|date',
+            'ph_level' => 'required|numeric|between:0,14',
+            'tds_ppm' => 'required|integer|min:0',
             'water_temp' => 'nullable|numeric',
             'notes' => 'nullable|string',
         ]);
 
-        $log = WaterQualityLog::create([
-            'planting_id' => $validated['planting_id'],
-            'checked_at' => now(),
-            'ph_level' => $validated['ph_level'],
-            'tds_ppm' => $validated['tds_ppm'],
-            'water_temp' => $validated['water_temp'] ?? null,
-            'notes' => $validated['notes'] ?? null,
-        ]);
+        WaterQualityLog::create($validated);
 
-        return response()->json($log, 201);
+        return redirect()->route('water-quality-logs.index')->with('success', 'Catatan kualitas air berhasil ditambahkan.');
+    }
+
+    public function show($id)
+    {
+        $waterQualityLog = WaterQualityLog::with('planting.plantType')->findOrFail($id);
+        return view('water-quality-logs.show', compact('waterQualityLog'));
+    }
+
+    public function destroy($id)
+    {
+        $waterQualityLog = WaterQualityLog::findOrFail($id);
+        $waterQualityLog->delete();
+
+        return redirect()->route('water-quality-logs.index')->with('success', 'Catatan kualitas air berhasil dihapus.');
     }
 }
-

@@ -4,35 +4,41 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 
 class ProductController extends Controller
 {
-    public function index(): JsonResponse
+    public function index()
     {
-        $products = Product::where('status', 'available')
-            ->where('stock', '>', 0)
-            ->get();
-
-        return response()->json($products);
+        $products = Product::with('harvest.planting.plantType')->paginate(12);
+        return view('products.index', compact('products'));
     }
 
-    public function show(Product $product): JsonResponse
+    public function show($id)
     {
-        return response()->json($product);
+        $product = Product::findOrFail($id);
+        return view('products.show', compact('product'));
     }
 
-    public function update(Request $request, Product $product): JsonResponse
+    public function edit($id)
     {
-        $validated = $request->validate([
+        $product = Product::findOrFail($id);
+        return view('products.edit', compact('product'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'nullable|string|max:100',
             'price' => 'nullable|numeric|min:0',
+            'stock' => 'nullable|integer|min:0',
             'description' => 'nullable|string',
-            'image_url' => 'nullable|string|url',
+            'image_url' => 'nullable|url',
+            'status' => 'nullable|in:available,out_of_stock',
         ]);
 
-        $product->update($validated);
+        $product = Product::findOrFail($id);
+        $product->update($request->all());
 
-        return response()->json($product);
+        return redirect()->route('products.index')->with('success', 'Produk berhasil diperbarui.');
     }
 }
-

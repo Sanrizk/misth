@@ -4,13 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class WaterQualityLog extends Model
 {
     use HasFactory;
-    
-    public $timestamps = false;
+
+    protected $table = 'water_quality_logs';
 
     protected $fillable = [
         'planting_id',
@@ -21,9 +20,8 @@ class WaterQualityLog extends Model
         'notes',
     ];
 
-    public function planting(): BelongsTo
+    public function planting()
     {
-        return $this->belongsTo(Planting::class);
+        return $this->belongsTo(Planting::class, 'planting_id');
     }
 }
-

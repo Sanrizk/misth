@@ -4,14 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
     use HasFactory;
-    
-    public $timestamps = false;
+
+    protected $table = 'products';
 
     protected $fillable = [
         'harvest_id',
@@ -23,14 +21,13 @@ class Product extends Model
         'status',
     ];
 
-    public function harvest(): BelongsTo
+    public function harvest()
     {
-        return $this->belongsTo(Harvest::class);
+        return $this->belongsTo(Harvest::class, 'harvest_id');
     }
 
-    public function transactionDetails(): HasMany
+    public function transactionDetails()
     {
-        return $this->hasMany(TransactionDetail::class);
+        return $this->hasMany(TransactionDetail::class, 'product_id');
     }
 }
-
