@@ -1,0 +1,37 @@
+.git
+.github
+.vscode
+.idea
+
+# Local dependencies
+node_modules
+vendor
+
+# Frontend build artifacts
+public/build
+public/hot
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Testing
+phpunit.xml
+tests
+.phpunit.cache
+
+# Logs and cache
+storage/*.key
+storage/logs/*.log
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/testing/*
+storage/framework/views/*
+bootstrap/cache/*
+
+# DB and OS files
+*.sqlite
+*.sqlite3
+.DS_Store
+
