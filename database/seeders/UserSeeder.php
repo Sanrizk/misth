@@ -28,6 +28,14 @@ class UserSeeder extends Seeder {
             ]);
         }
 
+        User::create([
+            'role_id' => $customerRole,
+            'name' => 'Customer',
+            'email' => 'customer@misth.com',
+            'password' => bcrypt('password'),
+            'phone' => '081234567890'
+        ]);
+
         User::factory()->count(10)->create(['role_id' => $customerRole]);
     }
 }
