@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('image_url')->nullable();
             $table->text('description')->nullable();
             $table->enum('status', ['available', 'out_of_stock']);
+            $table->timestamps();
         });
     }
 

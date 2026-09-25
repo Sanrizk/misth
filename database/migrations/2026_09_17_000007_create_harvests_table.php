@@ -16,6 +16,7 @@ return new class extends Migration
             $table->decimal('total_yield_weight', 8, 2);
             $table->enum('quality_grade', ['Grade A', 'Grade B', 'Grade C']);
             $table->text('notes')->nullable();
+            $table->timestamps();
         });
     }
 

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('tds_ppm');
             $table->decimal('water_temp', 4, 1)->nullable();
             $table->text('notes')->nullable();
+            $table->timestamps();
         });
     }
 
