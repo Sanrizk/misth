@@ -1,6 +1,6 @@
 <div class="sidebar d-flex flex-column" id="sidebar">
     <div class="p-3 text-white text-center fs-4 fw-bold border-bottom border-secondary">
-        <i class="bi bi-tree-fill text-success"></i> HydroFarm
+        <i class="bi bi-tree-fill text-success"></i> Misth
     </div>
     
     @php

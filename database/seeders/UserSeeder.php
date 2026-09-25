@@ -13,7 +13,7 @@ class UserSeeder extends Seeder {
         User::create([
             'role_id' => $adminRole,
             'name' => 'Admin',
-            'email' => 'admin@hydrofarm.com',
+            'email' => 'admin@misth.com',
             'password' => bcrypt('password'),
             'phone' => '081234567890'
         ]);
@@ -22,7 +22,7 @@ class UserSeeder extends Seeder {
             User::create([
                 'role_id' => $petaniRole,
                 'name' => 'Petani ' . $i,
-                'email' => "petani{$i}@hydrofarm.com",
+                'email' => "petani{$i}@misth.com",
                 'password' => bcrypt('password'),
                 'phone' => '08123456789' . $i
             ]);

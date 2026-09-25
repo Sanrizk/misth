@@ -1,6 +1,6 @@
-# 🌿 HydroFarm
+# 🌿 Misth
 
-HydroFarm adalah sistem manajemen terpadu untuk pertanian hidroponik (hydroponic farm management system) yang dirancang untuk memudahkan pemantauan siklus tanam, perawatan, kualitas air, hingga proses panen dan penjualan.
+Misth adalah sistem manajemen terpadu untuk pertanian hidroponik (hydroponic farm management system) yang dirancang untuk memudahkan pemantauan siklus tanam, perawatan, kualitas air, hingga proses panen dan penjualan.
 
 ![Laravel](https://img.shields.io/badge/Laravel-13.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
 ![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?style=for-the-badge&logo=php&logoColor=white)
@@ -56,8 +56,8 @@ Pastikan sistem Anda telah menginstal dependensi berikut sebelum memulai instala
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/username/hydrofarm.git
-cd hydrofarm
+git clone https://github.com/username/misth.git
+cd misth
 
 # 2. Install PHP dependencies
 composer install
@@ -75,7 +75,7 @@ php artisan key:generate
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=hydrofarm
+DB_DATABASE=misth
 DB_USERNAME=root
 DB_PASSWORD=
 
@@ -97,9 +97,9 @@ Setelah melakukan migrasi dan seeding, Anda dapat masuk menggunakan akun default
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | admin@hydrofarm.com | password |
-| Petani | petani1@hydrofarm.com | password |
-| Customer | customer@hydrofarm.com | password |
+| Admin | admin@misth.com | password |
+| Petani | petani1@misth.com | password |
+| Customer | customer@misth.com | password |
 
 ## Module List & Routes
 - Plant Types → `/plant-types`
