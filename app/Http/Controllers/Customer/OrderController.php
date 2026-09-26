@@ -14,18 +14,15 @@ class OrderController extends Controller
                         ->with('transactionDetails.product')
                         ->latest()
                         ->paginate(10);
-                        
-        $cartCount = collect(session('cart', []))->sum('quantity');
 
-        return view('store.orders', compact('transactions', 'cartCount'));
+        return view('store.orders', compact('transactions'));
     }
 
     public function show(Transaction $transaction)
     {
         abort_if($transaction->user_id !== Auth::id(), 403);
         $transaction->load('transactionDetails.product');
-        $cartCount = collect(session('cart', []))->sum('quantity');
         
-        return view('store.order-show', compact('transaction', 'cartCount'));
+        return view('store.order-show', compact('transaction'));
     }
 }

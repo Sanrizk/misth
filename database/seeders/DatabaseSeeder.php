@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder {
             ProductSeeder::class,
             TransactionSeeder::class,
             TransactionDetailSeeder::class,
+            CartSeeder::class,
         ]);
         DB::statement('SET FOREIGN_KEY_CHECKS=1');
     }

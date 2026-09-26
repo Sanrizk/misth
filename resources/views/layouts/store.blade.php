@@ -65,9 +65,14 @@
                 </ul>
                 <ul class="navbar-nav align-items-center">
                     <li class="nav-item me-3">
+                        @php
+                            $cartCount = Auth::check()
+                                ? optional(Auth::user()->cart)->cartItems()->count() ?? 0
+                                : 0;
+                        @endphp
                         <a href="{{ route('store.cart.index') }}" class="nav-link position-relative">
                             <i class="bi bi-cart3 fs-5"></i>
-                            @if(isset($cartCount) && $cartCount > 0)
+                            @if($cartCount > 0)
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                                     {{ $cartCount }}
                                 </span>

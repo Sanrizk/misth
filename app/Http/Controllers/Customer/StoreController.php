@@ -27,9 +27,8 @@ class StoreController extends Controller
 
         $products = $query->latest()->paginate(12);
         $plantTypes = PlantType::all();
-        $cartCount = collect(session('cart', []))->sum('quantity');
 
-        return view('store.index', compact('products', 'plantTypes', 'cartCount'));
+        return view('store.index', compact('products', 'plantTypes'));
     }
 
     public function show($id)
@@ -38,8 +37,6 @@ class StoreController extends Controller
                     ->where('status', 'available')
                     ->findOrFail($id);
 
-        $cartCount = collect(session('cart', []))->sum('quantity');
-
-        return view('store.product-show', compact('product', 'cartCount'));
+        return view('store.product-show', compact('product'));
     }
 }

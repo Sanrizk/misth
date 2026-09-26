@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cart;
 use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
@@ -14,14 +15,18 @@ class CheckoutController extends Controller
 {
     public function index()
     {
-        $cart = session('cart', []);
-        if (empty($cart)) return redirect()->route('store.cart.index');
+        $cart = Cart::getOrCreate(Auth::id());
+        $cart->load('cartItems.product');
 
-        $total = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
+        if ($cart->cartItems->isEmpty()) {
+            return redirect()->route('store.cart.index')
+                             ->with('error', 'Keranjang masih kosong.');
+        }
+
+        $total = $cart->total;
         $paymentMethods = ['Transfer Bank', 'COD', 'QRIS', 'Dompet Digital'];
-        $cartCount = collect($cart)->sum('quantity');
 
-        return view('store.checkout', compact('cart', 'total', 'paymentMethods', 'cartCount'));
+        return view('store.checkout', compact('cart', 'total', 'paymentMethods'));
     }
 
     public function store(Request $request)
@@ -30,42 +35,44 @@ class CheckoutController extends Controller
             'payment_method' => 'required|string',
         ]);
 
-        $cart = session('cart', []);
-        if (empty($cart)) return redirect()->route('store.index');
+        $cart = Cart::getOrCreate(Auth::id());
+        $cart->load('cartItems.product');
+
+        if ($cart->cartItems->isEmpty()) {
+            return redirect()->route('store.index');
+        }
 
         return DB::transaction(function () use ($request, $cart) {
-            foreach ($cart as $item) {
-                $product = Product::lockForUpdate()->findOrFail($item['product_id']);
-                if ($product->stock < $item['quantity']) {
-                    throw new \Exception("Stok {$product->name} tidak mencukupi.");
+            foreach ($cart->cartItems as $item) {
+                if ($item->product->stock < $item->quantity) {
+                    throw new \Exception("Stok {$item->product->name} tidak mencukupi.");
                 }
             }
 
-            $total = collect($cart)->sum(fn($i) => $i['price'] * $i['quantity']);
             $transaction = Transaction::create([
                 'user_id'        => Auth::id(),
                 'invoice_number' => 'INV-' . now()->format('YmdHis') . '-' . Auth::id(),
-                'total_amount'   => $total,
+                'total_amount'   => $cart->total,
                 'status'         => 'pending',
                 'payment_method' => $request->payment_method,
             ]);
 
-            foreach ($cart as $item) {
+            foreach ($cart->cartItems as $item) {
                 TransactionDetail::create([
                     'transaction_id' => $transaction->id,
-                    'product_id'     => $item['product_id'],
-                    'quantity'       => $item['quantity'],
-                    'subtotal'       => $item['price'] * $item['quantity'],
+                    'product_id'     => $item->product_id,
+                    'quantity'       => $item->quantity,
+                    'subtotal'       => $item->subtotal,
                 ]);
 
-                $product = Product::findOrFail($item['product_id']);
-                $product->decrement('stock', $item['quantity']);
+                $product = Product::findOrFail($item->product_id);
+                $product->decrement('stock', $item->quantity);
                 if ($product->stock <= 0) {
                     $product->update(['status' => 'out_of_stock']);
                 }
             }
 
-            session()->forget('cart');
+            $cart->cartItems()->delete();
 
             return redirect()->route('store.checkout.success', $transaction->id);
         });
@@ -75,7 +82,6 @@ class CheckoutController extends Controller
     {
         abort_if($transaction->user_id !== Auth::id(), 403);
         $transaction->load('transactionDetails.product');
-        $cartCount = collect(session('cart', []))->sum('quantity');
-        return view('store.checkout-success', compact('transaction', 'cartCount'));
+        return view('store.checkout-success', compact('transaction'));
     }
 }
