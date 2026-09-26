@@ -21,8 +21,12 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+            $role = Auth::user()->role->name;
 
-            return redirect()->intended('dashboard');
+            return match($role) {
+                'customer' => redirect()->route('store.index'),
+                default    => redirect()->route('dashboard'),
+            };
         }
 
         return back()->withErrors([

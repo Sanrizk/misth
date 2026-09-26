@@ -7,12 +7,17 @@ use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\Harvest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
     public function index()
     {
+        if (Auth::user()->role->name === 'customer') {
+            return redirect()->route('store.index');
+        }
+
         $activePlantings = Planting::where('status', 'in_progress')->count();
         $availableProducts = Product::where('status', 'available')->where('stock', '>', 0)->count();
         $transactionsToday = Transaction::whereDate('created_at', Carbon::today())->count();

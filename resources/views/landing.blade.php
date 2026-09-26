@@ -78,7 +78,21 @@
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 <ul class="navbar-nav align-items-center">
                     <li class="nav-item">
-                        <a href="{{ route('login') }}" class="btn btn-outline-light rounded-pill px-4 fw-medium">Masuk</a>
+                        @auth
+                            @if(Auth::user()->role->name === 'customer')
+                                <a href="{{ route('store.index') }}" class="btn btn-outline-light rounded-pill px-4 fw-medium">
+                                    <i class="bi bi-shop me-1"></i> Toko
+                                </a>
+                            @else
+                                <a href="{{ route('dashboard') }}" class="btn btn-outline-light rounded-pill px-4 fw-medium">
+                                    <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                                </a>
+                            @endif
+                        @else
+                            <a href="{{ route('login') }}" class="btn btn-outline-light rounded-pill px-4 fw-medium">
+                                <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                            </a>
+                        @endauth
                     </li>
                 </ul>
             </div>
@@ -101,9 +115,15 @@
                         <a href="#produk" class="btn btn-light text-success rounded-pill px-4 py-3 fw-bold shadow-sm">
                             Lihat Produk Kami
                         </a>
-                        <a href="{{ route('login') }}" class="btn btn-outline-light rounded-pill px-4 py-3 fw-bold">
-                            Masuk ke Akun
-                        </a>
+                        @auth
+                            <a href="{{ route('store.index') }}" class="btn btn-outline-light rounded-pill px-4 py-3 fw-bold">
+                                <i class="bi bi-shop me-2"></i> Mulai Belanja
+                            </a>
+                        @else
+                            <a href="{{ route('login') }}" class="btn btn-outline-light rounded-pill px-4 py-3 fw-bold">
+                                <i class="bi bi-box-arrow-in-right me-2"></i> Mulai Belanja
+                            </a>
+                        @endauth
                     </div>
                 </div>
             </div>
@@ -195,9 +215,15 @@
         <div class="container my-5">
             <h2 class="fw-bold mb-3">Siap Memesan Sayuran Segar?</h2>
             <p class="lead mb-4 opacity-75">Masuk ke akun Anda dan mulai berbelanja sayuran hidroponik berkualitas tinggi.</p>
-            <a href="{{ route('login') }}" class="btn btn-light text-success rounded-pill px-5 py-3 fw-bold shadow">
-                Masuk Sekarang <i class="bi bi-arrow-right ms-2"></i>
-            </a>
+            @auth
+                <a href="{{ route('store.index') }}" class="btn btn-light text-success rounded-pill px-5 py-3 fw-bold shadow">
+                    <i class="bi bi-shop me-2"></i> Ke Toko Sekarang
+                </a>
+            @else
+                <a href="{{ route('login') }}" class="btn btn-light text-success rounded-pill px-5 py-3 fw-bold shadow">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Login Sekarang
+                </a>
+            @endauth
         </div>
     </section>
 

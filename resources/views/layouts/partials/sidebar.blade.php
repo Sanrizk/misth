@@ -47,6 +47,7 @@
         </li>
         @endif
 
+        @if($role === 'admin' || $role === 'petani')
         <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}" href="{{ route('products.index') }}">
                 <i class="bi bi-shop me-2"></i> Produk
@@ -57,5 +58,19 @@
                 <i class="bi bi-receipt me-2"></i> Transaksi
             </a>
         </li>
+        @endif
+
+        @if($role === 'customer')
+        <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('store.index') ? 'active' : '' }}" href="{{ route('store.index') }}">
+                <i class="bi bi-shop me-2"></i> Toko
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('store.orders.*') ? 'active' : '' }}" href="{{ route('store.orders.index') }}">
+                <i class="bi bi-bag-check me-2"></i> Pesanan Saya
+            </a>
+        </li>
+        @endif
     </ul>
 </div>
