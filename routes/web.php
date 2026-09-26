@@ -12,9 +12,10 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MaterialUsageController;
+use App\Http\Controllers\LandingController;
 
 // Public routes
-Route::get('/', fn() => redirect()->route('login'));
+Route::get('/', [LandingController::class, 'index'])->name('landing');
 
 // Auth routes
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login')->middleware('guest');
