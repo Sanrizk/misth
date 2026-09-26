@@ -10,6 +10,8 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\MaterialUsageController;
 
 // Public routes
 Route::get('/', fn() => redirect()->route('login'));
@@ -33,6 +35,9 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('maintenance-logs', MaintenanceLogController::class)->except(['edit', 'update']);
         Route::resource('water-quality-logs', WaterQualityLogController::class)->except(['edit', 'update']);
         Route::resource('harvests', HarvestController::class)->except(['edit', 'update']);
+        Route::resource('materials', MaterialController::class);
+        Route::post('material-usages', [MaterialUsageController::class, 'store'])->name('material-usages.store');
+        Route::delete('material-usages/{materialUsage}', [MaterialUsageController::class, 'destroy'])->name('material-usages.destroy');
     });
 
     // Products — accessible by all roles

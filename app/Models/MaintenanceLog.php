@@ -30,4 +30,8 @@ class MaintenanceLog extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function materialUsages() {
+        return $this->hasMany(MaterialUsage::class, 'maintenance_log_id');
+    }
 }
