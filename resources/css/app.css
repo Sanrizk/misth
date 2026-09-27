@@ -1,3 +1,9 @@
+/* Import Bootstrap CSS */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+/* Import Bootstrap Icons */
+@import 'bootstrap-icons/font/bootstrap-icons.min.css';
+
 @import 'tailwindcss';
 
 @source '../views';
