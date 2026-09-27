@@ -21,28 +21,13 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('plantings.*') ? 'active' : '' }}" href="{{ route('plantings.index') }}">
-                <i class="bi bi-tree me-2"></i> Penanaman
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('maintenance-logs.*') ? 'active' : '' }}" href="{{ route('maintenance-logs.index') }}">
-                <i class="bi bi-clipboard-check me-2"></i> Perawatan
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('water-quality-logs.*') ? 'active' : '' }}" href="{{ route('water-quality-logs.index') }}">
-                <i class="bi bi-droplet-half me-2"></i> Kualitas Air
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('harvests.*') ? 'active' : '' }}" href="{{ route('harvests.index') }}">
-                <i class="bi bi-basket me-2"></i> Panen
-            </a>
-        </li>
-        <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('materials.*') ? 'active' : '' }}" href="{{ route('materials.index') }}">
                 <i class="bi bi-box-seam me-2"></i> Bahan
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('plantings.*') ? 'active' : '' }}" href="{{ route('plantings.index') }}">
+                <i class="bi bi-tree me-2"></i> Penanaman
             </a>
         </li>
         @endif

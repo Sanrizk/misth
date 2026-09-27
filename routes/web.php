@@ -33,9 +33,14 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('plant-types', PlantTypeController::class);
         Route::resource('plantings', PlantingController::class);
         Route::patch('plantings/{planting}/status', [PlantingController::class, 'updateStatus'])->name('plantings.updateStatus');
-        Route::resource('maintenance-logs', MaintenanceLogController::class)->except(['edit', 'update']);
-        Route::resource('water-quality-logs', WaterQualityLogController::class)->except(['edit', 'update']);
-        Route::resource('harvests', HarvestController::class)->except(['edit', 'update']);
+        Route::post('maintenance-logs', [MaintenanceLogController::class, 'store'])->name('maintenance-logs.store');
+        Route::delete('maintenance-logs/{maintenanceLog}', [MaintenanceLogController::class, 'destroy'])->name('maintenance-logs.destroy');
+
+        Route::post('water-quality-logs', [WaterQualityLogController::class, 'store'])->name('water-quality-logs.store');
+        Route::delete('water-quality-logs/{waterQualityLog}', [WaterQualityLogController::class, 'destroy'])->name('water-quality-logs.destroy');
+
+        Route::post('harvests', [HarvestController::class, 'store'])->name('harvests.store');
+        Route::delete('harvests/{harvest}', [HarvestController::class, 'destroy'])->name('harvests.destroy');
         Route::resource('materials', MaterialController::class);
         Route::post('material-usages', [MaterialUsageController::class, 'store'])->name('material-usages.store');
         Route::delete('material-usages/{materialUsage}', [MaterialUsageController::class, 'destroy'])->name('material-usages.destroy');
