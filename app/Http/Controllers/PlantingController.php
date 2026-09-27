@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Planting;
 use App\Models\PlantType;
 use App\Models\User;
+use App\Models\Material;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -15,10 +16,18 @@ class PlantingController extends Controller
      */
     public function index()
     {
-        $plantings = Planting::with(['plantType', 'user'])
-            ->orderByDesc('created_at')
-            ->paginate(10);
-        return view('plantings.index', compact('plantings'));
+        $plantings = Planting::with([
+            'plantType',
+            'user',
+            'maintenanceLogs.user',
+            'maintenanceLogs.materialUsages.material',
+            'waterQualityLogs',
+            'harvest',
+        ])->latest()->paginate(12);
+
+        $materials = Material::where('status', 'active')->get();
+
+        return view('plantings.index', compact('plantings', 'materials'));
     }
 
     /**
