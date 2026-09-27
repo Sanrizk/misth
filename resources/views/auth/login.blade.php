@@ -37,8 +37,8 @@
 
     <div class="card login-card p-4">
         <div class="text-center mb-4">
-            <h2 class="fw-bold text-success"><i class="bi bi-tree-fill"></i> HydroFarm</h2>
-            <p class="text-muted">Login to manage your farm</p>
+            <h2 class="fw-bold text-success"><i class="bi bi-tree-fill"></i> MISTH</h2>
+            <p class="text-muted">Manajemen Inventori Stok dan Transaski Hidroponik</p>
         </div>
 
         <form method="POST" action="{{ route('login') }}">
