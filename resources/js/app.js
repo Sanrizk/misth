@@ -1,2 +1,3 @@
-// Import Bootstrap JS (includes Popper)
-import 'bootstrap';
+import Alpine from 'alpinejs';
+window.Alpine = Alpine;
+Alpine.start();

@@ -1,31 +1,41 @@
-<nav class="navbar top-navbar fixed-top px-3 d-flex justify-content-between align-items-center">
-    <div class="d-flex align-items-center">
-        <button class="btn btn-outline-secondary d-lg-none me-3" id="sidebarToggle">
-            <i class="bi bi-list"></i>
+<div class="flex items-center justify-between px-6 h-16">
+
+    {{-- Sidebar toggle (mobile) --}}
+    <button @click="sidebarOpen = !sidebarOpen"
+            class="lg:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+    </button>
+
+    {{-- Page title --}}
+    <h1 class="text-base font-semibold text-gray-700 hidden lg:block">
+        @yield('title')
+    </h1>
+
+    {{-- Right: user dropdown --}}
+    <div class="relative" x-data="{ open: false }">
+        <button @click="open = !open"
+                class="flex items-center gap-2 text-sm text-gray-700 hover:text-green-700">
+            <div class="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-xs">
+                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+            </div>
+            <span class="hidden sm:block">{{ Auth::user()->name }}</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
         </button>
-        <h4 class="mb-0 fw-bold">@yield('titleDash', 'Dash')</h4>
-    </div>
-    
-    <div class="d-flex align-items-center">
-        <div class="dropdown">
-            <button class="btn btn-light dropdown-toggle d-flex align-items-center border-0 bg-transparent" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                @php
-                    $initials = collect(explode(' ', Auth::user()->name ?? 'U S'))->map(fn($n) => $n[0])->take(2)->join('');
-                @endphp
-                <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px; font-weight: bold;">
-                    {{ strtoupper($initials) }}
-                </div>
-                <span class="fw-medium">{{ Auth::user()->name ?? 'User' }}</span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                <li>
-                    <form action="{{ route('logout') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right me-2"></i> Logout</button>
-                    </form>
-                </li>
-            </ul>
+
+        <div x-show="open" @click.outside="open = false"
+             class="absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50"
+             x-transition>
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                    Keluar
+                </button>
+            </form>
         </div>
     </div>
-</nav>
 
+</div>
