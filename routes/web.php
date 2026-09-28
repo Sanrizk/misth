@@ -37,6 +37,17 @@ Route::middleware(['auth'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    // Admin: full CRUD
+    Route::middleware(['role:admin'])->group(function () {
+        Route::resource('users', \App\Http\Controllers\UserController::class)->except(['show', 'index']);
+    });
+
+    // Admin & Petani: view only
+    Route::middleware(['role:admin,petani'])->group(function () {
+        Route::get('users', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index');
+        Route::get('users/{user}', [\App\Http\Controllers\UserController::class, 'show'])->name('users.show');
+    });
+
     // Farm Management — accessible by admin & petani
     Route::middleware(['role:admin,petani'])->group(function () {
         Route::resource('plant-types', PlantTypeController::class);
