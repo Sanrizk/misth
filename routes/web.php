@@ -17,9 +17,18 @@ use App\Http\Controllers\LandingController;
 // Public routes
 Route::get('/', [LandingController::class, 'index'])->name('landing');
 
+use App\Http\Controllers\RegisterController;
+
 // Auth routes
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login')->middleware('guest');
-Route::post('/login', [AuthController::class, 'login'])->middleware('guest');
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+
+    // Customer registration
+    Route::get('/register', [RegisterController::class, 'show'])->name('register');
+    Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
+});
+
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Authenticated routes

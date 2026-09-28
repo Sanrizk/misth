@@ -67,6 +67,10 @@
                     Ke Toko
                 </a>
                 @else
+                <a href="{{ route('register') }}"
+                   class="bg-green-500 text-white font-bold px-8 py-3.5 rounded-xl hover:bg-green-400 transition">
+                    Daftar Gratis
+                </a>
                 <a href="{{ route('login') }}"
                    class="border-2 border-white text-white font-bold px-8 py-3.5 rounded-xl hover:bg-white/10 transition">
                     Masuk ke Akun

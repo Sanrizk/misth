@@ -51,6 +51,12 @@
             </button>
         </form>
 
+        {{-- Tambahkan setelah tombol submit --}}
+        <p class="text-center text-xs text-gray-400 mt-5">
+            Belum punya akun?
+            <a href="{{ route('register') }}" class="text-green-600 font-medium hover:underline">Daftar sekarang</a>
+        </p>
+
     </div>
 
 </body>
