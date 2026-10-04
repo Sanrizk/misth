@@ -1,5 +1,5 @@
 <?php
-
+// semangat
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PlantTypeController;
 use App\Http\Controllers\PlantingController;
