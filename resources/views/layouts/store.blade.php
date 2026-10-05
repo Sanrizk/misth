@@ -6,7 +6,7 @@
     <title>@yield('title') — Misth</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-gray-50 font-sans">
+<body class="bg-gray-50 font-sans flex flex-col min-h-screen">
 
     {{-- Navbar --}}
     <nav class="bg-white shadow-sm sticky top-0 z-10">
@@ -89,7 +89,7 @@
         </div>
     </nav>
 
-    <main class="max-w-6xl mx-auto px-4 py-6">
+    <main class="max-w-6xl w-full mx-auto px-4 py-6 flex-grow">
         @include('layouts.partials.flash')
         @yield('content')
     </main>
