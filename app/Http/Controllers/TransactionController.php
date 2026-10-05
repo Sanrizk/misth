@@ -141,4 +141,78 @@ class TransactionController extends Controller
         return redirect()->route('transactions.show', $transaction->id)
                          ->with('success', 'Status transaksi berhasil diperbarui.');
     }
+
+    public function findForScanner(Request $request)
+    {
+        $request->validate(['invoice_number' => 'required|string']);
+
+        $transaction = Transaction::with(['user', 'transactionDetails.product'])
+            ->where('invoice_number', $request->invoice_number)
+            ->first();
+
+        if (!$transaction) {
+            return response()->json(['found' => false, 'message' => 'Transaksi tidak ditemukan.']);
+        }
+
+        // Format data for frontend
+        $data = [
+            'id' => $transaction->id,
+            'invoice_number' => $transaction->invoice_number,
+            'status' => $transaction->status,
+            'total_formatted' => 'Rp ' . number_format($transaction->total_amount, 0, ',', '.'),
+            'created_at' => $transaction->created_at->format('d M Y H:i'),
+            'customer' => [
+                'name' => optional($transaction->user)->name,
+                'phone' => optional($transaction->user)->phone,
+            ],
+            'items' => $transaction->transactionDetails->map(function ($detail) {
+                return [
+                    'name' => optional($detail->product)->name,
+                    'quantity' => $detail->quantity,
+                    'subtotal' => 'Rp ' . number_format($detail->subtotal, 0, ',', '.'),
+                ];
+            }),
+        ];
+
+        return response()->json([
+            'found' => true,
+            'transaction' => $data,
+        ]);
+    }
+
+    public function confirmForScanner(Request $request, Transaction $transaction)
+    {
+        $request->validate(['status' => 'required|in:paid,cancelled']);
+
+        if ($transaction->status !== 'pending') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Status transaksi ini sudah tidak dapat diubah.',
+            ], 400);
+        }
+
+        if ($request->status === 'cancelled') {
+            DB::transaction(function () use ($transaction, $request) {
+                foreach ($transaction->transactionDetails as $detail) {
+                    $product = $detail->product;
+                    if ($product) {
+                        $product->increment('stock', $detail->quantity);
+                        if ($product->status === 'out_of_stock') {
+                            $product->update(['status' => 'available']);
+                        }
+                    }
+                }
+                $transaction->update(['status' => $request->status]);
+            });
+            $message = 'Pesanan berhasil dibatalkan.';
+        } else {
+            $transaction->update(['status' => 'paid']);
+            $message = 'Pembayaran berhasil dikonfirmasi.';
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+        ]);
+    }
 }
