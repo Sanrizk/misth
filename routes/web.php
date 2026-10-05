@@ -84,11 +84,14 @@ use App\Http\Controllers\Customer\CartController;
 use App\Http\Controllers\Customer\CheckoutController;
 use App\Http\Controllers\Customer\OrderController;
 
-Route::middleware(['auth', 'role:customer'])->prefix('store')->name('store.')->group(function () {
-    // Toko
+// Public Storefront (Bisa diakses guest dan semua role)
+Route::prefix('store')->name('store.')->group(function () {
     Route::get('/', [StoreController::class, 'index'])->name('index');
     Route::get('/product/{id}', [StoreController::class, 'show'])->name('product.show');
+});
 
+// Authenticated & Customer Only
+Route::middleware(['auth', 'role:customer'])->prefix('store')->name('store.')->group(function () {
     // Keranjang
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');

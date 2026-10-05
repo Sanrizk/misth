@@ -21,25 +21,39 @@
                    class="text-sm text-gray-600 hover:text-green-700 {{ request()->routeIs('store.index') ? 'font-semibold text-green-700' : '' }}">
                     Toko
                 </a>
-                <a href="{{ route('store.orders.index') }}"
-                   class="text-sm text-gray-600 hover:text-green-700 {{ request()->routeIs('store.orders.*') ? 'font-semibold text-green-700' : '' }}">
-                    Pesanan
-                </a>
 
-                {{-- Cart --}}
-                @php
-                    $cartCount = optional(Auth::user()->cart)->cartItems()->count() ?? 0;
-                @endphp
-                <a href="{{ route('store.cart.index') }}" class="relative p-2 text-gray-600 hover:text-green-700 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    @if($cartCount > 0)
-                    <span class="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
-                        {{ $cartCount }}
-                    </span>
+                @auth
+                    @if(in_array(Auth::user()->role->name, ['admin', 'petani']))
+                        <a href="{{ route('dashboard') }}" class="text-sm text-gray-600 hover:text-green-700">
+                            Dashboard
+                        </a>
                     @endif
-                </a>
+                    
+                    @if(Auth::user()->role->name === 'customer')
+                        <a href="{{ route('store.orders.index') }}"
+                           class="text-sm text-gray-600 hover:text-green-700 {{ request()->routeIs('store.orders.*') ? 'font-semibold text-green-700' : '' }}">
+                            Pesanan
+                        </a>
+                    @endif
+                @endauth
+
+                {{-- Cart (Show for Guest and Customer, hide for Admin/Petani) --}}
+                @if(!Auth::check() || Auth::user()->role->name === 'customer')
+                    @php
+                        $cartCount = Auth::check() && Auth::user()->cart ? Auth::user()->cart->cartItems()->count() : 0;
+                    @endphp
+                    <a href="{{ route('store.cart.index') }}" class="relative p-2 text-gray-600 hover:text-green-700 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        @if($cartCount > 0)
+                        <span class="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                            {{ $cartCount }}
+                        </span>
+                        @endif
+                    </a>
+                @endif
 
                 {{-- User dropdown --}}
+                @auth
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open"
                             class="flex items-center gap-2 text-sm text-gray-700 focus:outline-none">
@@ -65,6 +79,12 @@
                         </form>
                     </div>
                 </div>
+                @endauth
+
+                @guest
+                    <a href="{{ route('login') }}" class="text-sm font-semibold text-gray-700 hover:text-green-700">Masuk</a>
+                    <a href="{{ route('register') }}" class="text-sm font-semibold text-white bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700">Daftar</a>
+                @endguest
             </div>
         </div>
     </nav>
