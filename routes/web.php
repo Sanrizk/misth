@@ -64,6 +64,10 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('materials', MaterialController::class);
         Route::post('material-usages', [MaterialUsageController::class, 'store'])->name('material-usages.store');
         Route::delete('material-usages/{materialUsage}', [MaterialUsageController::class, 'destroy'])->name('material-usages.destroy');
+
+        Route::get('scanner', [\App\Http\Controllers\ScannerController::class, 'index'])->name('scanner.index');
+        Route::post('scanner/find', [\App\Http\Controllers\ScannerController::class, 'find'])->name('scanner.find');
+        Route::patch('scanner/confirm/{transaction}', [\App\Http\Controllers\ScannerController::class, 'confirm'])->name('scanner.confirm');
     });
 
     // Products — accessible by all roles
