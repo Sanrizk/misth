@@ -125,16 +125,21 @@
 </div>
 
 <div class="mt-8" x-show="showScannerInterface" x-cloak>
-<div class="max-w-lg mx-auto space-y-4">
+<div class="mx-auto transition-all duration-300" :class="transaction ? 'max-w-5xl' : 'max-w-lg'">
 
     {{-- Header --}}
-    <div class="text-center">
+    <div class="text-center mb-6">
         <h2 class="text-xl font-bold text-gray-800">Scanner Kasir</h2>
         <p class="text-sm text-gray-400 mt-1">Scan QR Code customer untuk konfirmasi pembayaran</p>
     </div>
 
-    {{-- Scanner Card --}}
-    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+    <div class="flex flex-col md:flex-row gap-6 items-start">
+        
+        {{-- Kolom Kiri: Scanner --}}
+        <div class="flex-1 w-full space-y-4">
+
+            {{-- Scanner Card --}}
+            <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
 
         {{-- Tab: Kamera / Upload / Manual --}}
         <div class="flex border-b border-gray-100">
@@ -260,8 +265,10 @@
         <p class="text-sm text-red-700" x-text="error"></p>
     </div>
 
-    {{-- Result Card --}}
-    <div x-show="transaction" x-cloak class="space-y-4">
+        </div> {{-- End Kolom Kiri --}}
+
+        {{-- Kolom Kanan: Result Card --}}
+        <div x-show="transaction" x-cloak class="flex-1 w-full space-y-4">
 
         {{-- Transaction Info --}}
         <div class="bg-white rounded-2xl shadow-sm p-5">
@@ -385,11 +392,12 @@
             </button>
         </div>
 
-    </div>
+    </div> {{-- End Kolom Kanan --}}
 
-</div>
-</div>
-</div>
+    </div> {{-- End Grid --}}
+</div> {{-- End mx-auto --}}
+</div> {{-- End showScannerInterface --}}
+</div> {{-- End x-data --}}
 
 @endsection
 
