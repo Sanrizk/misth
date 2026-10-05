@@ -45,6 +45,26 @@
     </div>
 
     <div class="lg:col-span-1">
+
+        @if($transaction->status === 'pending')
+        <div class="bg-white rounded-2xl shadow-sm p-6 mb-4 text-center"
+             x-data="qrPayment('{{ $transaction->invoice_number }}')">
+            <h3 class="text-sm font-semibold text-gray-700 mb-4">QR Code Pembayaran</h3>
+            <div class="flex flex-col items-center">
+                <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 mb-3">
+                    <canvas x-ref="canvas" class="w-40 h-40"></canvas>
+                </div>
+                <p class="font-mono text-xs font-bold text-gray-600 bg-gray-100 px-3 py-1.5 rounded-lg">
+                    {{ $transaction->invoice_number }}
+                </p>
+                <button @click="downloadQR()"
+                        class="mt-2 text-xs text-green-600 hover:underline">
+                    Unduh QR Code
+                </button>
+            </div>
+        </div>
+        @endif
+
         <div class="bg-white rounded-2xl shadow-sm p-6 sticky top-24">
             <h5 class="font-bold text-gray-800 mb-6">Info Transaksi</h5>
             
@@ -82,11 +102,14 @@
                 </div>
 
                 <div>
-                    <span class="block text-gray-500 mb-1">Metode Pembayaran</span>
-                    <span class="font-medium text-gray-800 flex items-center gap-1.5">
-                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                        {{ $transaction->payment_method ?? '-' }}
-                    </span>
+                    <p class="text-xs text-gray-400">Metode Bayar</p>
+                    <p class="text-sm font-medium text-gray-700 flex items-center gap-1 mt-1">
+                        <svg class="w-3.5 h-3.5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        Bayar di Tempat (COD)
+                    </p>
                 </div>
             </div>
             
@@ -100,4 +123,43 @@
     </div>
 </div>
 
+@endsection
+
+@section('scripts')
+<script>
+function qrPayment(invoiceNumber) {
+    return {
+        init() {
+            this.$nextTick(() => {
+                QRCode.toCanvas(this.$refs.canvas, invoiceNumber, {
+                    width: 160,
+                    margin: 2,
+                    color: {
+                        dark: '#166534',
+                        light: '#f9fafb'
+                    }
+                }, (error) => {
+                    if (error) console.error('QR Error:', error);
+                });
+            });
+        },
+        downloadQR() {
+            QRCode.toDataURL(invoiceNumber, {
+                width: 400,
+                margin: 2,
+                color: {
+                    dark: '#166534',
+                    light: '#ffffff'
+                }
+            }, (error, url) => {
+                if (error) return;
+                const link = document.createElement('a');
+                link.download = `QR-${invoiceNumber}.png`;
+                link.href = url;
+                link.click();
+            });
+        }
+    }
+}
+</script>
 @endsection

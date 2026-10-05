@@ -1,89 +1,95 @@
 @extends('layouts.store')
-@section('title', 'Checkout - Toko Misth')
+@section('title', 'Checkout')
 @section('content')
 
-<h2 class="text-2xl font-bold text-gray-800 mb-6">Checkout</h2>
+<div class="max-w-2xl mx-auto space-y-4">
 
-<form action="{{ route('store.checkout.store') }}" method="POST">
-    @csrf
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        <div class="lg:col-span-7">
-            <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
-                <h5 class="font-bold text-gray-800 mb-4">Ringkasan Pesanan</h5>
-                <div class="divide-y divide-gray-100">
-                    @foreach($cart->cartItems as $item)
-                        <div class="py-4 flex justify-between items-center">
-                            <div class="flex items-center gap-4">
-                                @if(optional($item->product)->image_url)
-                                    <img src="{{ optional($item->product)->image_url }}" alt="{{ optional($item->product)->name }}" class="w-14 h-14 rounded-lg object-cover">
-                                @else
-                                    <div class="w-14 h-14 rounded-lg bg-green-50 flex items-center justify-center">
-                                        <svg class="w-6 h-6 text-green-500 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                    </div>
-                                @endif
-                                <div>
-                                    <h6 class="font-bold text-gray-800">{{ optional($item->product)->name }}</h6>
-                                    <p class="text-xs text-gray-500">{{ $item->quantity }} x Rp {{ number_format(optional($item->product)->price, 0, ',', '.') }}</p>
-                                </div>
-                            </div>
-                            <div class="font-bold text-gray-800">
-                                Rp {{ number_format($item->subtotal, 0, ',', '.') }}
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
+    <h2 class="text-lg font-semibold text-gray-700">Konfirmasi Pesanan</h2>
 
-            <div class="bg-white rounded-2xl shadow-sm p-6">
-                <h5 class="font-bold text-gray-800 mb-4">Metode Pembayaran</h5>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    @foreach($paymentMethods as $index => $method)
-                        <label class="relative flex items-center p-4 cursor-pointer border rounded-xl hover:bg-green-50 hover:border-green-200 transition {{ old('payment_method') == $method ? 'border-green-500 bg-green-50 ring-1 ring-green-500' : 'border-gray-200 bg-white' }}">
-                            <input type="radio" name="payment_method" value="{{ $method }}" required {{ old('payment_method') == $method ? 'checked' : '' }}
-                                   class="h-4 w-4 text-green-600 border-gray-300 focus:ring-green-500 mr-3">
-                            <span class="font-medium text-gray-800 text-sm">
-                                {{ $method }}
-                            </span>
-                        </label>
-                    @endforeach
-                </div>
-                @error('payment_method')
-                    <p class="text-xs text-red-500 mt-2">{{ $message }}</p>
-                @enderror
-            </div>
+    {{-- Order Summary --}}
+    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-700">Item Pesanan</h3>
         </div>
-
-        <div class="lg:col-span-5">
-            <div class="bg-white rounded-2xl shadow-sm p-6 sticky top-24">
-                <h5 class="font-bold text-gray-800 mb-6">Total Pembayaran</h5>
-                
-                <div class="flex justify-between text-sm text-gray-500 mb-3">
-                    <span>Subtotal ({{ $cart->cartItems->count() }} Produk)</span>
-                    <span class="font-medium text-gray-800">Rp {{ number_format($total, 0, ',', '.') }}</span>
+        <div class="divide-y divide-gray-50">
+            @foreach($cart->cartItems as $item)
+            <div class="flex justify-between items-center px-6 py-3">
+                <div>
+                    <p class="text-sm font-medium text-gray-700">{{ optional($item->product)->name }}</p>
+                    <p class="text-xs text-gray-400">× {{ $item->quantity }}</p>
                 </div>
-                <div class="flex justify-between text-sm text-gray-500 mb-4 border-b border-gray-100 pb-4">
-                    <span>Biaya Pengiriman</span>
-                    <span class="font-medium text-green-600">Gratis</span>
-                </div>
-                
-                <div class="flex justify-between items-center mb-6">
-                    <span class="font-bold text-gray-800">Total Bayar</span>
-                    <span class="text-2xl font-bold text-green-600">Rp {{ number_format($total, 0, ',', '.') }}</span>
-                </div>
-                
-                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-xl transition flex justify-center items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                    Bayar Sekarang
-                </button>
-                
-                <p class="text-center text-xs text-gray-400 mt-4 leading-relaxed">
-                    Dengan menekan tombol bayar, Anda menyetujui syarat & ketentuan yang berlaku.
+                <p class="text-sm font-semibold text-gray-800">
+                    Rp {{ number_format($item->subtotal, 0, ',', '.') }}
                 </p>
             </div>
+            @endforeach
         </div>
-
+        <div class="px-6 py-4 border-t border-gray-100 flex justify-between items-center">
+            <span class="font-semibold text-gray-700">Total</span>
+            <span class="text-lg font-bold text-green-700">
+                Rp {{ number_format($total, 0, ',', '.') }}
+            </span>
+        </div>
     </div>
-</form>
+
+    {{-- Metode Pembayaran: COD only --}}
+    <div class="bg-white rounded-2xl shadow-sm p-5">
+        <h3 class="text-sm font-semibold text-gray-700 mb-3">Metode Pembayaran</h3>
+        <div class="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+            <div class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm font-semibold text-green-800">Bayar di Tempat (COD)</p>
+                <p class="text-xs text-green-600">Tunjukkan QR Code kepada kasir saat pengambilan barang</p>
+            </div>
+            <div class="ml-auto">
+                <div class="w-5 h-5 bg-green-600 rounded-full flex items-center justify-center">
+                    <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Info Pengambilan --}}
+    <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4">
+        <div class="flex gap-3">
+            <svg class="w-5 h-5 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <div class="text-xs text-blue-700 space-y-1">
+                <p class="font-semibold">Cara Pengambilan:</p>
+                <ol class="list-decimal list-inside space-y-0.5 text-blue-600">
+                    <li>Buat pesanan dan dapatkan QR Code</li>
+                    <li>Datang ke lokasi kebun Misth</li>
+                    <li>Tunjukkan QR Code kepada kasir</li>
+                    <li>Kasir scan QR dan konfirmasi pembayaran</li>
+                    <li>Ambil barang Anda</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    {{-- Submit --}}
+    <form action="{{ route('store.checkout.store') }}" method="POST">
+        @csrf
+        <button type="submit"
+                class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-2xl text-sm transition">
+            Buat Pesanan & Dapatkan QR Code
+        </button>
+    </form>
+
+    <a href="{{ route('store.cart.index') }}"
+       class="block text-center text-sm text-gray-400 hover:text-gray-600">
+        ← Kembali ke Keranjang
+    </a>
+
+</div>
 
 @endsection

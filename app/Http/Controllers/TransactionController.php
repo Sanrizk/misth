@@ -11,9 +11,20 @@ use Illuminate\Support\Facades\Auth;
 
 class TransactionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $transactions = Transaction::with(['user', 'transactionDetails.product'])->paginate(10);
+        $query = Transaction::with(['user', 'transactionDetails.product'])->latest();
+
+        if ($request->search) {
+            $query->where('invoice_number', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->status) {
+            $query->where('status', $request->status);
+        }
+
+        $transactions = $query->paginate(10);
+
         return view('transactions.index', compact('transactions'));
     }
 
@@ -103,16 +114,31 @@ class TransactionController extends Controller
         }
     }
 
-    public function updateStatus(Request $request, $id)
+    public function updateStatus(Request $request, Transaction $transaction)
     {
         $request->validate([
-            'status' => 'required|in:pending,paid,shipping,completed,cancelled'
+            'status' => 'required|in:pending,paid,shipping,completed,cancelled',
         ]);
 
-        $transaction = Transaction::findOrFail($id);
-        $transaction->status = $request->status;
-        $transaction->save();
+        // Jika dibatalkan dari paid, kembalikan stok
+        if ($request->status === 'cancelled' && $transaction->status !== 'cancelled') {
+            DB::transaction(function () use ($transaction, $request) {
+                foreach ($transaction->transactionDetails as $detail) {
+                    $product = $detail->product;
+                    if ($product) {
+                        $product->increment('stock', $detail->quantity);
+                        if ($product->status === 'out_of_stock') {
+                            $product->update(['status' => 'available']);
+                        }
+                    }
+                }
+                $transaction->update(['status' => $request->status]);
+            });
+        } else {
+            $transaction->update(['status' => $request->status]);
+        }
 
-        return redirect()->route('transactions.show', $transaction->id)->with('success', 'Status transaksi berhasil diperbarui.');
+        return redirect()->route('transactions.show', $transaction->id)
+                         ->with('success', 'Status transaksi berhasil diperbarui.');
     }
 }

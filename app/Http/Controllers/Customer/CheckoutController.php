@@ -24,17 +24,12 @@ class CheckoutController extends Controller
         }
 
         $total = $cart->total;
-        $paymentMethods = ['Transfer Bank', 'COD', 'QRIS', 'Dompet Digital'];
 
-        return view('store.checkout', compact('cart', 'total', 'paymentMethods'));
+        return view('store.checkout', compact('cart', 'total'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'payment_method' => 'required|string',
-        ]);
-
         $cart = Cart::getOrCreate(Auth::id());
         $cart->load('cartItems.product');
 
@@ -42,7 +37,7 @@ class CheckoutController extends Controller
             return redirect()->route('store.index');
         }
 
-        return DB::transaction(function () use ($request, $cart) {
+        DB::transaction(function () use ($cart) {
             foreach ($cart->cartItems as $item) {
                 if ($item->product->stock < $item->quantity) {
                     throw new \Exception("Stok {$item->product->name} tidak mencukupi.");
@@ -54,7 +49,7 @@ class CheckoutController extends Controller
                 'invoice_number' => 'INV-' . now()->format('YmdHis') . '-' . Auth::id(),
                 'total_amount'   => $cart->total,
                 'status'         => 'pending',
-                'payment_method' => $request->payment_method,
+                'payment_method' => 'COD', // hardcoded
             ]);
 
             foreach ($cart->cartItems as $item) {
@@ -65,17 +60,19 @@ class CheckoutController extends Controller
                     'subtotal'       => $item->subtotal,
                 ]);
 
-                $product = Product::findOrFail($item->product_id);
-                $product->decrement('stock', $item->quantity);
-                if ($product->stock <= 0) {
-                    $product->update(['status' => 'out_of_stock']);
+                $item->product->decrement('stock', $item->quantity);
+                if ($item->product->stock <= 0) {
+                    $item->product->update(['status' => 'out_of_stock']);
                 }
             }
 
             $cart->cartItems()->delete();
-
-            return redirect()->route('store.checkout.success', $transaction->id);
         });
+
+        $transaction = Transaction::where('user_id', Auth::id())->latest()->first();
+
+        return redirect()->route('store.checkout.success', $transaction->id)
+                         ->with('success', 'Pesanan berhasil dibuat!');
     }
 
     public function success(Transaction $transaction)
