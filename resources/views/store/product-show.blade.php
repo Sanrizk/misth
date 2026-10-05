@@ -33,7 +33,7 @@
                 </div>
                 
                 <h1 class="text-2xl font-bold text-gray-800 mb-2">{{ $product->name }}</h1>
-                <h2 class="text-3xl font-bold text-green-600 mb-6">Rp {{ number_format($product->price, 0, ',', '.') }}</h2>
+                <h2 class="text-3xl font-bold text-green-600 mb-6">Rp {{ number_format($product->price, 0, ',', '.') }} <span class="text-xl font-normal text-gray-500">/ {{ optional($product->harvest)->unit ?? 'pcs' }}</span></h2>
                 
                 <div class="mb-6">
                     <h5 class="text-sm font-semibold text-gray-800 mb-2">Deskripsi Produk</h5>
@@ -43,7 +43,7 @@
                 <div class="mb-6 p-4 bg-gray-50 rounded-xl flex items-center gap-6">
                     <div>
                         <span class="block text-xs text-gray-500 mb-1">Stok Tersedia</span>
-                        <span class="text-xl font-bold text-gray-800">{{ $product->stock }} <span class="text-sm font-normal text-gray-500">Unit</span></span>
+                        <span class="text-xl font-bold text-gray-800">{{ $product->stock }} <span class="text-sm font-normal text-gray-500">{{ optional($product->harvest)->unit ?? 'pcs' }}</span></span>
                     </div>
                     <div class="border-l border-gray-200 pl-6">
                         <span class="block text-xs text-gray-500 mb-1">Status</span>

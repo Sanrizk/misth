@@ -49,9 +49,9 @@
                 </p>
                 
                 <div class="mt-auto">
-                    <h4 class="text-xl font-bold text-green-700 mb-2">Rp {{ number_format($product->price, 0, ',', '.') }}</h4>
+                    <h4 class="text-xl font-bold text-green-700 mb-2">Rp {{ number_format($product->price, 0, ',', '.') }} <span class="text-sm font-normal text-gray-500">/ {{ optional($product->harvest)->unit ?? 'pcs' }}</span></h4>
                     <div class="mb-3">
-                        <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium">Sisa: {{ $product->stock }}</span>
+                        <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium">Sisa: {{ $product->stock }} {{ optional($product->harvest)->unit ?? 'pcs' }}</span>
                     </div>
                     
                     <div class="flex flex-col gap-2">
