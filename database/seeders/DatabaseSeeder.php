@@ -12,6 +12,8 @@ class DatabaseSeeder extends Seeder {
             PlantTypeSeeder::class,
             PlantingSeeder::class,
             MaterialSeeder::class,
+            SupplierSeeder::class,
+            PurchaseSeeder::class,
             MaintenanceLogSeeder::class,
             MaterialUsageSeeder::class,
             WaterQualityLogSeeder::class,

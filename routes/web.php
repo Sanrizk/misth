@@ -13,6 +13,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MaterialUsageController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\PurchaseController;
 
 // Public routes
 Route::get('/', [LandingController::class, 'index'])->name('landing');
@@ -68,6 +70,10 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('materials', MaterialController::class);
         Route::post('material-usages', [MaterialUsageController::class, 'store'])->name('material-usages.store');
         Route::delete('material-usages/{materialUsage}', [MaterialUsageController::class, 'destroy'])->name('material-usages.destroy');
+
+        Route::resource('suppliers', SupplierController::class);
+        Route::resource('purchases', PurchaseController::class)->except(['create', 'edit', 'update']);
+        Route::patch('purchases/{purchase}/status', [PurchaseController::class, 'updateStatus'])->name('purchases.updateStatus');
 
         // Reports
         Route::prefix('reports')->name('reports.')->group(function () {
