@@ -34,6 +34,10 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Authenticated routes
 Route::middleware(['auth'])->group(function () {
 
+    // Profile
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'index'])->name('profile');
+    Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
