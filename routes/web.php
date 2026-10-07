@@ -69,6 +69,15 @@ Route::middleware(['auth'])->group(function () {
         Route::post('material-usages', [MaterialUsageController::class, 'store'])->name('material-usages.store');
         Route::delete('material-usages/{materialUsage}', [MaterialUsageController::class, 'destroy'])->name('material-usages.destroy');
 
+        // Reports
+        Route::prefix('reports')->name('reports.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\ReportController::class, 'index'])->name('index');
+            Route::get('/plantings', [\App\Http\Controllers\ReportController::class, 'plantingReport'])->name('plantings');
+            Route::get('/harvests', [\App\Http\Controllers\ReportController::class, 'harvestReport'])->name('harvests');
+            Route::get('/transactions', [\App\Http\Controllers\ReportController::class, 'transactionReport'])->name('transactions');
+            Route::get('/materials', [\App\Http\Controllers\ReportController::class, 'materialReport'])->name('materials');
+        });
+
         // (Scanner endpoints moved to TransactionController)
         Route::post('transactions/scanner/find', [TransactionController::class, 'findForScanner'])->name('transactions.scanner.find');
         Route::patch('transactions/scanner/confirm/{transaction}', [TransactionController::class, 'confirmForScanner'])->name('transactions.scanner.confirm');
