@@ -80,7 +80,7 @@
                 </a>
                 <form action="{{ route('plantings.destroy', $planting->id) }}" method="POST" class="w-full">
                     @csrf @method('DELETE')
-                    <button onclick="return confirm('Yakin hapus?')"
+                    <button @click.prevent="$dispatch('confirm', { message: 'Yakin hapus?', onConfirm: () => $el.closest('form') ? $el.closest('form').submit() : null })"
                             class="w-full flex flex-col items-center py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition text-xs">
                         <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         Hapus
@@ -112,7 +112,7 @@
         {{-- MODAL PERAWATAN --}}
         <template x-teleport="body">
         <div x-cloak x-show="showPerawatan" x-transition x-init="$watch('showPerawatan', val => document.body.style.overflow = val ? 'hidden' : '')"
-             class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+             class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
              @click.self="showPerawatan = false">
             <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
                 <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
@@ -199,7 +199,7 @@
                             </div>
                             <form action="{{ route('maintenance-logs.destroy', $log->id) }}" method="POST">
                                 @csrf @method('DELETE')
-                                <button onclick="return confirm('Hapus?')"
+                                <button @click.prevent="$dispatch('confirm', { message: 'Hapus?', onConfirm: () => $el.closest('form') ? $el.closest('form').submit() : null })"
                                         class="text-red-400 hover:text-red-600 p-1">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                 </button>
@@ -218,7 +218,7 @@
         {{-- MODAL KUALITAS AIR --}}
         <template x-teleport="body">
         <div x-cloak x-show="showKualitasAir" x-transition x-init="$watch('showKualitasAir', val => document.body.style.overflow = val ? 'hidden' : '')"
-             class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+             class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
              @click.self="showKualitasAir = false">
             <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
                 <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
@@ -297,7 +297,7 @@
                             </div>
                             <form action="{{ route('water-quality-logs.destroy', $log->id) }}" method="POST">
                                 @csrf @method('DELETE')
-                                <button onclick="return confirm('Hapus?')"
+                                <button @click.prevent="$dispatch('confirm', { message: 'Hapus?', onConfirm: () => $el.closest('form') ? $el.closest('form').submit() : null })"
                                         class="text-red-400 hover:text-red-600 p-1">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                 </button>
@@ -316,7 +316,7 @@
         {{-- MODAL PANEN --}}
         <template x-teleport="body">
         <div x-cloak x-show="showPanen" x-transition x-init="$watch('showPanen', val => document.body.style.overflow = val ? 'hidden' : '')"
-             class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+             class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
              @click.self="showPanen = false">
             <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
                 <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
@@ -437,7 +437,7 @@
     {{-- MODAL TAMBAH PENANAMAN --}}
     <template x-teleport="body">
         <div x-cloak x-show="showAddModal" x-transition x-init="$watch('showAddModal', val => document.body.style.overflow = val ? 'hidden' : '')"
-             class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+             class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
              @click.self="showAddModal = false">
             <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl flex flex-col">
                 <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">

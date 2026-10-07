@@ -98,6 +98,7 @@
 
     <main class="max-w-6xl w-full mx-auto px-4 py-6 flex-grow">
         @include('layouts.partials.flash')
+        @include('layouts.partials.confirm-dialog')
         @yield('content')
     </main>
 

@@ -67,7 +67,7 @@
                 @csrf @method('PATCH')
                 <input type="hidden" name="status" value="paid">
                 <button type="submit"
-                        onclick="return confirm('Konfirmasi pembayaran dari {{ optional($transaction->user)->name }}? Total: Rp {{ number_format($transaction->total_amount, 0, \',\', \'.\') }}')"
+                        @click.prevent="$dispatch('confirm', { message: 'Konfirmasi pembayaran dari {{ optional($transaction->user)->name }}? Total: Rp {{ number_format($transaction->total_amount, 0, \\',\\', \\'.\\') }}', onConfirm: () => $el.closest('form') ? $el.closest('form').submit() : null })"
                         class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl text-sm transition flex items-center justify-center gap-2">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -81,7 +81,7 @@
                 @csrf @method('PATCH')
                 <input type="hidden" name="status" value="cancelled">
                 <button type="submit"
-                        onclick="return confirm('Batalkan pesanan ini? Stok produk akan dikembalikan.')"
+                        @click.prevent="$dispatch('confirm', { message: 'Batalkan pesanan ini? Stok produk akan dikembalikan.', onConfirm: () => $el.closest('form') ? $el.closest('form').submit() : null })"
                         class="w-full bg-red-50 hover:bg-red-100 text-red-700 font-semibold py-3 rounded-xl text-sm transition border border-red-200 flex items-center justify-center gap-2">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>

@@ -43,7 +43,7 @@
                             </a>
                             <form action="{{ route('plant-types.destroy', $plantType->id) }}" method="POST">
                                 @csrf @method('DELETE')
-                                <button onclick="return confirm('Yakin hapus?')"
+                                <button @click.prevent="$dispatch('confirm', { message: 'Yakin hapus?', onConfirm: () => $el.closest('form') ? $el.closest('form').submit() : null })"
                                         class="text-xs px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition">
                                     Hapus
                                 </button>

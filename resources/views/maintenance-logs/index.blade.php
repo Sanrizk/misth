@@ -39,7 +39,7 @@
                             <form action="{{ route('maintenance-logs.destroy', $log->id) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button onclick="return confirm('Yakin hapus?')" class="btn btn-sm btn-danger">Delete</button>
+                                <button @click.prevent="$dispatch('confirm', { message: 'Yakin hapus?', onConfirm: () => $el.closest('form') ? $el.closest('form').submit() : null })" class="btn btn-sm btn-danger">Delete</button>
                             </form>
                         </td>
                     </tr>

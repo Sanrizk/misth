@@ -100,7 +100,7 @@
                             <td class="py-3 px-4 font-semibold text-red-600">-{{ $usage->quantity_used }} {{ $material->unit }}</td>
                             <td class="py-3 px-4 text-gray-500">{{ $usage->notes ?: '-' }}</td>
                             <td class="py-3 px-4">
-                                <form action="{{ route('material-usages.destroy', $usage->id) }}" method="POST" onsubmit="return confirm('Hapus riwayat pemakaian dan kembalikan stok?');">
+                                <form action="{{ route('material-usages.destroy', $usage->id) }}" method="POST" @submit.prevent="$dispatch('confirm', { message: 'Hapus riwayat pemakaian dan kembalikan stok?', onConfirm: () => $el.submit() })">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="p-1.5 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition" title="Hapus Pemakaian">

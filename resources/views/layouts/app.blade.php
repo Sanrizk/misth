@@ -33,6 +33,7 @@
         {{-- Content --}}
         <main class="flex-1 p-6">
             @include('layouts.partials.flash')
+            @include('layouts.partials.confirm-dialog')
             @yield('content')
         </main>
 

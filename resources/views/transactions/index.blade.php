@@ -515,38 +515,46 @@ function scannerApp() {
             }
         },
 
-        async confirmTransaction(status) {
-            if (!confirm(status === 'paid'
+        confirmTransaction(status) {
+            const message = status === 'paid' 
                 ? `Konfirmasi pembayaran ${this.transaction.total_formatted} dari ${this.transaction.customer.name}?`
-                : 'Batalkan pesanan ini? Stok akan dikembalikan.')) return;
+                : 'Batalkan pesanan ini? Stok akan dikembalikan.';
+                
+            window.dispatchEvent(new CustomEvent('confirm', {
+                detail: {
+                    title: 'Konfirmasi Transaksi',
+                    message: message,
+                    type: status === 'paid' ? 'info' : 'warning',
+                    onConfirm: async () => {
+                        this.confirming = true;
+                        try {
+                            const response = await fetch(`/transactions/scanner/confirm/${this.transaction.id}`, {
+                                method: 'PATCH',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                },
+                                body: JSON.stringify({ status }),
+                            });
 
-            this.confirming = true;
+                            const data = await response.json();
 
-            try {
-                const response = await fetch(`/transactions/scanner/confirm/${this.transaction.id}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    },
-                    body: JSON.stringify({ status }),
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    this.confirmed = true;
-                    this.confirmedStatus = status;
-                    this.confirmedMessage = data.message;
-                    this.transaction.status = status;
-                } else {
-                    this.error = data.message;
+                            if (data.success) {
+                                this.confirmed = true;
+                                this.confirmedStatus = status;
+                                this.confirmedMessage = data.message;
+                                this.transaction.status = status;
+                            } else {
+                                this.error = data.message;
+                            }
+                        } catch (err) {
+                            this.error = 'Gagal memproses konfirmasi.';
+                        } finally {
+                            this.confirming = false;
+                        }
+                    }
                 }
-            } catch (err) {
-                this.error = 'Gagal memproses konfirmasi.';
-            } finally {
-                this.confirming = false;
-            }
+            }));
         },
 
         statusMessage() {

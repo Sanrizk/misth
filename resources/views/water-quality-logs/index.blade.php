@@ -48,7 +48,7 @@
                     <td>{{ $log->notes }}</td>
                     <td>
                         <a href="{{ route('water-quality-logs.show', $log->id) }}" class="btn btn-info btn-sm">Show</a>
-                        <form action="{{ route('water-quality-logs.destroy', $log->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
+                        <form action="{{ route('water-quality-logs.destroy', $log->id) }}" method="POST" class="d-inline" @submit.prevent="$dispatch('confirm', { message: 'Apakah Anda yakin ingin menghapus data ini?', onConfirm: () => $el.submit() })">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger btn-sm">Delete</button>
