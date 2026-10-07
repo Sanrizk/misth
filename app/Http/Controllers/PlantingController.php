@@ -26,8 +26,10 @@ class PlantingController extends Controller
         ])->latest()->paginate(12);
 
         $materials = Material::where('status', 'active')->get();
+        $plantTypes = PlantType::all();
+        $users = User::whereHas('role', fn($q) => $q->where('name', 'petani'))->get();
 
-        return view('plantings.index', compact('plantings', 'materials'));
+        return view('plantings.index', compact('plantings', 'materials', 'plantTypes', 'users'));
     }
 
     /**
@@ -35,9 +37,7 @@ class PlantingController extends Controller
      */
     public function create()
     {
-        $plantTypes = PlantType::all();
-        $users = User::whereHas('role', fn($q) => $q->where('name', 'petani'))->get();
-        return view('plantings.create', compact('plantTypes', 'users'));
+        return redirect()->route('plantings.index');
     }
 
     /**

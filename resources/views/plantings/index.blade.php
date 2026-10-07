@@ -2,12 +2,14 @@
 @section('title', 'Penanaman')
 @section('content')
 
+<div x-data="{ showAddModal: false, addStep: 1, selectedPlantType: '', setPlantType(id) { this.selectedPlantType = id; this.addStep = 2; } }">
+
 <div class="flex justify-between items-center mb-6">
     <h2 class="text-lg font-semibold text-gray-700">Penanaman</h2>
-    <a href="{{ route('plantings.create') }}"
+    <button @click="showAddModal = true; addStep = 1; selectedPlantType = '';"
        class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition">
         + Tambah
-    </a>
+    </button>
 </div>
 
 <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -422,7 +424,7 @@
     <div class="col-span-4 text-center py-16 text-gray-400">
         <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
         <p class="text-sm">Belum ada data penanaman.</p>
-        <a href="{{ route('plantings.create') }}" class="text-green-600 text-sm hover:underline mt-1 inline-block">Tambah sekarang</a>
+        <button @click="showAddModal = true; addStep = 1; selectedPlantType = '';" class="text-green-600 text-sm hover:underline mt-1 inline-block">Tambah sekarang</button>
     </div>
     @endforelse
 </div>
@@ -432,6 +434,93 @@
     {{ $plantings->links('pagination::tailwind') }}
 </div>
 
+    {{-- MODAL TAMBAH PENANAMAN --}}
+    <template x-teleport="body">
+        <div x-cloak x-show="showAddModal" x-transition x-init="$watch('showAddModal', val => document.body.style.overflow = val ? 'hidden' : '')"
+             class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+             @click.self="showAddModal = false">
+            <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl flex flex-col">
+                <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
+                    <h3 class="font-semibold text-gray-700 text-sm">
+                        Tambah Penanaman
+                    </h3>
+                    <button @click="showAddModal = false" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <div class="p-5 overflow-y-auto">
+                    
+                    {{-- Form Steps --}}
+                    <form action="{{ route('plantings.store') }}" method="POST">
+                        @csrf
+                        
+                        {{-- Step 1: Plant Type Selection --}}
+                        <div x-show="addStep === 1" x-transition>
+                            <p class="text-sm text-gray-500 mb-4">Pilih jenis tanaman yang akan ditanam:</p>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                @foreach($plantTypes as $type)
+                                <div @click="setPlantType('{{ $type->id }}')" 
+                                     class="cursor-pointer border-2 rounded-xl p-4 transition text-center"
+                                     :class="selectedPlantType == '{{ $type->id }}' ? 'border-green-500 bg-green-50' : 'border-gray-100 hover:border-green-200 hover:bg-gray-50'">
+                                    <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                                    </div>
+                                    <h4 class="text-sm font-semibold text-gray-700 mb-1">{{ $type->name }}</h4>
+                                    <p class="text-xs text-gray-400">{{ $type->estimated_harvest_days }} Hari Panen</p>
+                                </div>
+                                @endforeach
+                            </div>
+                            <input type="hidden" name="plant_type_id" :value="selectedPlantType" required>
+                        </div>
+
+                        {{-- Step 2: Form Details --}}
+                        <div x-show="addStep === 2" x-transition x-cloak>
+                            <div class="flex items-center text-sm mb-4">
+                                <button type="button" @click="addStep = 1" class="text-gray-400 hover:text-green-600 mr-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                                </button>
+                                <span class="text-gray-500 font-medium">Kembali ke pemilihan tanaman</span>
+                            </div>
+
+                            <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 mb-5">
+                                <p class="text-xs text-blue-700">Kode batch (Batch Code) akan dibuat secara otomatis saat disimpan.</p>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Penanggung Jawab (Petani)</label>
+                                    <select name="user_id" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                                        <option value="">-- Pilih Petani --</option>
+                                        @foreach($users as $user)
+                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Jumlah Bibit</label>
+                                        <input type="number" name="quantity_seeds" min="1" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Tanggal Mulai (Semai)</label>
+                                        <input type="date" name="start_date" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-6">
+                                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-3 rounded-xl transition">
+                                    Simpan Penanaman
+                                </button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </template>
+</div>
 @endsection
 
 @section('scripts')
