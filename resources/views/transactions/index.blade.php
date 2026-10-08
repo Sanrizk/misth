@@ -33,10 +33,8 @@
                 class="px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
             <option value="">Semua Status</option>
             <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
-            <option value="paid" {{ request('status') === 'paid' ? 'selected' : '' }}>Paid</option>
-            <option value="shipping" {{ request('status') === 'shipping' ? 'selected' : '' }}>Shipping</option>
-            <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Completed</option>
-            <option value="cancelled" {{ request('status') === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+            <option value="terbayarkan" {{ request('status') === 'terbayarkan' ? 'selected' : '' }}>Terbayarkan</option>
+            <option value="batal" {{ request('status') === 'batal' ? 'selected' : '' }}>Batal</option>
         </select>
 
         <button type="submit"
@@ -86,10 +84,8 @@
                     <td class="py-3 px-4 text-gray-500 text-xs">{{ $trx->payment_method }}</td>
                     <td class="py-3 px-4">
                         <span class="px-2 py-0.5 rounded-full text-xs font-medium
-                            @if($trx->status === 'completed') bg-green-100 text-green-700
-                            @elseif($trx->status === 'paid') bg-blue-100 text-blue-700
-                            @elseif($trx->status === 'shipping') bg-purple-100 text-purple-700
-                            @elseif($trx->status === 'cancelled') bg-red-100 text-red-700
+                            @if($trx->status === 'terbayarkan') bg-green-100 text-green-700
+                            @elseif($trx->status === 'batal') bg-red-100 text-red-700
                             @else bg-yellow-100 text-yellow-700 @endif">
                             {{ ucfirst($trx->status) }}
                         </span>
@@ -98,22 +94,9 @@
                         {{ \Carbon\Carbon::parse($trx->created_at)->format('d M Y H:i') }}
                     </td>
                     <td class="py-3 px-4">
-                        <div class="flex gap-2">
-                            <a href="{{ route('transactions.show', $trx->id) }}"
-                               class="text-xs px-3 py-1.5 bg-sky-100 text-sky-700 rounded-lg hover:bg-sky-200 transition">
-                                Detail
-                            </a>
-                            <button @click="openEditModal({{ json_encode($trx) }})" class="p-1.5 bg-amber-100 text-amber-600 rounded-lg hover:bg-amber-200 transition" title="Ubah">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                            </button>
-                            <form action="{{ route('transactions.destroy', $trx->id) }}" method="POST" @submit.prevent="$dispatch('confirm', { message: 'Yakin ingin menghapus transaksi ini?', onConfirm: () => $el.submit() })">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="p-1.5 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition" title="Hapus">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                </button>
-                            </form>
-                        </div>
+                        <button @click="openStatusModal({{ json_encode($trx) }})" class="p-1.5 bg-indigo-100 text-indigo-600 rounded-lg hover:bg-indigo-200 transition" title="Update Status">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        </button>
                     </td>
                 </tr>
                 @empty
@@ -293,8 +276,8 @@
                 </div>
                 <span :class="{
                     'bg-yellow-100 text-yellow-700': transaction?.status === 'pending',
-                    'bg-green-100 text-green-700': transaction?.status === 'paid' || transaction?.status === 'completed',
-                    'bg-red-100 text-red-700': transaction?.status === 'cancelled',
+                    'bg-green-100 text-green-700': transaction?.status === 'terbayarkan' || transaction?.status === 'completed',
+                    'bg-red-100 text-red-700': transaction?.status === 'batal',
                     'bg-blue-100 text-blue-700': transaction?.status === 'shipping',
                 }" class="px-3 py-1 rounded-full text-xs font-semibold capitalize" x-text="transaction?.status">
                 </span>
@@ -367,8 +350,8 @@
         {{-- Status sudah diproses --}}
         <div x-show="transaction?.status !== 'pending'" x-cloak>
             <div :class="{
-                    'bg-green-50 border-green-200 text-green-700': transaction?.status === 'paid' || transaction?.status === 'completed',
-                    'bg-red-50 border-red-200 text-red-700': transaction?.status === 'cancelled',
+                    'bg-green-50 border-green-200 text-green-700': transaction?.status === 'terbayarkan' || transaction?.status === 'completed',
+                    'bg-red-50 border-red-200 text-red-700': transaction?.status === 'batal',
                     'bg-blue-50 border-blue-200 text-blue-700': transaction?.status === 'shipping',
                  }"
                  class="border rounded-2xl p-4 text-center">
@@ -379,12 +362,12 @@
         {{-- Success State setelah konfirmasi --}}
         <div x-show="confirmed" x-cloak
              class="bg-white rounded-2xl shadow-sm p-8 text-center">
-            <div :class="confirmedStatus === 'paid' ? 'bg-green-100' : 'bg-red-100'"
+            <div :class="confirmedStatus === 'terbayarkan' ? 'bg-green-100' : 'bg-red-100'"
                  class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg x-show="confirmedStatus === 'paid'" class="w-10 h-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg x-show="confirmedStatus === 'terbayarkan'" class="w-10 h-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
                 </svg>
-                <svg x-show="confirmedStatus === 'cancelled'" class="w-10 h-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg x-show="confirmedStatus === 'batal'" class="w-10 h-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </div>
@@ -409,6 +392,45 @@
     </div> {{-- End Grid --}}
 </div> {{-- End mx-auto --}}
 </div> {{-- End showScannerInterface --}}
+
+<template x-teleport="body">
+    <div x-cloak x-show="showStatusModal" x-transition 
+         class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+         @click.self="showStatusModal = false">
+        <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-xl flex flex-col">
+            <form :action="selectedTransaction ? '/transactions/' + selectedTransaction.id + '/status' : ''" method="POST">
+                @csrf
+                @method('PATCH')
+                <div class="px-6 py-5 bg-white">
+                    <div class="flex items-center justify-between mb-5">
+                        <h3 class="text-lg font-medium leading-6 text-gray-900">Update Status Pesanan</h3>
+                        <button type="button" @click="showStatusModal = false" class="text-gray-400 hover:text-gray-500">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Status Baru</label>
+                        <select name="status" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500" :value="selectedTransaction?.status" required>
+                            <option value="pending">Pending</option>
+                            <option value="terbayarkan">Terbayarkan</option>
+                            <option value="batal">Batal</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="px-6 py-4 bg-gray-50 sm:flex sm:flex-row-reverse border-t border-gray-100">
+                    <button type="submit" class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-xl shadow-sm hover:bg-green-700 focus:outline-none sm:ml-3 sm:w-auto">
+                        Update Status
+                    </button>
+                    <button type="button" @click="showStatusModal = false" class="inline-flex justify-center w-full px-4 py-2 mt-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl shadow-sm hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto">
+                        Tutup
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</template>
+
 </div> {{-- End x-data --}}
 
 @endsection
@@ -428,12 +450,11 @@ function scannerApp() {
         error: null,
         transaction: null,
         manualInvoice: '',
-        editForm: { id: '', payment_method: '' },
-        showEditModal: false,
-        openEditModal(trx) {
-            this.editForm.id = trx.id;
-            this.editForm.payment_method = trx.payment_method;
-            this.showEditModal = true;
+        selectedTransaction: null,
+        showStatusModal: false,
+        openStatusModal(trx) {
+            this.selectedTransaction = trx;
+            this.showStatusModal = true;
         },
         uploadPreview: null,
         html5QrCode: null,
@@ -535,7 +556,7 @@ function scannerApp() {
         },
 
         confirmTransaction(status) {
-            const message = status === 'paid' 
+            const message = status === 'terbayarkan' 
                 ? `Konfirmasi pembayaran ${this.transaction.total_formatted} dari ${this.transaction.customer.name}?`
                 : 'Batalkan pesanan ini? Stok akan dikembalikan.';
                 
@@ -543,7 +564,7 @@ function scannerApp() {
                 detail: {
                     title: 'Konfirmasi Transaksi',
                     message: message,
-                    type: status === 'paid' ? 'info' : 'warning',
+                    type: status === 'terbayarkan' ? 'info' : 'warning',
                     onConfirm: async () => {
                         this.confirming = true;
                         try {
@@ -578,9 +599,9 @@ function scannerApp() {
 
         statusMessage() {
             const messages = {
-                'paid': 'Pembayaran sudah dikonfirmasi',
+                'terbayarkan': 'Pembayaran sudah dikonfirmasi',
                 'completed': 'Pesanan selesai',
-                'cancelled': 'Pesanan telah dibatalkan',
+                'batal': 'Pesanan telah dibatalkan',
                 'shipping': 'Pesanan sedang dikirim',
             };
             return messages[this.transaction?.status] ?? 'Status tidak diketahui';
@@ -616,42 +637,4 @@ function scannerApp() {
     color: white !important;
 }
 </style>
-<template x-teleport="body">
-    <div x-cloak x-show="showEditModal" x-transition 
-         class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-         @click.self="showEditModal = false">
-        <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-xl flex flex-col">
-            <form :action="`/transactions/${editForm.id}`" method="POST">
-                @csrf
-                @method('PUT')
-                <div class="px-6 py-5 bg-white">
-                    <div class="flex items-center justify-between mb-5">
-                        <h3 class="text-lg font-medium leading-6 text-gray-900">Ubah Transaksi</h3>
-                        <button type="button" @click="showEditModal = false" class="text-gray-400 hover:text-gray-500">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Metode Pembayaran</label>
-                        <select name="payment_method" x-model="editForm.payment_method" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500" required>
-                            <option value="cash">Tunai (Cash)</option>
-                            <option value="transfer">Transfer Bank</option>
-                            <option value="qris">QRIS</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="px-6 py-4 bg-gray-50 sm:flex sm:flex-row-reverse border-t border-gray-100">
-                    <button type="submit" class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-xl shadow-sm hover:bg-green-700 focus:outline-none sm:ml-3 sm:w-auto">
-                        Simpan Perubahan
-                    </button>
-                    <button type="button" @click="showEditModal = false" class="inline-flex justify-center w-full px-4 py-2 mt-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl shadow-sm hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto">
-                        Batal
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</template>
-
 @endsection

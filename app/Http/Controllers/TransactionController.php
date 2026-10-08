@@ -117,11 +117,11 @@ class TransactionController extends Controller
     public function updateStatus(Request $request, Transaction $transaction)
     {
         $request->validate([
-            'status' => 'required|in:pending,paid,shipping,completed,cancelled',
+            'status' => 'required|in:pending,terbayarkan,batal',
         ]);
 
         // Jika dibatalkan dari paid, kembalikan stok
-        if ($request->status === 'cancelled' && $transaction->status !== 'cancelled') {
+        if ($request->status === 'batal' && $transaction->status !== 'batal') {
             DB::transaction(function () use ($transaction, $request) {
                 foreach ($transaction->transactionDetails as $detail) {
                     $product = $detail->product;
@@ -138,7 +138,7 @@ class TransactionController extends Controller
             $transaction->update(['status' => $request->status]);
         }
 
-        return redirect()->route('transactions.show', $transaction->id)
+        return redirect()->route('transactions.index')
                          ->with('success', 'Status transaksi berhasil diperbarui.');
     }
 
@@ -182,7 +182,7 @@ class TransactionController extends Controller
 
     public function confirmForScanner(Request $request, Transaction $transaction)
     {
-        $request->validate(['status' => 'required|in:paid,cancelled']);
+        $request->validate(['status' => 'required|in:terbayarkan,batal']);
 
         if ($transaction->status !== 'pending') {
             return response()->json([
@@ -191,7 +191,7 @@ class TransactionController extends Controller
             ], 400);
         }
 
-        if ($request->status === 'cancelled') {
+        if ($request->status === 'batal') {
             DB::transaction(function () use ($transaction, $request) {
                 foreach ($transaction->transactionDetails as $detail) {
                     $product = $detail->product;
@@ -206,7 +206,7 @@ class TransactionController extends Controller
             });
             $message = 'Pesanan berhasil dibatalkan.';
         } else {
-            $transaction->update(['status' => 'paid']);
+            $transaction->update(['status' => 'terbayarkan']);
             $message = 'Pembayaran berhasil dikonfirmasi.';
         }
 
