@@ -119,3 +119,46 @@ html.dark .pagination .bg-white {
     color: #e5e7eb !important;
 }
 
+
+/* Hover Overrides */
+html.dark .hover\:bg-gray-50:hover {
+    background-color: #374151 !important; /* gray-700 */
+}
+html.dark .hover\:bg-gray-100:hover {
+    background-color: #1f2937 !important; /* gray-800 */
+}
+html.dark .hover\:bg-green-50:hover {
+    background-color: #022c22 !important; /* emerald-950 */
+}
+html.dark .hover\:bg-green-100:hover {
+    background-color: #064e3b !important; /* green-900 */
+}
+html.dark .hover\:bg-red-50:hover {
+    background-color: #450a0a !important; /* red-950 */
+}
+html.dark .hover\:bg-red-100:hover {
+    background-color: #7f1d1d !important; /* red-900 */
+}
+html.dark .hover\:bg-yellow-50:hover {
+    background-color: #422006 !important;
+}
+html.dark .hover\:bg-yellow-100:hover {
+    background-color: #713f12 !important;
+}
+html.dark .hover\:bg-blue-50:hover {
+    background-color: #172554 !important;
+}
+html.dark .hover\:bg-blue-100:hover {
+    background-color: #1e3a8a !important;
+}
+html.dark .hover\:bg-indigo-100:hover, html.dark .hover\:bg-sky-100:hover {
+    background-color: #312e81 !important;
+}
+html.dark .hover\:bg-gray-50\/30:hover {
+    background-color: #374151 !important; /* For the pending transaction opacity row */
+}
+
+/* Fractional Backgrounds Overrides */
+html.dark .bg-yellow-50\/30 {
+    background-color: rgba(66, 32, 6, 0.5) !important;
+}
