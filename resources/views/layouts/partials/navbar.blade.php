@@ -1,15 +1,12 @@
-<div class="flex items-center justify-between px-6 h-16">
+<div class="flex items-center justify-between lg:justify-end px-4 lg:px-6 h-16">
 
-    {{-- Sidebar toggle (mobile) --}}
-    <button @click="sidebarOpen = !sidebarOpen"
-            class="lg:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-        </svg>
-    </button>
+    {{-- Page title for mobile (optional) --}}
+    <h1 class="text-base font-bold text-green-800 lg:hidden flex-1">
+        Misth
+    </h1>
 
-    {{-- Page title --}}
-    <h1 class="text-base font-semibold text-gray-700 hidden lg:block">
+    {{-- Page title for desktop --}}
+    <h1 class="text-base font-semibold text-gray-700 hidden lg:block flex-1">
         @yield('title')
     </h1>
 

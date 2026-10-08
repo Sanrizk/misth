@@ -2,23 +2,16 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title') — Misth</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @yield('styles')
 </head>
-<body class="bg-gray-100 font-sans" x-data="{ sidebarOpen: false }">
+<body class="bg-gray-100 font-sans text-gray-900 antialiased" x-data="{}">
 
-    {{-- Sidebar Overlay (mobile) --}}
-    <div x-show="sidebarOpen" @click="sidebarOpen = false"
-         class="fixed inset-0 bg-black/50 z-20 lg:hidden"
-         x-transition></div>
-
-    {{-- Sidebar --}}
-    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-           class="fixed top-0 left-0 h-full w-64 bg-green-900 text-white z-30
-                  transition-transform duration-300 lg:translate-x-0">
+    {{-- Desktop Sidebar --}}
+    <aside class="hidden lg:block fixed top-0 left-0 h-full w-64 bg-green-900 text-white z-30">
         @include('layouts.partials.sidebar')
     </aside>
 
@@ -31,13 +24,16 @@
         </header>
 
         {{-- Content --}}
-        <main class="flex-1 p-6">
+        <main class="flex-1 p-4 lg:p-6 pb-24 lg:pb-6">
             @include('layouts.partials.flash')
             @include('layouts.partials.confirm-dialog')
             @yield('content')
         </main>
 
     </div>
+
+    {{-- Mobile Bottom Navbar --}}
+    @include('layouts.partials.bottom-nav')
 
     @yield('scripts')
 </body>

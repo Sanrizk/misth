@@ -39,7 +39,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
-            <div x-show="open" x-transition:enter="transition-all ease-out duration-300"
+            <div x-cloak x-show="open" x-transition:enter="transition-all ease-out duration-300"
              x-transition:enter-start="opacity-0 max-h-0"
              x-transition:enter-end="opacity-100 max-h-64"
              x-transition:leave="transition-all ease-in duration-200"
@@ -90,7 +90,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
-            <div x-show="open" x-transition:enter="transition-all ease-out duration-300"
+            <div x-cloak x-show="open" x-transition:enter="transition-all ease-out duration-300"
              x-transition:enter-start="opacity-0 max-h-0"
              x-transition:enter-end="opacity-100 max-h-64"
              x-transition:leave="transition-all ease-in duration-200"
@@ -143,7 +143,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
-            <div x-show="open" x-transition:enter="transition-all ease-out duration-300"
+            <div x-cloak x-show="open" x-transition:enter="transition-all ease-out duration-300"
              x-transition:enter-start="opacity-0 max-h-0"
              x-transition:enter-end="opacity-100 max-h-64"
              x-transition:leave="transition-all ease-in duration-200"
@@ -174,7 +174,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
-            <div x-show="open" x-transition:enter="transition-all ease-out duration-300"
+            <div x-cloak x-show="open" x-transition:enter="transition-all ease-out duration-300"
              x-transition:enter-start="opacity-0 max-h-0"
              x-transition:enter-end="opacity-100 max-h-64"
              x-transition:leave="transition-all ease-in duration-200"

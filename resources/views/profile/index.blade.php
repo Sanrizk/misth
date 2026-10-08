@@ -2,7 +2,7 @@
 @section('title', 'Profil Saya')
 
 @section('content')
-<div class="max-w-4xl mx-auto space-y-6">
+<div class="{{ Auth::user()->role->name === 'customer' ? 'max-w-4xl mx-auto' : 'max-w-5xl' }} space-y-6">
 
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-gray-800">Profil Saya</h2>
