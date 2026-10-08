@@ -61,8 +61,7 @@
                     <th class="text-left py-3 px-4 text-xs font-medium text-gray-500">Invoice</th>
                     <th class="text-left py-3 px-4 text-xs font-medium text-gray-500">Customer</th>
                     <th class="text-left py-3 px-4 text-xs font-medium text-gray-500">Total</th>
-                    <th class="text-left py-3 px-4 text-xs font-medium text-gray-500">Metode</th>
-                    <th class="text-left py-3 px-4 text-xs font-medium text-gray-500">Status</th>
+                                        <th class="text-left py-3 px-4 text-xs font-medium text-gray-500">Status</th>
                     <th class="text-left py-3 px-4 text-xs font-medium text-gray-500">Tanggal</th>
                     <th class="text-left py-3 px-4 text-xs font-medium text-gray-500">Aksi</th>
                 </tr>
@@ -73,8 +72,7 @@
                         <td class="py-3 px-4 font-mono text-xs text-gray-600" x-text="trx.invoice_number"></td>
                         <td class="py-3 px-4 text-gray-700" x-text="trx.user ? trx.user.name : '-'"></td>
                         <td class="py-3 px-4 font-semibold text-gray-800" x-text="'Rp ' + parseInt(trx.total_amount).toLocaleString('id-ID')"></td>
-                        <td class="py-3 px-4 text-gray-500 text-xs" x-text="trx.payment_method"></td>
-                        <td class="py-3 px-4">
+                                                <td class="py-3 px-4">
                             <span class="px-2 py-0.5 rounded-full text-xs font-medium"
                                 :class="{
                                     'bg-yellow-100 text-yellow-700': trx.status === 'pending',
@@ -97,7 +95,7 @@
                     </tr>
                 </template>
                 <tr x-show="transactions.length === 0 && !tableLoading" x-cloak>
-                    <td colspan="7" class="py-8 text-center text-gray-400 text-sm">Tidak ada data transaksi.</td>
+                    <td colspan="6" class="py-8 text-center text-gray-400 text-sm">Tidak ada data transaksi.</td>
                 </tr>
             </tbody>
         </table>

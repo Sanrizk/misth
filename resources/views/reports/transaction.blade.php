@@ -56,7 +56,6 @@
                         <th class="px-6 py-3">Tanggal</th>
                         <th class="px-6 py-3">Invoice</th>
                         <th class="px-6 py-3">Pelanggan</th>
-                        <th class="px-6 py-3">Metode Bayar</th>
                         <th class="px-6 py-3">Total</th>
                         <th class="px-6 py-3">Status</th>
                     </tr>
@@ -67,8 +66,7 @@
                             <td class="px-6 py-3">{{ $trx->created_at->format('d M Y H:i') }}</td>
                             <td class="px-6 py-3 font-mono text-xs">{{ $trx->invoice_number }}</td>
                             <td class="px-6 py-3">{{ optional($trx->user)->name ?? '-' }}</td>
-                            <td class="px-6 py-3 uppercase">{{ $trx->payment_method }}</td>
-                            <td class="px-6 py-3 font-medium">Rp {{ number_format($trx->total_amount, 0, ',', '.') }}</td>
+                                                        <td class="px-6 py-3 font-medium">Rp {{ number_format($trx->total_amount, 0, ',', '.') }}</td>
                             <td class="px-6 py-3">
                                 <span class="px-2 py-1 rounded text-xs font-medium 
                                     {{ $trx->status === 'paid' || $trx->status === 'completed' ? 'bg-green-100 text-green-700' : 
@@ -80,7 +78,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-8 text-center text-gray-400">Tidak ada data transaksi pada periode ini.</td>
+                            <td colspan="5" class="px-6 py-8 text-center text-gray-400">Tidak ada data transaksi pada periode ini.</td>
                         </tr>
                     @endforelse
                 </tbody>

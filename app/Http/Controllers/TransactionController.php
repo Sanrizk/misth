@@ -50,8 +50,7 @@ class TransactionController extends Controller
             'items' => 'required|array',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|integer|min:0', // Allowing 0 to filter out easily from form
-            'payment_method' => 'required|string',
-        ]);
+                    ]);
 
         $hasItems = false;
         foreach ($request->items as $item) {
@@ -74,8 +73,7 @@ class TransactionController extends Controller
                 'invoice_number' => $invoiceNumber,
                 'total_amount' => 0,
                 'status' => 'pending',
-                'payment_method' => $request->payment_method,
-            ]);
+                            ]);
 
             $totalAmount = 0;
 

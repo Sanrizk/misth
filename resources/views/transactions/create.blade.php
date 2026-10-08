@@ -52,16 +52,7 @@
                     <div class="card-body">
                         <h4 class="card-title mb-4">Ringkasan Pesanan</h4>
                         
-                        <div class="mb-4">
-                            <label for="payment_method" class="form-label">Metode Pembayaran</label>
-                            <select name="payment_method" id="payment_method" class="form-select" required>
-                                <option value="">Pilih Metode Pembayaran</option>
-                                <option value="Transfer Bank" {{ old('payment_method') == 'Transfer Bank' ? 'selected' : '' }}>Transfer Bank</option>
-                                <option value="COD" {{ old('payment_method') == 'COD' ? 'selected' : '' }}>COD (Cash on Delivery)</option>
-                                <option value="QRIS" {{ old('payment_method') == 'QRIS' ? 'selected' : '' }}>QRIS</option>
-                                <option value="Dompet Digital" {{ old('payment_method') == 'Dompet Digital' ? 'selected' : '' }}>Dompet Digital</option>
-                            </select>
-                        </div>
+
 
                         <button type="submit" class="btn btn-success w-100">Proses Checkout</button>
                     </div>

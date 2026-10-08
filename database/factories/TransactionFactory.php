@@ -10,7 +10,6 @@ class TransactionFactory extends Factory {
             'invoice_number' => 'INV-' . now()->format('YmdHis') . '-' . fake()->unique()->numberBetween(1000, 99999),
             'total_amount' => 0,
             'status' => fake()->randomElement(['pending', 'terbayarkan', 'batal']),
-            'payment_method' => fake()->randomElement(['Transfer Bank', 'COD', 'QRIS', 'Dompet Digital']),
         ];
     }
 }

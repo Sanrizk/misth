@@ -15,8 +15,7 @@ class Transaction extends Model
         'user_id',
         'invoice_number',
         'total_amount',
-        'status',
-        'payment_method'
+        'status'
     ];
 
     public function user()

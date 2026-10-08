@@ -49,7 +49,6 @@ class CheckoutController extends Controller
                 'invoice_number' => 'INV-' . now()->format('YmdHis') . '-' . Auth::id(),
                 'total_amount'   => $cart->total,
                 'status'         => 'pending',
-                'payment_method' => 'COD', // hardcoded
             ]);
 
             foreach ($cart->cartItems as $item) {
