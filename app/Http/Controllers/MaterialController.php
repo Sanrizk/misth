@@ -95,8 +95,15 @@ class MaterialController extends Controller
     public function destroy($id)
     {
         $material = Material::findOrFail($id);
-        $material->delete();
 
-        return redirect()->route('materials.index')->with('success', 'Bahan berhasil dihapus.');
+        try {
+            $material->delete();
+            return redirect()->route('materials.index')->with('success', 'Bahan berhasil dihapus.');
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() == '23000') {
+                return redirect()->route('materials.index')->with('error', 'Bahan ini tidak dapat dihapus karena masih digunakan pada data pembelian atau transaksi lain.');
+            }
+            return redirect()->route('materials.index')->with('error', 'Terjadi kesalahan saat menghapus bahan.');
+        }
     }
 }

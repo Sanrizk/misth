@@ -42,7 +42,7 @@
 
         <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Tanam</label>
-            <input type="date" name="start_date" value="{{ $planting->start_date }}" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500" required>
+            <input type="date" name="start_date" value="{{ \Carbon\Carbon::parse($planting->start_date)->format('Y-m-d') }}" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500" required>
         </div>
 
         <div class="mb-6">
