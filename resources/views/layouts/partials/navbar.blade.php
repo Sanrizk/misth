@@ -7,7 +7,7 @@
 
     {{-- Page title for desktop --}}
     <h1 class="text-base font-semibold text-gray-700 hidden lg:block flex-1">
-        @yield('title')
+        Manajemen Inventori Stok dan Transaksi Hidroponik
     </h1>
 
     {{-- Right: user dropdown --}}
