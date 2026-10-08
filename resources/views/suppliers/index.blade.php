@@ -78,11 +78,10 @@
     </div>
 
     <template x-teleport="body">
-        <div x-show="showModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
-            <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
-                <div class="fixed inset-0 transition-opacity bg-gray-500 opacity-75" aria-hidden="true" @click="showModal = false"></div>
-
-                <div class="inline-block w-full max-w-md overflow-hidden text-left align-bottom transition-all transform bg-white rounded-2xl shadow-xl sm:my-8 sm:align-middle">
+        <div x-cloak x-show="showModal" x-transition x-init="$watch('showModal', val => document.body.style.overflow = val ? 'hidden' : '')"
+             class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+             @click.self="showModal = false">
+            <div class="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-xl flex flex-col">
                     <form :action="modalMode === 'add' ? '{{ route('suppliers.store') }}' : '/suppliers/' + form.id" method="POST">
                         @csrf
                         <template x-if="modalMode === 'edit'">
@@ -119,7 +118,6 @@
                         </div>
                     </form>
                 </div>
-            </div>
         </div>
     </template>
 </div>

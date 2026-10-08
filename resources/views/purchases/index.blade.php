@@ -129,11 +129,10 @@
     </div>
 
     <template x-teleport="body">
-        <div x-show="showAddModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
-            <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
-                <div class="fixed inset-0 transition-opacity bg-gray-500 opacity-75" aria-hidden="true" @click="showAddModal = false"></div>
-                
-                <div class="inline-block w-full max-w-4xl overflow-hidden text-left align-bottom transition-all transform bg-white rounded-2xl shadow-xl sm:my-8 sm:align-middle">
+        <div x-cloak x-show="showAddModal" x-transition x-init="$watch('showAddModal', val => document.body.style.overflow = val ? 'hidden' : '')"
+             class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+             @click.self="showAddModal = false">
+            <div class="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-xl flex flex-col">
                     <form action="{{ route('purchases.store') }}" method="POST">
                         @csrf
                         <div class="px-6 py-5 bg-white">
@@ -201,11 +200,10 @@
             </div>
         </div>
 
-        <div x-show="showStatusModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
-            <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
-                <div class="fixed inset-0 transition-opacity bg-gray-500 opacity-75" aria-hidden="true" @click="showStatusModal = false"></div>
-
-                <div class="inline-block w-full max-w-md overflow-hidden text-left align-bottom transition-all transform bg-white rounded-2xl shadow-xl sm:my-8 sm:align-middle">
+        <div x-cloak x-show="showStatusModal" x-transition x-init="$watch('showStatusModal', val => document.body.style.overflow = val ? 'hidden' : '')"
+             class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+             @click.self="showStatusModal = false">
+            <div class="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-xl flex flex-col">
                     <form :action="currentPurchase ? '/purchases/' + currentPurchase.id + '/status' : ''" method="POST">
                         @csrf
                         @method('PATCH')
@@ -236,7 +234,6 @@
                         </div>
                     </form>
                 </div>
-            </div>
         </div>
     </template>
 
