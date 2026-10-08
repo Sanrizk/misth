@@ -72,7 +72,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('material-usages/{materialUsage}', [MaterialUsageController::class, 'destroy'])->name('material-usages.destroy');
 
         Route::resource('suppliers', SupplierController::class);
-        Route::resource('purchases', PurchaseController::class)->except(['create', 'edit', 'update']);
+        Route::resource('purchases', PurchaseController::class)->except(['create', 'edit']);
         Route::patch('purchases/{purchase}/status', [PurchaseController::class, 'updateStatus'])->name('purchases.updateStatus');
 
         // Reports
@@ -93,7 +93,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('products', ProductController::class)->only(['index', 'show', 'edit', 'update']);
 
     // Transactions — accessible by all roles
-    Route::resource('transactions', TransactionController::class)->only(['index', 'show', 'store', 'create']);
+    Route::resource('transactions', TransactionController::class);
     Route::patch('transactions/{transaction}/status', [TransactionController::class, 'updateStatus'])->name('transactions.updateStatus');
 
 });

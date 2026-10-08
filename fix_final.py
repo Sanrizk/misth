@@ -1,171 +1,17 @@
-@extends('layouts.app')
-@section('title', 'Pembelian Bahan')
-@section('content')
+import re
 
-<div x-data="{
-    showAddModal: false,
-    showEditModal: false,
-    showStatusModal: false,
-    selectedPurchase: null,
-    form: {
-        supplier_id: '',
-        purchase_date: '{{ date('Y-m-d') }}',
-        notes: '',
-        items: [{ material_id: '', quantity: 1, unit_price: 0 }]
-    },
-    editForm: {
-        id: '',
-        supplier_id: '',
-        purchase_date: '',
-        notes: '',
-        items: []
-    },
-    addItem() {
-        this.form.items.push({ material_id: '', quantity: 1, unit_price: 0 });
-    },
-    removeItem(index) {
-        this.form.items.splice(index, 1);
-    },
-    addEditItem() {
-        this.editForm.items.push({ material_id: '', quantity: 1, unit_price: 0 });
-    },
-    removeEditItem(index) {
-        this.editForm.items.splice(index, 1);
-    },
-    openStatusModal(purchase) {
-        this.selectedPurchase = purchase;
-        this.showStatusModal = true;
-    },
-    openEditModal(purchase) {
-        fetch('/purchases/' + purchase.id)
-            .then(res => res.json())
-            .then(data => {
-                this.editForm.id = data.id;
-                this.editForm.supplier_id = data.supplier_id;
-                this.editForm.purchase_date = data.purchase_date;
-                this.editForm.notes = data.notes;
-                if(data.purchase_items && data.purchase_items.length > 0) {
-                    this.editForm.items = data.purchase_items.map(i => ({
-                        material_id: i.material_id,
-                        quantity: parseFloat(i.quantity),
-                        unit_price: parseFloat(i.unit_price)
-                    }));
-                } else {
-                    this.editForm.items = [];
-                }
-                this.showEditModal = true;
-            });
-    }
-}">
+with open('resources/views/purchases/index.blade.php', 'r') as f:
+    lines = f.readlines()
 
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-lg font-semibold text-gray-700">Daftar Pembelian Bahan</h2>
-        <button @click="showAddModal = true" class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-            Tambah Pembelian
-        </button>
-    </div>
+# Find the start of x-teleport
+start_idx = 0
+for i, line in enumerate(lines):
+    if '<template x-teleport="body">' in line:
+        start_idx = i
+        break
 
-    @if(session('success'))
-    <div class="bg-green-50 border border-green-200 rounded-xl p-3 text-sm text-green-700 flex items-center gap-3 mb-4">
-        {{ session('success') }}
-    </div>
-    @endif
-
-    @if(session('error'))
-    <div class="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700 flex items-center gap-3 mb-4">
-        {{ session('error') }}
-    </div>
-    @endif
-
-    @if($errors->any())
-    <div class="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700 mb-4">
-        <ul class="list-disc pl-5">
-            @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-    @endif
-
-    <form action="{{ route('purchases.index') }}" method="GET" class="flex flex-col sm:flex-row gap-3 mb-4">
-        <select name="status" class="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="this.form.submit()">
-            <option value="">Semua Status</option>
-            <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
-            <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
-            <option value="received" {{ request('status') == 'received' ? 'selected' : '' }}>Received</option>
-            <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-        </select>
-        <input type="date" name="start_date" value="{{ request('start_date') }}" class="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
-        <input type="date" name="end_date" value="{{ request('end_date') }}" class="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
-        <button type="submit" class="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500">Filter</button>
-    </form>
-
-    <div class="bg-white rounded-2xl shadow-sm overflow-x-auto mb-4">
-        <table class="w-full text-sm text-left">
-            <thead class="bg-gray-50 border-b border-gray-100 text-gray-500 text-xs uppercase font-medium">
-                <tr>
-                    <th class="py-3 px-4">No. Invoice</th>
-                    <th class="py-3 px-4">Tanggal</th>
-                    <th class="py-3 px-4">Supplier</th>
-                    <th class="py-3 px-4">Total</th>
-                    <th class="py-3 px-4">Status</th>
-                    <th class="py-3 px-4">Aksi</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-50 text-gray-700">
-                @forelse($purchases as $purchase)
-                <tr class="hover:bg-gray-50">
-                    <td class="py-3 px-4 font-semibold">{{ $purchase->invoice_number }}</td>
-                    <td class="py-3 px-4">{{ $purchase->purchase_date }}</td>
-                    <td class="py-3 px-4">{{ $purchase->supplier->name ?? '-' }}</td>
-                    <td class="py-3 px-4">Rp {{ number_format($purchase->total_amount, 0, ',', '.') }}</td>
-                    <td class="py-3 px-4">
-                        @if($purchase->status == 'draft')
-                            <span class="px-2 py-0.5 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">Draft</span>
-                        @elseif($purchase->status == 'confirmed')
-                            <span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">Confirmed</span>
-                        @elseif($purchase->status == 'received')
-                            <span class="px-2 py-0.5 bg-green-100 text-green-800 rounded-full text-xs font-medium">Received</span>
-                        @elseif($purchase->status == 'cancelled')
-                            <span class="px-2 py-0.5 bg-red-100 text-red-800 rounded-full text-xs font-medium">Cancelled</span>
-                        @endif
-                    </td>
-                    <td class="py-3 px-4">
-                        <div class="flex gap-2">
-                            <button @click="openStatusModal({{ json_encode($purchase) }})" class="p-1.5 bg-indigo-100 text-indigo-600 rounded-lg hover:bg-indigo-200 transition" title="Update Status">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                            </button>
-                            
-                            @if($purchase->status === 'draft')
-                            <button @click="openEditModal({{ json_encode($purchase) }})" class="p-1.5 bg-amber-100 text-amber-600 rounded-lg hover:bg-amber-200 transition" title="Ubah">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                            </button>
-                            <form action="{{ route('purchases.destroy', $purchase) }}" method="POST" @submit.prevent="$dispatch('confirm', { message: 'Yakin ingin menghapus?', onConfirm: () => $el.submit() })">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="p-1.5 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition" title="Hapus">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                </button>
-                            </form>
-                            @endif
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="6" class="py-8 text-center text-gray-400 text-sm">Belum ada data pembelian.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
-    <div class="px-4 py-3 border-t border-gray-100">
-        {{ $purchases->appends(request()->query())->links('pagination::tailwind') }}
-    </div>
-
-    <template x-teleport="body">
+# The new valid teleport block
+new_block = """    <template x-teleport="body">
         <div>
             <!-- ADD MODAL -->
             <div x-cloak x-show="showAddModal" x-transition x-init="$watch('showAddModal', val => document.body.style.overflow = val ? 'hidden' : '')"
@@ -352,3 +198,10 @@
 </div>
 
 @endsection
+"""
+
+final_lines = lines[:start_idx]
+with open('resources/views/purchases/index.blade.php', 'w') as f:
+    f.writelines(final_lines)
+    f.write(new_block)
+
