@@ -3,6 +3,45 @@
 @section('content')
 
 <div x-data="{
+        search: '',
+    statusFilter: '{{ request('status') }}',
+    startDate: '{{ request('start_date') }}',
+    endDate: '{{ request('end_date') }}',
+    purchases: {{ Js::from($purchases->items()) }},
+    links: {{ Js::from($purchases->toArray()['links']) }},
+    loading: false,
+    
+    init() {
+        this.$watch('search', value => this.fetchData());
+        this.$watch('statusFilter', value => this.fetchData());
+        this.$watch('startDate', value => this.fetchData());
+        this.$watch('endDate', value => this.fetchData());
+    },
+    
+    fetchData(url = '{{ route('purchases.index') }}') {
+        this.loading = true;
+        const params = new URLSearchParams();
+        if (this.search) params.append('search', this.search);
+        if (this.statusFilter) params.append('status', this.statusFilter);
+        if (this.startDate) params.append('start_date', this.startDate);
+        if (this.endDate) params.append('end_date', this.endDate);
+        
+        const finalUrl = url.includes('?') ? `${url}&${params.toString()}` : `${url}?${params.toString()}`;
+        
+        fetch(finalUrl, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            this.purchases = data.data;
+            this.links = data.links;
+            this.loading = false;
+        })
+        .catch(() => { this.loading = false; });
+    },
     showAddModal: false,
     showEditModal: false,
     showStatusModal: false,
@@ -88,18 +127,18 @@
     </div>
     @endif
 
-    <form action="{{ route('purchases.index') }}" method="GET" class="flex flex-col sm:flex-row gap-3 mb-4">
-        <select name="status" class="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="this.form.submit()">
+    <div class="flex flex-col sm:flex-row gap-3 mb-4">
+        <input type="text" x-model.debounce.300ms="search" placeholder="Cari invoice atau supplier..." class="flex-1 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+        <select x-model="statusFilter" class="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
             <option value="">Semua Status</option>
-            <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
-            <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
-            <option value="received" {{ request('status') == 'received' ? 'selected' : '' }}>Received</option>
-            <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+            <option value="draft">Draft</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="received">Received</option>
+            <option value="cancelled">Cancelled</option>
         </select>
-        <input type="date" name="start_date" value="{{ request('start_date') }}" class="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
-        <input type="date" name="end_date" value="{{ request('end_date') }}" class="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
-        <button type="submit" class="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500">Filter</button>
-    </form>
+        <input type="date" x-model="startDate" class="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+        <input type="date" x-model="endDate" class="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+    </div>
 
     <div class="bg-white rounded-2xl shadow-sm overflow-x-auto mb-4">
         <table class="w-full text-sm text-left">
@@ -113,56 +152,69 @@
                     <th class="py-3 px-4">Aksi</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-50 text-gray-700">
-                @forelse($purchases as $purchase)
-                <tr class="hover:bg-gray-50">
-                    <td class="py-3 px-4 font-semibold">{{ $purchase->invoice_number }}</td>
-                    <td class="py-3 px-4">{{ $purchase->purchase_date }}</td>
-                    <td class="py-3 px-4">{{ $purchase->supplier->name ?? '-' }}</td>
-                    <td class="py-3 px-4">Rp {{ number_format($purchase->total_amount, 0, ',', '.') }}</td>
-                    <td class="py-3 px-4">
-                        @if($purchase->status == 'draft')
-                            <span class="px-2 py-0.5 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">Draft</span>
-                        @elseif($purchase->status == 'confirmed')
-                            <span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">Confirmed</span>
-                        @elseif($purchase->status == 'received')
-                            <span class="px-2 py-0.5 bg-green-100 text-green-800 rounded-full text-xs font-medium">Received</span>
-                        @elseif($purchase->status == 'cancelled')
-                            <span class="px-2 py-0.5 bg-red-100 text-red-800 rounded-full text-xs font-medium">Cancelled</span>
-                        @endif
-                    </td>
-                    <td class="py-3 px-4">
-                        <div class="flex gap-2">
-                            <button @click="openStatusModal({{ json_encode($purchase) }})" class="p-1.5 bg-indigo-100 text-indigo-600 rounded-lg hover:bg-indigo-200 transition" title="Update Status">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                            </button>
-                            
-                            @if($purchase->status === 'draft')
-                            <button @click="openEditModal({{ json_encode($purchase) }})" class="p-1.5 bg-amber-100 text-amber-600 rounded-lg hover:bg-amber-200 transition" title="Ubah">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                            </button>
-                            <form action="{{ route('purchases.destroy', $purchase) }}" method="POST" @submit.prevent="$dispatch('confirm', { message: 'Yakin ingin menghapus?', onConfirm: () => $el.submit() })">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="p-1.5 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition" title="Hapus">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                </button>
-                            </form>
-                            @endif
-                        </div>
-                    </td>
+            <tbody class="divide-y divide-gray-50 text-gray-700 relative">
+                <template x-for="purchase in purchases" :key="purchase.id">
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="py-3 px-4 text-xs font-mono text-gray-500" x-text="purchase.invoice_number"></td>
+                        <td class="py-3 px-4 text-xs text-gray-500" x-text="new Date(purchase.purchase_date).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'})"></td>
+                        <td class="py-3 px-4 font-semibold text-gray-800" x-text="purchase.supplier ? purchase.supplier.name : '-'"></td>
+                        <td class="py-3 px-4" x-text="'Rp ' + parseInt(purchase.total_amount).toLocaleString('id-ID')"></td>
+                        <td class="py-3 px-4">
+                            <span class="px-2 py-0.5 rounded-full text-xs font-medium"
+                                :class="{
+                                    'bg-gray-100 text-gray-700': purchase.status === 'draft',
+                                    'bg-blue-100 text-blue-700': purchase.status === 'confirmed',
+                                    'bg-green-100 text-green-700': purchase.status === 'received',
+                                    'bg-red-100 text-red-700': purchase.status === 'cancelled'
+                                }"
+                                x-text="purchase.status.charAt(0).toUpperCase() + purchase.status.slice(1)">
+                            </span>
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="flex gap-2">
+                                <button @click="openStatusModal(purchase)" class="text-xs px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition">Status</button>
+                                
+                                <template x-if="purchase.status === 'draft'">
+                                    <button @click="openEditModal(purchase)" class="p-1.5 bg-yellow-100 text-yellow-600 rounded-lg hover:bg-yellow-200 transition" title="Edit">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                    </button>
+                                </template>
+                                
+                                <template x-if="purchase.status === 'draft'">
+                                    <form :action="'/purchases/' + purchase.id" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="p-1.5 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition" title="Hapus" @click.prevent="$dispatch('confirm', { message: 'Yakin hapus pembelian ini?', onConfirm: () => $el.closest('form').submit() })">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
+                                    </form>
+                                </template>
+                            </div>
+                        </td>
+                    </tr>
+                </template>
+                <tr x-show="purchases.length === 0 && !loading" x-cloak>
+                    <td colspan="6" class="py-8 text-center text-gray-400 text-sm">Tidak ada data pembelian.</td>
                 </tr>
-                @empty
-                <tr>
-                    <td colspan="6" class="py-8 text-center text-gray-400 text-sm">Belum ada data pembelian.</td>
-                </tr>
-                @endforelse
             </tbody>
         </table>
     </div>
 
-    <div class="px-4 py-3 border-t border-gray-100">
-        {{ $purchases->appends(request()->query())->links('pagination::tailwind') }}
+    <div class="px-4 py-3 border-t border-gray-100 flex items-center justify-between" x-show="links.length > 3" x-cloak>
+        <div class="flex flex-wrap gap-1">
+            <template x-for="(link, index) in links" :key="index">
+                <button @click.prevent="if(link.url) fetchData(link.url)"
+                        x-html="link.label"
+                        :disabled="!link.url || link.active"
+                        :class="{
+                            'bg-green-600 text-white font-medium': link.active,
+                            'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200': !link.active && link.url,
+                            'bg-gray-50 text-gray-400 border border-gray-100 cursor-not-allowed': !link.url
+                        }"
+                        class="px-3 py-1.5 min-w-[2rem] text-sm rounded-lg transition-colors">
+                </button>
+            </template>
+        </div>
     </div>
 
     <template x-teleport="body">

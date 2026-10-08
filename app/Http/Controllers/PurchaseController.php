@@ -15,6 +15,13 @@ class PurchaseController extends Controller
     {
         $query = Purchase::with(['supplier', 'user']);
 
+        if ($request->filled('search')) {
+            $query->where('invoice_number', 'like', '%' . $request->search . '%')
+                  ->orWhereHas('supplier', function($q) use ($request) {
+                      $q->where('name', 'like', '%' . $request->search . '%');
+                  });
+        }
+
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
@@ -24,6 +31,11 @@ class PurchaseController extends Controller
         }
 
         $purchases = $query->paginate(10);
+        
+        if ($request->wantsJson()) {
+            return response()->json($purchases);
+        }
+
         $suppliers = Supplier::all();
         $materials = Material::all();
 

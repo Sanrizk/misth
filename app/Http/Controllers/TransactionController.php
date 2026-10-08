@@ -24,6 +24,10 @@ class TransactionController extends Controller
         }
 
         $transactions = $query->paginate(10);
+        
+        if ($request->wantsJson()) {
+            return response()->json($transactions);
+        }
 
         return view('transactions.index', compact('transactions'));
     }

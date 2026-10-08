@@ -11,14 +11,13 @@
 {{-- Search Bar --}}
 <div class="bg-white rounded-2xl shadow-sm p-4 mb-4">
 
-    <form method="GET" action="{{ route('transactions.index') }}" class="flex gap-3">
+    <div class="flex gap-3">
 
         {{-- Invoice Search --}}
         <div class="flex-1 relative">
             <input type="text"
-                   name="search"
+                   x-model.debounce.300ms="search"
                    x-ref="searchInput"
-                   value="{{ request('search') }}"
                    placeholder="Cari nomor invoice atau scan barcode..."
                    class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
             <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"
@@ -29,18 +28,13 @@
         </div>
 
         {{-- Filter Status --}}
-        <select name="status"
+        <select x-model="statusFilter"
                 class="px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
             <option value="">Semua Status</option>
-            <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
-            <option value="terbayarkan" {{ request('status') === 'terbayarkan' ? 'selected' : '' }}>Terbayarkan</option>
-            <option value="batal" {{ request('status') === 'batal' ? 'selected' : '' }}>Batal</option>
+            <option value="pending">Pending</option>
+            <option value="terbayarkan">Terbayarkan</option>
+            <option value="batal">Batal</option>
         </select>
-
-        <button type="submit"
-                class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2.5 rounded-xl transition">
-            Cari
-        </button>
 
         {{-- Barcode Scanner Button --}}
         <button type="button" @click="startScanner()"
@@ -52,7 +46,7 @@
             Scan
         </button>
 
-    </form>
+    </div>
 
     {{-- Barcode Scanner interface will appear below table --}}
 
@@ -73,49 +67,59 @@
                     <th class="text-left py-3 px-4 text-xs font-medium text-gray-500">Aksi</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-50">
-                @forelse($transactions as $trx)
-                <tr class="hover:bg-gray-50 {{ $trx->status === 'pending' ? 'bg-yellow-50/30' : '' }}">
-                    <td class="py-3 px-4 font-mono text-xs text-gray-600">{{ $trx->invoice_number }}</td>
-                    <td class="py-3 px-4 text-gray-700">{{ optional($trx->user)->name }}</td>
-                    <td class="py-3 px-4 font-semibold text-gray-800">
-                        Rp {{ number_format($trx->total_amount, 0, ',', '.') }}
-                    </td>
-                    <td class="py-3 px-4 text-gray-500 text-xs">{{ $trx->payment_method }}</td>
-                    <td class="py-3 px-4">
-                        <span class="px-2 py-0.5 rounded-full text-xs font-medium
-                            @if($trx->status === 'terbayarkan') bg-green-100 text-green-700
-                            @elseif($trx->status === 'batal') bg-red-100 text-red-700
-                            @else bg-yellow-100 text-yellow-700 @endif">
-                            {{ ucfirst($trx->status) }}
-                        </span>
-                    </td>
-                    <td class="py-3 px-4 text-gray-400 text-xs">
-                        {{ \Carbon\Carbon::parse($trx->created_at)->format('d M Y H:i') }}
-                    </td>
-                    <td class="py-3 px-4">
-                        <button @click="openStatusModal({{ json_encode($trx) }})" class="p-1.5 bg-indigo-100 text-indigo-600 rounded-lg hover:bg-indigo-200 transition" title="Update Status">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                        </button>
-                    </td>
+            <tbody class="divide-y divide-gray-50 relative">
+                <template x-for="trx in transactions" :key="trx.id">
+                    <tr class="hover:bg-gray-50 transition-colors" :class="trx.status === 'pending' ? 'bg-yellow-50/30' : ''">
+                        <td class="py-3 px-4 font-mono text-xs text-gray-600" x-text="trx.invoice_number"></td>
+                        <td class="py-3 px-4 text-gray-700" x-text="trx.user ? trx.user.name : '-'"></td>
+                        <td class="py-3 px-4 font-semibold text-gray-800" x-text="'Rp ' + parseInt(trx.total_amount).toLocaleString('id-ID')"></td>
+                        <td class="py-3 px-4 text-gray-500 text-xs" x-text="trx.payment_method"></td>
+                        <td class="py-3 px-4">
+                            <span class="px-2 py-0.5 rounded-full text-xs font-medium"
+                                :class="{
+                                    'bg-yellow-100 text-yellow-700': trx.status === 'pending',
+                                    'bg-green-100 text-green-700': trx.status === 'terbayarkan',
+                                    'bg-red-100 text-red-700': trx.status === 'batal'
+                                }"
+                                x-text="trx.status.charAt(0).toUpperCase() + trx.status.slice(1)">
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-gray-400 text-xs" x-text="new Date(trx.created_at).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'})"></td>
+                        <td class="py-3 px-4">
+                            <div class="flex gap-2">
+                                <a :href="'/transactions/' + trx.id" class="text-xs px-3 py-1 bg-sky-100 text-sky-700 rounded-lg hover:bg-sky-200 transition">Detail</a>
+                                
+                                @if(Auth::user()->role->name === 'admin' || Auth::user()->role->name === 'petani')
+                                    <template x-if="trx.status !== 'batal'">
+                                        <button @click="openStatusModal(trx)" class="text-xs px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition">Update Status</button>
+                                    </template>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                </template>
+                <tr x-show="transactions.length === 0 && !tableLoading" x-cloak>
+                    <td colspan="7" class="py-8 text-center text-gray-400 text-sm">Tidak ada data transaksi.</td>
                 </tr>
-                @empty
-                <tr>
-                    <td colspan="7" class="py-8 text-center text-gray-400 text-xs">
-                        @if(request('search'))
-                            Invoice "{{ request('search') }}" tidak ditemukan.
-                        @else
-                            Belum ada transaksi.
-                        @endif
-                    </td>
-                </tr>
-                @endforelse
             </tbody>
         </table>
     </div>
 
-    <div class="px-4 py-3 border-t border-gray-100">
-        {{ $transactions->links('pagination::tailwind') }}
+    <div class="px-4 py-3 border-t border-gray-100 flex items-center justify-between" x-show="links.length > 3" x-cloak>
+        <div class="flex flex-wrap gap-1">
+            <template x-for="(link, index) in links" :key="index">
+                <button @click.prevent="if(link.url) fetchData(link.url)"
+                        x-html="link.label"
+                        :disabled="!link.url || link.active"
+                        :class="{
+                            'bg-green-600 text-white font-medium': link.active,
+                            'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200': !link.active && link.url,
+                            'bg-gray-50 text-gray-400 border border-gray-100 cursor-not-allowed': !link.url
+                        }"
+                        class="px-3 py-1.5 min-w-[2rem] text-sm rounded-lg transition-colors">
+                </button>
+            </template>
+        </div>
     </div>
 </div>
 
@@ -439,7 +443,74 @@
 <script>
 function scannerApp() {
     return {
-        mode: 'camera',
+            search: '',
+    statusFilter: '{{ request('status') }}',
+    transactions: {{ Js::from($transactions->items()) }},
+    links: {{ Js::from($transactions->toArray()['links']) }},
+    tableLoading: false,
+    
+    init() {
+        this.$watch('search', value => this.fetchData());
+        this.$watch('statusFilter', value => this.fetchData());
+    },
+    
+    fetchData(url = '{{ route('transactions.index') }}') {
+        this.tableLoading = true;
+        const params = new URLSearchParams();
+        if (this.search) params.append('search', this.search);
+        if (this.statusFilter) params.append('status', this.statusFilter);
+        
+        const finalUrl = url.includes('?') ? `${url}&${params.toString()}` : `${url}?${params.toString()}`;
+        
+        fetch(finalUrl, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            this.transactions = data.data;
+            this.links = data.links;
+            this.tableLoading = false;
+        })
+        .catch(() => { this.tableLoading = false; });
+    },
+    mode: 'camera',
+        search: '',
+        statusFilter: '{{ request('status') }}',
+        transactions: {{ Js::from($transactions->items()) }},
+        links: {{ Js::from($transactions->toArray()['links']) }},
+        tableLoading: false,
+        
+        init() {
+            this.$watch('search', value => this.fetchData());
+            this.$watch('statusFilter', value => this.fetchData());
+        },
+        
+        fetchData(url = '{{ route('transactions.index') }}') {
+            this.tableLoading = true;
+            const params = new URLSearchParams();
+            if (this.search) params.append('search', this.search);
+            if (this.statusFilter) params.append('status', this.statusFilter);
+            
+            const finalUrl = url.includes('?') ? `${url}&${params.toString()}` : `${url}?${params.toString()}`;
+            
+            fetch(finalUrl, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                this.transactions = data.data;
+                this.links = data.links;
+                this.tableLoading = false;
+            })
+            .catch(() => { this.tableLoading = false; });
+        },
+
         showScannerInterface: false,
         scanning: false,
         loading: false,
@@ -461,7 +532,7 @@ function scannerApp() {
 
         init() {
             // Auto start camera on load
-            // don't auto start
+            this.init();
         },
 
         async startScanner() {
@@ -616,7 +687,7 @@ function scannerApp() {
             this.manualInvoice = '';
             this.uploadPreview = null;
             this.mode = 'camera';
-            // don't auto start
+            this.init();
         },
     }
 }
