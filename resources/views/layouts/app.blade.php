@@ -7,6 +7,7 @@
     <title>@yield('title') — Misth</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @yield('styles')
+    <style>[x-cloak] { display: none !important; }</style>
 </head>
 <body class="bg-gray-100 font-sans text-gray-900 antialiased" x-data="{}">
 

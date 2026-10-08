@@ -22,11 +22,11 @@
         <div class="p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start">
             
             {{-- Avatar Section --}}
-            <div class="flex flex-col items-center space-y-4 w-full md:w-1/4">
+            <div class="flex flex-col items-start space-y-4 w-full md:w-1/4">
                 <div class="w-32 h-32 rounded-full bg-green-600 text-white flex items-center justify-center text-5xl font-bold shadow-lg">
                     {{ strtoupper(substr($user->name, 0, 1)) }}
                 </div>
-                <div class="text-center">
+                <div class="text-left">
                     <p class="font-semibold text-gray-800">{{ $user->name }}</p>
                     <p class="text-sm text-gray-500 capitalize">{{ $user->role->name ?? 'User' }}</p>
                 </div>

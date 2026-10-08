@@ -148,8 +148,8 @@
 <script>
 function materialIndex() {
     return {
-        materials: @json($materials->items()),
-        links: @json($materials->linkCollection()),
+        materials: {{ Js::from($materials->items()) }},
+        links: {{ Js::from($materials->toArray()["links"]) }},
         search: '{{ request("search") }}',
         categoryFilter: '{{ request("category", "all") }}',
         statusFilter: '{{ request("status", "all") }}',

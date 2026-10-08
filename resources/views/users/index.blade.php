@@ -136,8 +136,8 @@
 <script>
 function userIndex() {
     return {
-        users: @json($users->items()),
-        links: @json($users->linkCollection()),
+        users: {{ Js::from($users->items()) }},
+        links: {{ Js::from($users->toArray()["links"]) }},
         search: '{{ request("search") }}',
         roleFilter: '{{ request("role") }}',
         loading: false,

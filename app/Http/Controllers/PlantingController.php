@@ -14,16 +14,33 @@ class PlantingController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $plantings = Planting::with([
+        $query = Planting::with([
             'plantType',
             'user',
             'maintenanceLogs.user',
             'maintenanceLogs.materialUsages.material',
             'waterQualityLogs',
             'harvest',
-        ])->latest()->paginate(12);
+        ])->latest();
+
+        if ($request->filled('search')) {
+            $query->where('batch_code', 'like', '%' . $request->search . '%')
+                  ->orWhereHas('plantType', function($q) use ($request) {
+                      $q->where('name', 'like', '%' . $request->search . '%');
+                  });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $plantings = $query->paginate(12);
+
+        if ($request->wantsJson()) {
+            return response()->json($plantings);
+        }
 
         $materials = Material::where('status', 'active')->get();
         $plantTypes = PlantType::all();
