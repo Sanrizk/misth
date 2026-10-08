@@ -33,7 +33,7 @@ class WaterQualityLogController extends Controller
 
         WaterQualityLog::create($validated);
 
-        return redirect()->route('water-quality-logs.index')->with('success', 'Catatan kualitas air berhasil ditambahkan.');
+        return redirect()->back()->with('success', 'Catatan kualitas air berhasil ditambahkan.');
     }
 
     public function show($id)
@@ -47,6 +47,6 @@ class WaterQualityLogController extends Controller
         $waterQualityLog = WaterQualityLog::findOrFail($id);
         $waterQualityLog->delete();
 
-        return redirect()->route('water-quality-logs.index')->with('success', 'Catatan kualitas air berhasil dihapus.');
+        return redirect()->back()->with('success', 'Catatan kualitas air berhasil dihapus.');
     }
 }

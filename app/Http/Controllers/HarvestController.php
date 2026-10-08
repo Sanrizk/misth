@@ -60,7 +60,7 @@ class HarvestController extends Controller
             ]);
         });
 
-        return redirect()->route('harvests.index')->with('success', 'Data panen berhasil disimpan dan produk telah ditambahkan.');
+        return redirect()->back()->with('success', 'Data panen berhasil disimpan dan produk telah ditambahkan.');
     }
 
     public function show($id)
@@ -74,6 +74,6 @@ class HarvestController extends Controller
         $harvest = Harvest::findOrFail($id);
         $harvest->delete();
 
-        return redirect()->route('harvests.index')->with('success', 'Data panen berhasil dihapus.');
+        return redirect()->back()->with('success', 'Data panen berhasil dihapus.');
     }
 }

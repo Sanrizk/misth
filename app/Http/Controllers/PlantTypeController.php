@@ -35,6 +35,7 @@ class PlantTypeController extends Controller
             'description' => 'nullable|string',
         ]);
 
+        $validated['description'] = $validated['description'] ?? '';
         PlantType::create($validated);
 
         return redirect()->route('plant-types.index')
@@ -63,6 +64,7 @@ class PlantTypeController extends Controller
             'description' => 'nullable|string',
         ]);
 
+        $validated['description'] = $validated['description'] ?? '';
         $plantType->update($validated);
 
         return redirect()->route('plant-types.index')

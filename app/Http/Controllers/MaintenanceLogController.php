@@ -84,7 +84,7 @@ class MaintenanceLogController extends Controller
             }
         });
 
-        return redirect()->route('maintenance-logs.index')
+        return redirect()->back()
                          ->with('success', 'Log perawatan berhasil ditambahkan.');
     }
 
@@ -107,8 +107,7 @@ class MaintenanceLogController extends Controller
         $maintenanceLog = MaintenanceLog::findOrFail($id);
         $maintenanceLog->delete();
 
-        return redirect()
-            ->route('maintenance-logs.index')
+        return redirect()->back()
             ->with('success', 'Log perawatan berhasil dihapus.');
     }
 }
