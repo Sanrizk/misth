@@ -56,8 +56,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Farm Management — accessible by admin & petani
     Route::middleware(['role:admin,petani'])->group(function () {
-        Route::resource('plant-types', PlantTypeController::class);
-        Route::resource('plantings', PlantingController::class);
+        Route::resource('plant-types', PlantTypeController::class)->except(['create', 'edit', 'show']);
+        Route::resource('plantings', PlantingController::class)->except(['create', 'edit', 'show']);
         Route::patch('plantings/{planting}/status', [PlantingController::class, 'updateStatus'])->name('plantings.updateStatus');
         Route::post('maintenance-logs', [MaintenanceLogController::class, 'store'])->name('maintenance-logs.store');
         Route::delete('maintenance-logs/{maintenanceLog}', [MaintenanceLogController::class, 'destroy'])->name('maintenance-logs.destroy');
@@ -67,12 +67,12 @@ Route::middleware(['auth'])->group(function () {
 
         Route::post('harvests', [HarvestController::class, 'store'])->name('harvests.store');
         Route::delete('harvests/{harvest}', [HarvestController::class, 'destroy'])->name('harvests.destroy');
-        Route::resource('materials', MaterialController::class);
+        Route::resource('materials', MaterialController::class)->except(['show']);
         Route::post('material-usages', [MaterialUsageController::class, 'store'])->name('material-usages.store');
         Route::delete('material-usages/{materialUsage}', [MaterialUsageController::class, 'destroy'])->name('material-usages.destroy');
 
-        Route::resource('suppliers', SupplierController::class);
-        Route::resource('purchases', PurchaseController::class)->except(['create', 'edit']);
+        Route::resource('suppliers', SupplierController::class)->except(['create', 'edit', 'show']);
+        Route::resource('purchases', PurchaseController::class)->except(['create', 'edit', 'show']);
         Route::patch('purchases/{purchase}/status', [PurchaseController::class, 'updateStatus'])->name('purchases.updateStatus');
 
         // Reports
