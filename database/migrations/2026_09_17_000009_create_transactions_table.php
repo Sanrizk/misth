@@ -13,8 +13,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('invoice_number', 50)->unique();
             $table->decimal('total_amount', 12, 2);
-            $table->enum('status', ['pending', 'paid', 'shipping', 'completed', 'cancelled']);
-            $table->string('payment_method', 50);
+            $table->enum('status', ['pending', 'terbayarkan', 'batal'])->default('pending');
             $table->timestamps();
         });
     }
