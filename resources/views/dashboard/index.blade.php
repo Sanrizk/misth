@@ -59,44 +59,148 @@
 
 </div>
 
-{{-- Recent Transactions --}}
-<div class="bg-white rounded-2xl shadow-sm p-6">
-    <h2 class="text-sm font-semibold text-gray-700 mb-4">Transaksi Terbaru</h2>
-    <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-            <thead>
-                <tr class="border-b border-gray-100">
-                    <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">Invoice</th>
-                    <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">Customer</th>
-                    <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">Total</th>
-                    <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">Status</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-50">
-                @forelse($recentTransactions as $trx)
-                <tr class="hover:bg-gray-50">
-                    <td class="py-2.5 px-3 font-mono text-xs text-gray-600">{{ $trx->invoice_number }}</td>
-                    <td class="py-2.5 px-3">{{ optional($trx->user)->name }}</td>
-                    <td class="py-2.5 px-3 font-semibold">Rp {{ number_format($trx->total_amount, 0, ',', '.') }}</td>
-                    <td class="py-2.5 px-3">
-                        <span class="px-2 py-0.5 rounded-full text-xs font-medium
-                            @if($trx->status === 'completed') bg-green-100 text-green-700
-                            @elseif($trx->status === 'paid') bg-blue-100 text-blue-700
-                            @elseif($trx->status === 'shipping') bg-purple-100 text-purple-700
-                            @elseif($trx->status === 'cancelled') bg-red-100 text-red-700
-                            @else bg-yellow-100 text-yellow-700 @endif">
-                            {{ ucfirst($trx->status) }}
-                        </span>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="4" class="py-8 text-center text-gray-400 text-xs">Belum ada transaksi.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+{{-- Charts Row 1 --}}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm p-6">
+        <h2 class="text-sm font-semibold text-gray-700 mb-4">Tren Panen (6 Bulan Terakhir)</h2>
+        <canvas id="harvestChart" class="w-full" style="max-height: 250px;"></canvas>
+    </div>
+    <div class="bg-white rounded-2xl shadow-sm p-6">
+        <h2 class="text-sm font-semibold text-gray-700 mb-4">Produk Terlaris</h2>
+        <canvas id="productChart" class="w-full" style="max-height: 250px;"></canvas>
     </div>
 </div>
 
+{{-- Charts Row 2 & Recent Transactions --}}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    {{-- Finance Chart --}}
+    <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col">
+        <h2 class="text-sm font-semibold text-gray-700 mb-4">Pembelian Bahan vs Penjualan (6 Bulan Terakhir)</h2>
+        <div class="flex-1 flex items-center justify-center">
+            <canvas id="financeChart" class="w-full" style="max-height: 300px;"></canvas>
+        </div>
+    </div>
+
+    {{-- Recent Transactions --}}
+    <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col">
+        <h2 class="text-sm font-semibold text-gray-700 mb-4">Transaksi Terbaru</h2>
+        <div class="overflow-x-auto flex-1">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-gray-100">
+                        <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">Invoice</th>
+                        <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">Customer</th>
+                        <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">Total</th>
+                        <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    @forelse($recentTransactions as $trx)
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-2.5 px-3 font-mono text-xs text-gray-600">{{ $trx->invoice_number }}</td>
+                        <td class="py-2.5 px-3">{{ optional($trx->user)->name }}</td>
+                        <td class="py-2.5 px-3 font-semibold">Rp {{ number_format($trx->total_amount, 0, ',', '.') }}</td>
+                        <td class="py-2.5 px-3">
+                            <span class="px-2 py-0.5 rounded-full text-xs font-medium
+                                @if($trx->status === 'completed') bg-green-100 text-green-700
+                                @elseif($trx->status === 'paid') bg-blue-100 text-blue-700
+                                @elseif($trx->status === 'shipping') bg-purple-100 text-purple-700
+                                @elseif($trx->status === 'cancelled') bg-red-100 text-red-700
+                                @else bg-yellow-100 text-yellow-700 @endif">
+                                {{ ucfirst($trx->status) }}
+                            </span>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="4" class="py-8 text-center text-gray-400 text-xs">Belum ada transaksi.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@endsection
+
+@section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } }
+        }
+    };
+
+    // 1. Harvest Line Chart
+    new Chart(document.getElementById('harvestChart'), {
+        type: 'line',
+        data: {
+            labels: @json($harvestChart['labels']),
+            datasets: [{
+                label: 'Total Panen (kg)',
+                data: @json($harvestChart['data']),
+                borderColor: '#16a34a',
+                backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                borderWidth: 2,
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        options: {
+            ...chartOptions,
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    // 2. Product Pie Chart
+    new Chart(document.getElementById('productChart'), {
+        type: 'doughnut',
+        data: {
+            labels: @json($productChart['labels']),
+            datasets: [{
+                data: @json($productChart['data']),
+                backgroundColor: [
+                    '#16a34a', '#2563eb', '#d97706', '#9333ea', '#db2777'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            ...chartOptions,
+            cutout: '60%'
+        }
+    });
+
+    // 3. Finance Bar Chart
+    new Chart(document.getElementById('financeChart'), {
+        type: 'bar',
+        data: {
+            labels: @json($financeChart['labels']),
+            datasets: [
+                {
+                    label: 'Pembelian Bahan (Rp)',
+                    data: @json($financeChart['purchases']),
+                    backgroundColor: '#dc2626',
+                    borderRadius: 4
+                },
+                {
+                    label: 'Penjualan (Rp)',
+                    data: @json($financeChart['sales']),
+                    backgroundColor: '#16a34a',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            ...chartOptions,
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+});
+</script>
 @endsection
