@@ -31,6 +31,34 @@
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
         return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear() + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
     },
+    
+    calculateProgress(planting) {
+        if (planting.status === 'harvested') return 100;
+        
+        const start = new Date(planting.start_date).getTime();
+        const now = new Date().getTime();
+        
+        const estDays = planting.plant_type ? planting.plant_type.estimated_harvest_days : 0;
+        if (!estDays) return 0;
+        
+        const daysPassed = (now - start) / (1000 * 60 * 60 * 24);
+        let progress = Math.round((daysPassed / estDays) * 100);
+        
+        if (progress < 0) progress = 0;
+        if (progress > 100) progress = 100;
+        
+        return progress;
+    },
+    getProgressColorClass(progress) {
+        if (progress < 30) return 'text-red-600';
+        if (progress < 99) return 'text-yellow-600';
+        return 'text-green-600';
+    },
+    getProgressBgClass(progress) {
+        if (progress < 30) return 'bg-red-500';
+        if (progress < 99) return 'bg-yellow-500';
+        return 'bg-green-500';
+    },
     fetchData(url = null) {
         let fetchUrl = new URL(url || window.location.href);
         if (this.search) fetchUrl.searchParams.set('search', this.search);
@@ -126,13 +154,13 @@
             </div>
 
             {{-- Progress Bar --}}
-            <div class="px-4 pb-3 flex-1">
+            <div class="px-4 pb-3 flex-1" x-data="{ progress: calculateProgress(planting) }">
                 <div class="flex justify-between text-xs mb-1">
                     <span class="text-gray-400">Progress</span>
-                    <span class="font-semibold text-green-600">0%</span>
+                    <span class="font-semibold" :class="getProgressColorClass(progress)" x-text="progress + '%'"></span>
                 </div>
                 <div class="w-full bg-gray-100 rounded-full h-2">
-                    <div class="bg-green-500 h-2 rounded-full" style="width: 0%"></div>
+                    <div class="h-2 rounded-full transition-all duration-500" :class="getProgressBgClass(progress)" :style="`width: ${progress}%`"></div>
                 </div>
             </div>
 
