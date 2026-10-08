@@ -87,12 +87,10 @@
                         <td class="py-3 px-4 text-gray-400 text-xs" x-text="new Date(trx.created_at).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'})"></td>
                         <td class="py-3 px-4">
                             <div class="flex gap-2">
-                                <a :href="'/transactions/' + trx.id" class="text-xs px-3 py-1 bg-sky-100 text-sky-700 rounded-lg hover:bg-sky-200 transition">Detail</a>
-                                
                                 @if(Auth::user()->role->name === 'admin' || Auth::user()->role->name === 'petani')
-                                    <template x-if="trx.status !== 'batal'">
-                                        <button @click="openStatusModal(trx)" class="text-xs px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition">Update Status</button>
-                                    </template>
+                                    <button @click="openStatusModal(trx)" class="text-xs px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition">Detail & Status</button>
+                                @else
+                                    <button @click="openStatusModal(trx)" class="text-xs px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition">Detail</button>
                                 @endif
                             </div>
                         </td>
@@ -407,26 +405,58 @@
                 @method('PATCH')
                 <div class="px-6 py-5 bg-white">
                     <div class="flex items-center justify-between mb-5">
-                        <h3 class="text-lg font-medium leading-6 text-gray-900">Update Status Pesanan</h3>
+                        <h3 class="text-lg font-medium leading-6 text-gray-900">Detail & Status Pesanan</h3>
                         <button type="button" @click="showStatusModal = false" class="text-gray-400 hover:text-gray-500">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
                     
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Status Baru</label>
-                        <select name="status" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500" :value="selectedTransaction?.status" required>
-                            <option value="pending">Pending</option>
-                            <option value="terbayarkan">Terbayarkan</option>
-                            <option value="batal">Batal</option>
-                        </select>
-                    </div>
+                    <template x-if="selectedTransaction">
+                        <div>
+                            <div class="mb-4 text-sm text-gray-600 space-y-1">
+                                <p><span class="font-medium text-gray-500 inline-block w-24">Invoice:</span> <span class="font-mono text-gray-800" x-text="selectedTransaction.invoice_number"></span></p>
+                                <p><span class="font-medium text-gray-500 inline-block w-24">Pelanggan:</span> <span class="font-medium text-gray-800" x-text="selectedTransaction.user?.name || '-'"></span></p>
+                                <p><span class="font-medium text-gray-500 inline-block w-24">Tanggal:</span> <span x-text="new Date(selectedTransaction.created_at).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'})"></span></p>
+                                <p><span class="font-medium text-gray-500 inline-block w-24">Total:</span> <span class="font-bold text-green-700" x-text="'Rp ' + parseInt(selectedTransaction.total_amount).toLocaleString('id-ID')"></span></p>
+                            </div>
+
+                            <div class="border border-gray-100 rounded-xl overflow-hidden mb-2">
+                                <table class="w-full text-sm text-left">
+                                    <thead class="bg-gray-50 border-b border-gray-100 text-gray-500 font-medium">
+                                        <tr>
+                                            <th class="py-2 px-3">Produk</th>
+                                            <th class="py-2 px-3">Qty</th>
+                                            <th class="py-2 px-3">Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-50 text-gray-700">
+                                        <template x-for="item in selectedTransaction.transaction_details" :key="item.id">
+                                            <tr class="hover:bg-gray-50 transition-colors">
+                                                <td class="py-2 px-3" x-text="item.product?.name || '-'"></td>
+                                                <td class="py-2 px-3" x-text="item.quantity + ' ' + (item.product?.unit || '')"></td>
+                                                <td class="py-2 px-3 font-medium text-gray-800" x-text="'Rp ' + parseInt(item.subtotal).toLocaleString('id-ID')"></td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </template>
                 </div>
-                <div class="px-6 py-4 bg-gray-50 sm:flex sm:flex-row-reverse border-t border-gray-100">
-                    <button type="submit" class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-xl shadow-sm hover:bg-green-700 focus:outline-none sm:ml-3 sm:w-auto">
-                        Update Status
-                    </button>
-                    <button type="button" @click="showStatusModal = false" class="inline-flex justify-center w-full px-4 py-2 mt-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl shadow-sm hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto">
+                <div class="px-6 py-4 bg-gray-50 flex flex-wrap gap-3 sm:flex-row-reverse border-t border-gray-100">
+                    @if(Auth::user()->role->name === 'admin' || Auth::user()->role->name === 'petani')
+                    <template x-if="selectedTransaction?.status === 'pending'">
+                        <button type="submit" name="status" value="terbayarkan" class="w-full sm:w-auto inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-xl hover:bg-green-700 shadow-sm focus:outline-none">
+                            Konfirmasi Terbayarkan
+                        </button>
+                    </template>
+                    <template x-if="selectedTransaction?.status === 'pending'">
+                        <button type="submit" name="status" value="batal" class="w-full sm:w-auto inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-xl hover:bg-red-700 shadow-sm focus:outline-none" @click.prevent="$dispatch('confirm', { message: 'Batalkan pesanan ini?', onConfirm: () => $el.closest('form').submit() })">
+                            Batalkan
+                        </button>
+                    </template>
+                    @endif
+                    <button type="button" @click="showStatusModal = false" class="w-full sm:w-auto inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 shadow-sm focus:outline-none">
                         Tutup
                     </button>
                 </div>
@@ -443,40 +473,7 @@
 <script>
 function scannerApp() {
     return {
-            search: '',
-    statusFilter: '{{ request('status') }}',
-    transactions: {{ Js::from($transactions->items()) }},
-    links: {{ Js::from($transactions->toArray()['links']) }},
-    tableLoading: false,
-    
-    init() {
-        this.$watch('search', value => this.fetchData());
-        this.$watch('statusFilter', value => this.fetchData());
-    },
-    
-    fetchData(url = '{{ route('transactions.index') }}') {
-        this.tableLoading = true;
-        const params = new URLSearchParams();
-        if (this.search) params.append('search', this.search);
-        if (this.statusFilter) params.append('status', this.statusFilter);
-        
-        const finalUrl = url.includes('?') ? `${url}&${params.toString()}` : `${url}?${params.toString()}`;
-        
-        fetch(finalUrl, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
-            }
-        })
-        .then(res => res.json())
-        .then(data => {
-            this.transactions = data.data;
-            this.links = data.links;
-            this.tableLoading = false;
-        })
-        .catch(() => { this.tableLoading = false; });
-    },
-    mode: 'camera',
+        mode: 'camera',
         search: '',
         statusFilter: '{{ request('status') }}',
         transactions: {{ Js::from($transactions->items()) }},
@@ -530,10 +527,7 @@ function scannerApp() {
         uploadPreview: null,
         html5QrCode: null,
 
-        init() {
-            // Auto start camera on load
-            this.init();
-        },
+
 
         async startScanner() {
             this.showScannerInterface = true;
@@ -687,7 +681,6 @@ function scannerApp() {
             this.manualInvoice = '';
             this.uploadPreview = null;
             this.mode = 'camera';
-            this.init();
         },
     }
 }
