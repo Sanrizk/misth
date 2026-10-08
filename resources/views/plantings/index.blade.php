@@ -17,7 +17,8 @@
     <div x-data="{
             showPerawatan: false,
             showKualitasAir: false,
-            showPanen: false
+            showPanen: false,
+            showEdit: false
          }"
          class="bg-white rounded-2xl shadow-sm overflow-hidden hover:-translate-y-1 hover:shadow-md transition duration-200 flex flex-col h-full">
 
@@ -66,18 +67,13 @@
 
         <div class="border-t border-gray-100 px-4 py-3 space-y-2">
 
-            {{-- Row 1: Show, Edit, Delete --}}
-            <div class="grid grid-cols-3 gap-1">
-                <a href="{{ route('plantings.show', $planting->id) }}"
-                   class="flex flex-col items-center py-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-600 transition text-xs">
-                    <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                    Detail
-                </a>
-                <a href="{{ route('plantings.edit', $planting->id) }}"
+            {{-- Row 1: Edit, Delete --}}
+            <div class="grid grid-cols-2 gap-1">
+                <button @click="showEdit = true"
                    class="flex flex-col items-center py-1.5 rounded-lg bg-yellow-50 hover:bg-yellow-100 text-yellow-600 transition text-xs">
                     <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                     Edit
-                </a>
+                </button>
                 <form action="{{ route('plantings.destroy', $planting->id) }}" method="POST" class="w-full">
                     @csrf @method('DELETE')
                     <button @click.prevent="$dispatch('confirm', { message: 'Yakin hapus?', onConfirm: () => $el.closest('form') ? $el.closest('form').submit() : null })"
@@ -89,7 +85,7 @@
             </div>
 
             {{-- Row 2: Perawatan, Kualitas Air, Panen --}}
-            <div class="grid grid-cols-3 gap-1">
+            <div class="grid {{ $planting->status === 'in_progress' ? 'grid-cols-3' : 'grid-cols-2' }} gap-1">
                 <button @click="showPerawatan = true"
                         class="flex flex-col items-center py-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-600 transition text-xs">
                     <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
@@ -100,11 +96,13 @@
                     <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                     Kualitas Air
                 </button>
+                @if($planting->status === 'in_progress')
                 <button @click="showPanen = true"
                         class="flex flex-col items-center py-1.5 rounded-lg bg-green-50 hover:bg-green-100 text-green-600 transition text-xs">
                     <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                     Panen
                 </button>
+                @endif
             </div>
 
         </div>
@@ -419,6 +417,83 @@
         </div>
         </template>
 
+        {{-- MODAL EDIT --}}
+        <template x-teleport="body">
+        <div x-cloak x-show="showEdit" x-transition x-init="$watch('showEdit', val => document.body.style.overflow = val ? 'hidden' : '')"
+             class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+             @click.self="showEdit = false">
+            <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl flex flex-col">
+                <form action="{{ route('plantings.update', $planting->id) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    
+                    <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
+                        <h3 class="font-semibold text-gray-700 text-sm">
+                            Edit Penanaman: {{ $planting->batch_code }}
+                        </h3>
+                        <button type="button" @click="showEdit = false" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    <div class="p-5 space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Jenis Tanaman</label>
+                            <select name="plant_type_id" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-green-500" required>
+                                <option value="">-- Pilih Jenis Tanaman --</option>
+                                @foreach($plantTypes as $type)
+                                    <option value="{{ $type->id }}" {{ $planting->plant_type_id == $type->id ? 'selected' : '' }}>
+                                        {{ $type->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Penanggung Jawab (Petani)</label>
+                            <select name="user_id" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-green-500" required>
+                                <option value="">-- Pilih Petani --</option>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->id }}" {{ $planting->user_id == $user->id ? 'selected' : '' }}>
+                                        {{ $user->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Jumlah Bibit</label>
+                            <input type="number" name="quantity_seeds" value="{{ $planting->quantity_seeds }}" min="1" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-green-500" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Tanggal Tanam</label>
+                            <input type="date" name="start_date" value="{{ \Carbon\Carbon::parse($planting->start_date)->format('Y-m-d') }}" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-green-500" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Status</label>
+                            <select name="status" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-green-500" required>
+                                <option value="in_progress" {{ $planting->status == 'in_progress' ? 'selected' : '' }}>Proses</option>
+                                <option value="harvested" {{ $planting->status == 'harvested' ? 'selected' : '' }}>Panen</option>
+                                <option value="failed" {{ $planting->status == 'failed' ? 'selected' : '' }}>Gagal</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="px-5 py-4 bg-gray-50 border-t border-gray-100 flex gap-2 justify-end rounded-b-2xl">
+                        <button type="button" @click="showEdit = false" class="px-4 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-xl shadow-sm hover:bg-gray-50 transition">
+                            Batal
+                        </button>
+                        <button type="submit" class="px-4 py-2 text-xs font-medium text-white bg-green-600 rounded-xl shadow-sm hover:bg-green-700 transition">
+                            Simpan Perubahan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        </template>
+
     </div>
     @empty
     <div class="col-span-4 text-center py-16 text-gray-400">
@@ -532,6 +607,7 @@ window.addEventListener("pageshow", function() {
             if ("showPerawatan" in data) data.showPerawatan = false;
             if ("showKualitasAir" in data) data.showKualitasAir = false;
             if ("showPanen" in data) data.showPanen = false;
+            if ("showEdit" in data) data.showEdit = false;
             document.body.style.overflow = "";
         }
     });
