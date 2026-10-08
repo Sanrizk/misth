@@ -8,9 +8,17 @@ use Illuminate\Http\Request;
 
 class MaterialController extends Controller
 {
-    public function index(Request $request)
+        public function index(Request $request)
     {
         $query = Material::query();
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                  ->orWhere('code', 'like', "%$search%");
+            });
+        }
 
         if ($request->filled('category') && $request->category !== 'all') {
             $query->where('category', $request->category);
@@ -21,6 +29,11 @@ class MaterialController extends Controller
         }
 
         $materials = $query->orderBy('name')->paginate(10);
+        
+        if ($request->wantsJson()) {
+            return response()->json($materials);
+        }
+        
         return view('materials.index', compact('materials'));
     }
 

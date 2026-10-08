@@ -6,9 +6,23 @@ use Illuminate\Http\Request;
 
 class SupplierController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $suppliers = \App\Models\Supplier::paginate(10);
+        $query = \App\Models\Supplier::query();
+        
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where('name', 'like', "%$search%")
+                  ->orWhere('phone', 'like', "%$search%")
+                  ->orWhere('address', 'like', "%$search%");
+        }
+        
+        $suppliers = $query->latest()->paginate(10);
+        
+        if ($request->wantsJson()) {
+            return response()->json($suppliers);
+        }
+
         return view('suppliers.index', compact('suppliers'));
     }
 

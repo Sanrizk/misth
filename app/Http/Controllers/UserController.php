@@ -14,11 +14,25 @@ class UserController extends Controller
     {
         $query = User::with('role')->latest();
 
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                  ->orWhere('email', 'like', "%$search%")
+                  ->orWhere('phone', 'like', "%$search%");
+            });
+        }
+
         if ($request->role) {
             $query->whereHas('role', fn($q) => $q->where('name', $request->role));
         }
 
         $users = $query->paginate(10);
+        
+        if ($request->wantsJson()) {
+            return response()->json($users);
+        }
+
         $roles = Role::all();
 
         return view('users.index', compact('users', 'roles'));

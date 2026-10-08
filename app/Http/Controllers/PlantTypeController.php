@@ -10,9 +10,22 @@ class PlantTypeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+        public function index(Request $request)
     {
-        $plantTypes = PlantType::orderBy('created_at', 'desc')->paginate(10);
+        $query = PlantType::query();
+        
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where('name', 'like', "%$search%")
+                  ->orWhere('description', 'like', "%$search%");
+        }
+        
+        $plantTypes = $query->orderBy('created_at', 'desc')->paginate(10);
+        
+        if ($request->wantsJson()) {
+            return response()->json($plantTypes);
+        }
+        
         return view('plant-types.index', compact('plantTypes'));
     }
 
