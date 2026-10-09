@@ -68,7 +68,7 @@
                     <!-- Logout form (Mobile & Desktop) -->
                     <form action="{{ route('logout') }}" method="POST" class="flex items-center m-0 p-0">
                         @csrf
-                        <button type="submit" class="p-2 lg:p-0 lg:px-3 lg:py-1.5 lg:bg-red-50 lg:text-red-600 lg:rounded-md lg:text-sm lg:font-medium lg:hover:bg-red-100 text-gray-600 transition" aria-label="Logout">
+                        <button type="submit" class="cursor-pointer p-2 lg:p-0 lg:px-3 lg:py-1.5 lg:bg-red-50 lg:text-red-600 lg:rounded-md lg:text-sm lg:font-medium lg:hover:bg-red-100 text-gray-600 dark:text-gray-300 dark:lg:bg-red-900/30 dark:lg:text-red-400 dark:lg:hover:bg-red-900/50 transition" aria-label="Logout">
                             <!-- Mobile icon -->
                             <svg class="w-6 h-6 lg:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                             <!-- Desktop text -->

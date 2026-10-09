@@ -80,7 +80,7 @@
     <form action="{{ route('store.checkout.store') }}" method="POST">
         @csrf
         <button type="submit"
-                class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-2xl text-sm transition">
+                class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-2xl text-sm transition cursor-pointer">
             Buat Pesanan & Dapatkan QR Code
         </button>
     </form>
