@@ -27,8 +27,10 @@ class DashboardController extends Controller
         
         $recentTransactions = Transaction::with('user')->orderBy('created_at', 'desc')->take(5)->get();
 
-        // 1. Line Chart: Harvests (Last 6 Months)
-        $harvestData = Harvest::selectRaw('SUM(total_yield_weight) as total, MONTH(harvest_date) as month')
+        $isSqlite = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite';
+        $monthFunc = $isSqlite ? "strftime('%m', harvest_date)" : "MONTH(harvest_date)";
+        
+        $harvestData = Harvest::selectRaw("SUM(total_yield_weight) as total, {$monthFunc} as month")
             ->where('harvest_date', '>=', Carbon::now()->subMonths(5)->startOfMonth())
             ->groupBy('month')
             ->pluck('total', 'month')->toArray();
@@ -37,7 +39,7 @@ class DashboardController extends Controller
         for ($i = 5; $i >= 0; $i--) {
             $m = Carbon::now()->subMonths($i);
             $harvestChart['labels'][] = $m->translatedFormat('M Y');
-            $harvestChart['data'][] = $harvestData[$m->month] ?? 0;
+            $harvestChart['data'][] = $harvestData[(int) $m->format('m')] ?? 0;
         }
 
         // 2. Pie Chart: Top Products Sold
@@ -55,13 +57,15 @@ class DashboardController extends Controller
         }
 
         // 3. Bar Chart: Sales vs Purchases (Last 6 Months)
-        $salesData = Transaction::selectRaw('SUM(total_amount) as total, MONTH(created_at) as month')
+        $monthFuncCreated = $isSqlite ? "strftime('%m', created_at)" : "MONTH(created_at)";
+        $salesData = Transaction::selectRaw("SUM(total_amount) as total, {$monthFuncCreated} as month")
             ->where('created_at', '>=', Carbon::now()->subMonths(5)->startOfMonth())
             ->where('status', '!=', 'cancelled')
             ->groupBy('month')
             ->pluck('total', 'month')->toArray();
 
-        $purchasesData = Purchase::selectRaw('SUM(total_amount) as total, MONTH(purchase_date) as month')
+        $monthFuncPurchase = $isSqlite ? "strftime('%m', purchase_date)" : "MONTH(purchase_date)";
+        $purchasesData = Purchase::selectRaw("SUM(total_amount) as total, {$monthFuncPurchase} as month")
             ->where('purchase_date', '>=', Carbon::now()->subMonths(5)->startOfMonth())
             ->where('status', '!=', 'cancelled')
             ->groupBy('month')
@@ -71,8 +75,8 @@ class DashboardController extends Controller
         for ($i = 5; $i >= 0; $i--) {
             $m = Carbon::now()->subMonths($i);
             $financeChart['labels'][] = $m->translatedFormat('M Y');
-            $financeChart['sales'][] = $salesData[$m->month] ?? 0;
-            $financeChart['purchases'][] = $purchasesData[$m->month] ?? 0;
+            $financeChart['sales'][] = $salesData[(int) $m->format('m')] ?? 0;
+            $financeChart['purchases'][] = $purchasesData[(int) $m->format('m')] ?? 0;
         }
 
         return view('dashboard.index', compact(
