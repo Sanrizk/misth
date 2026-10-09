@@ -44,7 +44,7 @@
             </div>
             <div>
                 <p class="text-sm font-semibold text-green-800">Bayar di Tempat (COD)</p>
-                <p class="text-xs text-green-600">Tunjukkan QR Code kepada kasir saat pengambilan barang</p>
+                <p class="text-xs text-green-600">Tunjukkan QR Code kepada admin saat pengambilan barang</p>
             </div>
             <div class="ml-auto">
                 <div class="w-5 h-5 bg-green-600 rounded-full flex items-center justify-center">
@@ -68,8 +68,8 @@
                 <ol class="list-decimal list-inside space-y-0.5 text-blue-600">
                     <li>Buat pesanan dan dapatkan QR Code</li>
                     <li>Datang ke lokasi kebun Misth</li>
-                    <li>Tunjukkan QR Code kepada kasir</li>
-                    <li>Kasir scan QR dan konfirmasi pembayaran</li>
+                    <li>Tunjukkan QR Code kepada admin</li>
+                    <li>admin scan QR dan konfirmasi pembayaran</li>
                     <li>Ambil barang Anda</li>
                 </ol>
             </div>
