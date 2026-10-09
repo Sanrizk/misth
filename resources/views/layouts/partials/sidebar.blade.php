@@ -46,6 +46,7 @@
              x-transition:leave-start="opacity-100 max-h-64"
              x-transition:leave-end="opacity-0 max-h-0"
              class="pl-4 pr-1 py-1 space-y-1 overflow-hidden">
+                @if($role === 'admin')
                 <a href="{{ route('suppliers.index') }}"
                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('suppliers.*') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,6 +54,7 @@
                     </svg> 
                     Supplier
                 </a>
+                @endif
                 <a href="{{ route('plant-types.index') }}"
                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('plant-types.*') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -67,6 +69,7 @@
                     </svg> 
                     Bahan
                 </a>
+                @if($role === 'admin')
                 <a href="{{ route('users.index') }}"
                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('users.*') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,6 +77,7 @@
                     </svg> 
                     User
                 </a>
+                @endif
             </div>
         </div>
 
@@ -97,6 +101,7 @@
              x-transition:leave-start="opacity-100 max-h-64"
              x-transition:leave-end="opacity-0 max-h-0"
              class="pl-4 pr-1 py-1 space-y-1 overflow-hidden">
+                @if($role === 'admin')
                 <a href="{{ route('purchases.index') }}"
                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('purchases.*') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -104,6 +109,7 @@
                     </svg> 
                     Pembelian
                 </a>
+                @endif
                 <a href="{{ route('plantings.index') }}"
                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('plantings.*') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,6 +117,7 @@
                     </svg> 
                     Penanaman
                 </a>
+                @if($role === 'admin')
                 <a href="{{ route('products.index') }}"
                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('products.*') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,6 +132,7 @@
                     </svg> 
                     Pesanan
                 </a>
+                @endif
             </div>
         </div>
         @endif

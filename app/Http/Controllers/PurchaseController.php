@@ -13,7 +13,7 @@ class PurchaseController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Purchase::with(['supplier', 'user']);
+        $query = Purchase::with(['supplier', 'user', 'purchaseItems.material']);
 
         if ($request->filled('search')) {
             $query->where('invoice_number', 'like', '%' . $request->search . '%')
@@ -87,6 +87,50 @@ class PurchaseController extends Controller
     {
         $purchase->load(['supplier', 'user', 'purchaseItems.material']);
         return response()->json($purchase);
+    }
+
+    public function update(Request $request, Purchase $purchase)
+    {
+        if ($purchase->status !== 'draft') {
+            return redirect()->route('purchases.index')->with('error', 'Hanya pembelian draft yang bisa diedit.');
+        }
+
+        $validated = $request->validate([
+            'supplier_id' => 'required|exists:suppliers,id',
+            'purchase_date' => 'required|date',
+            'notes' => 'nullable|string',
+            'items' => 'required|array|min:1',
+            'items.*.material_id' => 'required|exists:materials,id',
+            'items.*.quantity' => 'required|numeric|min:0.01',
+            'items.*.unit_price' => 'required|numeric|min:0',
+        ]);
+
+        DB::transaction(function () use ($validated, $purchase) {
+            $purchase->update([
+                'supplier_id' => $validated['supplier_id'],
+                'purchase_date' => $validated['purchase_date'],
+                'notes' => $validated['notes'],
+            ]);
+
+            $purchase->purchaseItems()->delete();
+
+            $totalAmount = 0;
+            foreach ($validated['items'] as $item) {
+                $subtotal = $item['quantity'] * $item['unit_price'];
+                $totalAmount += $subtotal;
+
+                $purchase->purchaseItems()->create([
+                    'material_id' => $item['material_id'],
+                    'quantity' => $item['quantity'],
+                    'unit_price' => $item['unit_price'],
+                    'subtotal' => $subtotal,
+                ]);
+            }
+
+            $purchase->update(['total_amount' => $totalAmount]);
+        });
+
+        return redirect()->route('purchases.index')->with('success', 'Pembelian berhasil diperbarui.');
     }
 
     public function updateStatus(Request $request, Purchase $purchase)

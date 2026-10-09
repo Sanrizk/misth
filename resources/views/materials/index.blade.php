@@ -103,9 +103,12 @@
                             </td>
                             <td class="py-3 px-4">
                                 <div class="flex gap-2">
-                                    <a :href="`/materials/${material.id}/edit`" class="p-1.5 bg-yellow-100 text-yellow-600 rounded-lg hover:bg-yellow-200 transition" title="Edit">
+                                    <button @click="openDetailModal(material)" class="p-1.5 bg-sky-100 text-sky-600 rounded-lg hover:bg-sky-200 transition cursor-pointer" title="Detail">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                    </button>
+                                    <button @click="openEditModal(material)" class="p-1.5 bg-yellow-100 text-yellow-600 rounded-lg hover:bg-yellow-200 transition cursor-pointer" title="Edit">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                    </a>
+                                    </button>
                                     <form :action="`/materials/${material.id}`" method="POST">
                                         @csrf
                                         @method('DELETE')
@@ -143,6 +146,131 @@
             </div>
         </div>
     </div>
+
+    <template x-teleport="body">
+        <div x-show="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" x-cloak>
+            <div @click.away="closeModal()" class="bg-white rounded-2xl w-full max-w-lg p-6 shadow-xl relative max-h-[90vh] overflow-y-auto"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100">
+                <button @click="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                <h3 class="text-lg font-bold text-gray-800 mb-4" x-text="modalMode === 'edit' ? 'Edit Bahan' : 'Detail Bahan'"></h3>
+                
+                <template x-if="modalMode === 'edit'">
+                    <form :action="`/materials/${form.id}`" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Kode Bahan</label>
+                                    <input type="text" name="code" x-model="form.code" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Bahan</label>
+                                    <input type="text" name="name" x-model="form.name" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                                    <select name="category" x-model="form.category" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                                        <option value="nutrient">Nutrisi</option>
+                                        <option value="pesticide">Pestisida</option>
+                                        <option value="operational">Operasional</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Satuan</label>
+                                    <input type="text" name="unit" x-model="form.unit" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Stok Saat Ini</label>
+                                    <input type="number" step="0.01" name="stock" x-model="form.stock" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Minimum Stok</label>
+                                    <input type="number" step="0.01" name="min_stock" x-model="form.min_stock" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Harga per Unit</label>
+                                    <input type="number" step="0.01" name="price_per_unit" x-model="form.price_per_unit" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                    <select name="status" x-model="form.status" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                                        <option value="active">Aktif</option>
+                                        <option value="inactive">Nonaktif</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                                <textarea name="description" x-model="form.description" rows="2" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none"></textarea>
+                            </div>
+                            <div class="flex justify-end gap-2 mt-6">
+                                <button type="button" @click="closeModal()" class="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 cursor-pointer">Batal</button>
+                                <button type="submit" class="px-4 py-2 text-sm text-white bg-green-600 rounded-xl hover:bg-green-700 cursor-pointer">Simpan Perubahan</button>
+                            </div>
+                        </div>
+                    </form>
+                </template>
+                
+                <template x-if="modalMode === 'detail'">
+                    <div class="space-y-4 text-sm">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="flex flex-col">
+                                <span class="text-gray-500 font-medium">Kode Bahan</span>
+                                <span class="text-gray-800 font-semibold" x-text="form.code"></span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-gray-500 font-medium">Nama Bahan</span>
+                                <span class="text-gray-800" x-text="form.name"></span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-gray-500 font-medium">Kategori</span>
+                                <span class="text-gray-800 capitalize" x-text="form.category"></span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-gray-500 font-medium">Satuan</span>
+                                <span class="text-gray-800" x-text="form.unit"></span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-gray-500 font-medium">Stok Saat Ini</span>
+                                <span class="text-gray-800" :class="{'text-red-600 font-bold': form.stock <= form.min_stock}" x-text="form.stock + ' ' + form.unit"></span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-gray-500 font-medium">Min Stok</span>
+                                <span class="text-gray-800" x-text="form.min_stock + ' ' + form.unit"></span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-gray-500 font-medium">Harga / Unit</span>
+                                <span class="text-gray-800" x-text="formatCurrency(form.price_per_unit)"></span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-gray-500 font-medium">Status</span>
+                                <span class="px-2 py-0.5 rounded-full text-xs font-medium w-max"
+                                      :class="form.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
+                                      x-text="form.status === 'active' ? 'Aktif' : 'Nonaktif'">
+                                </span>
+                            </div>
+                            <div class="flex flex-col col-span-2">
+                                <span class="text-gray-500 font-medium">Deskripsi</span>
+                                <span class="text-gray-800" x-text="form.description || '-'"></span>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </template>
+
 </div>
 
 <script>
@@ -154,6 +282,45 @@ function materialIndex() {
         categoryFilter: '{{ request("category", "all") }}',
         statusFilter: '{{ request("status", "all") }}',
         loading: false,
+        showModal: false,
+        modalMode: 'create',
+        form: {
+            id: null,
+            name: '',
+            code: '',
+            category: 'nutrient',
+            unit: 'Kg',
+            stock: 0,
+            min_stock: 0,
+            price_per_unit: 0,
+            status: 'active',
+            description: ''
+        },
+        openEditModal(material) {
+            this.modalMode = 'edit';
+            this.form = {
+                id: material.id,
+                name: material.name,
+                code: material.code,
+                category: material.category,
+                unit: material.unit,
+                stock: material.stock,
+                min_stock: material.min_stock,
+                price_per_unit: material.price_per_unit,
+                status: material.status,
+                description: material.description || ''
+            };
+            this.showModal = true;
+        },
+        openDetailModal(material) {
+            this.modalMode = 'detail';
+            this.form = { ...material };
+            this.showModal = true;
+        },
+        closeModal() {
+            this.showModal = false;
+        },
+
         currentPage: {{ $materials->currentPage() }},
         perPage: {{ $materials->perPage() }},
 

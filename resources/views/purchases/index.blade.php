@@ -74,10 +74,32 @@
     openStatusModal(purchase) {
         this.selectedPurchase = purchase;
         this.showStatusModal = true;
+        fetch('/purchases/' + purchase.id, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+            .then(res => res.json())
+            .then(data => {
+                this.selectedPurchase = data;
+            })
+            .catch(err => {
+                console.error('Error fetching purchase data:', err);
+                alert('Gagal mengambil data pembelian.');
+            });
     },
     openEditModal(purchase) {
-        fetch('/purchases/' + purchase.id)
-            .then(res => res.json())
+        fetch('/purchases/' + purchase.id, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('Gagal load data');
+                return res.json();
+            })
             .then(data => {
                 this.editForm.id = data.id;
                 this.editForm.supplier_id = data.supplier_id;
@@ -93,6 +115,10 @@
                     this.editForm.items = [];
                 }
                 this.showEditModal = true;
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Gagal memuat data pembelian untuk diedit.');
             });
     }
 }">
@@ -172,23 +198,26 @@
                         </td>
                         <td class="py-3 px-4">
                             <div class="flex gap-2">
-                                <button @click="openStatusModal(purchase)" class="text-xs px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition">Status</button>
+                                <button @click="openStatusModal(purchase)" class="text-xs px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition">Detail & Status</button>
                                 
-                                <template x-if="purchase.status === 'draft'">
-                                    <button @click="openEditModal(purchase)" class="p-1.5 bg-yellow-100 text-yellow-600 rounded-lg hover:bg-yellow-200 transition" title="Edit">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                <button @click="openEditModal(purchase)" 
+                                        :disabled="purchase.status !== 'draft'"
+                                        :class="purchase.status === 'draft' ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200 cursor-pointer' : 'bg-gray-100 text-gray-400 cursor-not-allowed'"
+                                        class="p-1.5 rounded-lg transition" title="Edit">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                </button>
+                                
+                                <form :action="'/purchases/' + purchase.id" method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" 
+                                            :disabled="purchase.status !== 'draft'"
+                                            :class="purchase.status === 'draft' ? 'bg-red-100 text-red-600 hover:bg-red-200 cursor-pointer' : 'bg-gray-100 text-gray-400 cursor-not-allowed'"
+                                            class="p-1.5 rounded-lg transition" title="Hapus" 
+                                            @click.prevent="if(purchase.status === 'draft') { $dispatch('confirm', { message: 'Yakin hapus pembelian ini?', onConfirm: () => $el.closest('form').submit() }) }">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                     </button>
-                                </template>
-                                
-                                <template x-if="purchase.status === 'draft'">
-                                    <form :action="'/purchases/' + purchase.id" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="p-1.5 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition" title="Hapus" @click.prevent="$dispatch('confirm', { message: 'Yakin hapus pembelian ini?', onConfirm: () => $el.closest('form').submit() })">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                        </button>
-                                    </form>
-                                </template>
+                                </form>
                             </div>
                         </td>
                     </tr>
@@ -372,27 +401,65 @@
                             @method('PATCH')
                             <div class="px-6 py-5 bg-white">
                                 <div class="flex items-center justify-between mb-5">
-                                    <h3 class="text-lg font-medium leading-6 text-gray-900">Update Status Pembelian</h3>
+                                    <h3 class="text-lg font-medium leading-6 text-gray-900">Detail & Status Pembelian</h3>
                                     <button type="button" @click="showStatusModal = false" class="text-gray-400 hover:text-gray-500">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                     </button>
                                 </div>
                                 
-                                <div>
-                                    <select name="status" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500" :value="selectedPurchase?.status">
-                                        <option value="draft">Draft</option>
-                                        <option value="confirmed">Confirmed</option>
-                                        <option value="received">Received</option>
-                                        <option value="cancelled">Cancelled</option>
-                                    </select>
-                                </div>
+                                <template x-if="selectedPurchase">
+                                    <div>
+                                        <div class="mb-4 text-sm text-gray-600 space-y-1">
+                                            <p><span class="font-medium text-gray-500 inline-block w-24">Invoice:</span> <span class="font-mono text-gray-800" x-text="selectedPurchase.invoice_number"></span></p>
+                                            <p><span class="font-medium text-gray-500 inline-block w-24">Supplier:</span> <span class="font-medium text-gray-800" x-text="selectedPurchase.supplier?.name || '-'"></span></p>
+                                            <p><span class="font-medium text-gray-500 inline-block w-24">Tanggal:</span> <span x-text="new Date(selectedPurchase.purchase_date).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'})"></span></p>
+                                            <p><span class="font-medium text-gray-500 inline-block w-24">Total:</span> <span class="font-bold text-green-700" x-text="'Rp ' + parseInt(selectedPurchase.total_amount).toLocaleString('id-ID')"></span></p>
+                                        </div>
+
+                                        <div class="border border-gray-100 rounded-xl overflow-hidden mb-2">
+                                            <table class="w-full text-sm text-left">
+                                                <thead class="bg-gray-50 border-b border-gray-100 text-gray-500 font-medium">
+                                                    <tr>
+                                                        <th class="py-2 px-3">Bahan</th>
+                                                        <th class="py-2 px-3">Qty</th>
+                                                        <th class="py-2 px-3">Subtotal</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="divide-y divide-gray-50 text-gray-700">
+                                                    <template x-for="item in selectedPurchase.purchase_items" :key="item.id">
+                                                        <tr class="hover:bg-gray-50 transition-colors">
+                                                            <td class="py-2 px-3" x-text="item.material?.name || '-'"></td>
+                                                            <td class="py-2 px-3" x-text="item.quantity + ' ' + (item.material?.unit || '')"></td>
+                                                            <td class="py-2 px-3 font-medium text-gray-800" x-text="'Rp ' + parseInt(item.subtotal).toLocaleString('id-ID')"></td>
+                                                        </tr>
+                                                    </template>
+                                                    <tr x-show="!selectedPurchase.purchase_items || selectedPurchase.purchase_items.length === 0">
+                                                        <td colspan="3" class="py-4 text-center text-gray-400 text-xs">Memuat data item...</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </template>
                             </div>
-                            <div class="px-6 py-4 bg-gray-50 rounded-b-2xl sm:flex sm:flex-row-reverse border-t border-gray-100">
-                                <button type="submit" class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-xl shadow-sm hover:bg-green-700 focus:outline-none sm:ml-3 sm:w-auto">
-                                    Update Status
-                                </button>
-                                <button type="button" @click="showStatusModal = false" class="inline-flex justify-center w-full px-4 py-2 mt-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl shadow-sm hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto">
-                                    Batal
+                            <div class="px-6 py-4 bg-gray-50 flex flex-wrap gap-3 sm:flex-row-reverse border-t border-gray-100">
+                                <template x-if="selectedPurchase?.status === 'draft'">
+                                    <button type="submit" name="status" value="confirmed" class="w-full sm:w-auto inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 shadow-sm focus:outline-none">
+                                        Konfirmasi Pesanan
+                                    </button>
+                                </template>
+                                <template x-if="selectedPurchase?.status === 'confirmed'">
+                                    <button type="submit" name="status" value="received" class="w-full sm:w-auto inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-xl hover:bg-green-700 shadow-sm focus:outline-none">
+                                        Terima Barang
+                                    </button>
+                                </template>
+                                <template x-if="selectedPurchase?.status === 'draft' || selectedPurchase?.status === 'confirmed'">
+                                    <button type="submit" name="status" value="cancelled" class="w-full sm:w-auto inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-xl hover:bg-red-700 shadow-sm focus:outline-none" @click.prevent="$dispatch('confirm', { title: 'Batalkan Pembelian', message: 'Yakin ingin membatalkan pembelian ini?', confirmText: 'Batalkan', type: 'danger', onConfirm: () => $el.closest('form').submit() })">
+                                        Batalkan
+                                    </button>
+                                </template>
+                                <button type="button" @click="showStatusModal = false" class="w-full sm:w-auto inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 shadow-sm focus:outline-none">
+                                    Tutup
                                 </button>
                             </div>
                         </form>

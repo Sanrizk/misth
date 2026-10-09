@@ -45,13 +45,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Admin: full CRUD
     Route::middleware(['role:admin'])->group(function () {
-        Route::resource('users', \App\Http\Controllers\UserController::class)->except(['show', 'index']);
-    });
-
-    // Admin & Petani: view only
-    Route::middleware(['role:admin,petani'])->group(function () {
-        Route::get('users', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index');
-        Route::get('users/{user}', [\App\Http\Controllers\UserController::class, 'show'])->name('users.show');
+        Route::resource('users', \App\Http\Controllers\UserController::class);
     });
 
     // Farm Management — accessible by admin & petani
@@ -71,9 +65,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('material-usages', [MaterialUsageController::class, 'store'])->name('material-usages.store');
         Route::delete('material-usages/{materialUsage}', [MaterialUsageController::class, 'destroy'])->name('material-usages.destroy');
 
-        Route::resource('suppliers', SupplierController::class)->except(['create', 'edit', 'show']);
-        Route::resource('purchases', PurchaseController::class)->except(['create', 'edit', 'show']);
-        Route::patch('purchases/{purchase}/status', [PurchaseController::class, 'updateStatus'])->name('purchases.updateStatus');
+
 
         // Reports
         Route::prefix('reports')->name('reports.')->group(function () {
@@ -89,12 +81,18 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('transactions/scanner/confirm/{transaction}', [TransactionController::class, 'confirmForScanner'])->name('transactions.scanner.confirm');
     });
 
-    // Products — accessible by all roles
-    Route::resource('products', ProductController::class)->only(['index', 'show', 'edit', 'update']);
+    Route::middleware(['role:admin'])->group(function () {
+        Route::resource('suppliers', SupplierController::class)->except(['create', 'edit', 'show']);
+        Route::resource('purchases', PurchaseController::class)->except(['create', 'edit']);
+        Route::patch('purchases/{purchase}/status', [PurchaseController::class, 'updateStatus'])->name('purchases.updateStatus');
+        
+        // Products
+        Route::resource('products', ProductController::class)->only(['index', 'show', 'edit', 'update']);
 
-    // Transactions — accessible by all roles
-    Route::resource('transactions', TransactionController::class);
-    Route::patch('transactions/{transaction}/status', [TransactionController::class, 'updateStatus'])->name('transactions.updateStatus');
+        // Transactions
+        Route::resource('transactions', TransactionController::class);
+        Route::patch('transactions/{transaction}/status', [TransactionController::class, 'updateStatus'])->name('transactions.updateStatus');
+    });
 
 });
 
@@ -126,4 +124,5 @@ Route::middleware(['auth', 'role:customer'])->prefix('store')->name('store.')->g
     // Riwayat Order
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{transaction}', [OrderController::class, 'show'])->name('orders.show');
+    Route::patch('/orders/{transaction}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 });

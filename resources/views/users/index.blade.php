@@ -83,15 +83,15 @@
                             <td class="py-3 px-4 text-gray-400 text-xs" x-text="formatDate(user.created_at)"></td>
                             <td class="py-3 px-4">
                                 <div class="flex gap-2">
-                                    <a :href="`/users/${user.id}`"
-                                       class="text-xs px-3 py-1 bg-sky-100 text-sky-700 rounded-lg hover:bg-sky-200 transition">
+                                    <button @click="openDetailModal(user)"
+                                       class="text-xs px-3 py-1 bg-sky-100 text-sky-700 rounded-lg hover:bg-sky-200 transition cursor-pointer">
                                         Detail
-                                    </a>
+                                    </button>
                                     @if(Auth::user()->role->name === 'admin')
-                                    <a :href="`/users/${user.id}/edit`"
-                                       class="text-xs px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition">
+                                    <button @click="openEditModal(user)"
+                                       class="text-xs px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition cursor-pointer">
                                         Edit
-                                    </a>
+                                    </button>
                                     <template x-if="user.id !== {{ Auth::id() }}">
                                         <form :action="`/users/${user.id}`" method="POST">
                                             @csrf @method('DELETE')
@@ -131,6 +131,78 @@
             </div>
         </div>
     </div>
+
+    <template x-teleport="body">
+        <div x-show="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" x-cloak>
+            <div @click.away="closeModal()" class="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl relative"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100">
+                <button @click="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                <h3 class="text-lg font-bold text-gray-800 mb-4" x-text="modalMode === 'edit' ? 'Edit User' : 'Detail User'"></h3>
+                
+                <template x-if="modalMode === 'edit'">
+                    <form :action="`/users/${form.id}`" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
+                                <input type="text" name="name" x-model="form.name" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input type="email" name="email" x-model="form.email" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">No HP</label>
+                                <input type="text" name="phone" x-model="form.phone" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                                <select name="role_id" x-model="form.role_id" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                                    <template x-for="role in roles" :key="role.id">
+                                        <option :value="role.id" x-text="role.name"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Password (Kosongkan jika tidak diubah)</label>
+                                <input type="password" name="password" x-model="form.password" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                            </div>
+                            <div class="flex justify-end gap-2 mt-6">
+                                <button type="button" @click="closeModal()" class="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 cursor-pointer">Batal</button>
+                                <button type="submit" class="px-4 py-2 text-sm text-white bg-green-600 rounded-xl hover:bg-green-700 cursor-pointer">Simpan</button>
+                            </div>
+                        </div>
+                    </form>
+                </template>
+                <template x-if="modalMode === 'detail'">
+                    <div class="space-y-4 text-sm">
+                        <div class="flex flex-col">
+                            <span class="text-gray-500 font-medium">Nama</span>
+                            <span class="text-gray-800 font-semibold" x-text="form.name"></span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-gray-500 font-medium">Email</span>
+                            <span class="text-gray-800" x-text="form.email"></span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-gray-500 font-medium">No HP</span>
+                            <span class="text-gray-800" x-text="form.phone || '-'"></span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-gray-500 font-medium">Role</span>
+                            <span class="text-gray-800 uppercase" x-text="form.role_name"></span>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </template>
+
 </div>
 
 <script>
@@ -141,6 +213,48 @@ function userIndex() {
         search: '{{ request("search") }}',
         roleFilter: '{{ request("role") }}',
         loading: false,
+        showModal: false,
+        modalMode: 'create',
+        form: {
+            id: null,
+            name: '',
+            email: '',
+            phone: '',
+            role_id: '',
+            password: '',
+            password_confirmation: ''
+        },
+        roles: {{ Js::from(App\Models\Role::all()) }},
+        
+        openEditModal(user) {
+            this.modalMode = 'edit';
+            this.form = {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone || '',
+                role_id: user.role_id,
+                password: '',
+                password_confirmation: ''
+            };
+            this.showModal = true;
+        },
+        openDetailModal(user) {
+            this.modalMode = 'detail';
+            this.form = {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone || '',
+                role_id: user.role_id,
+                role_name: user.role ? user.role.name : '-'
+            };
+            this.showModal = true;
+        },
+        closeModal() {
+            this.showModal = false;
+        },
+
         currentPage: {{ $users->currentPage() }},
         perPage: {{ $users->perPage() }},
 

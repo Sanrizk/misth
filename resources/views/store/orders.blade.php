@@ -77,9 +77,20 @@
                         <p class="text-xs text-gray-500 mb-1">Total Belanja</p>
                         <p class="text-lg font-bold text-green-600">Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}</p>
                     </div>
-                    <a href="{{ route('store.orders.show', $transaction->id) }}" class="px-4 py-2 bg-white border border-green-600 text-green-600 hover:bg-green-50 rounded-xl text-sm font-semibold transition">
-                        Lihat Detail
-                    </a>
+                    <div class="flex gap-2 items-center">
+                        @if($transaction->status === 'pending')
+                        <form action="{{ route('store.orders.cancel', $transaction->id) ?? '#' }}" method="POST" class="m-0">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="px-4 py-2 bg-white border border-red-500 text-red-500 hover:bg-red-50 rounded-xl text-sm font-semibold transition cursor-pointer" onclick="return confirm('Apakah Anda yakin ingin membatalkan pesanan ini?')">
+                                Batalkan
+                            </button>
+                        </form>
+                        @endif
+                        <a href="{{ route('store.orders.show', $transaction->id) }}" class="px-4 py-2 bg-white border border-green-600 text-green-600 hover:bg-green-50 rounded-xl text-sm font-semibold transition cursor-pointer">
+                            Lihat Detail
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
