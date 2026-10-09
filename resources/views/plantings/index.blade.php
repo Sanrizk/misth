@@ -80,18 +80,18 @@
     }
 }" x-init="$watch('search', val => { fetchData() }); $watch('statusFilter', val => { fetchData() })">
 
-<div class="flex justify-between items-center mb-6">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
     <h2 class="text-lg font-semibold text-gray-700">Penanaman</h2>
-    <div class="flex space-x-2">
-        <input type="text" x-model.debounce.300ms="search" placeholder="Cari..." class="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
-        <select x-model="statusFilter" class="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+    <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+        <input type="text" x-model.debounce.300ms="search" placeholder="Cari..." class="w-full sm:w-auto px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+        <select x-model="statusFilter" class="w-full sm:w-auto px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
             <option value="">Semua Status</option>
             <option value="in_progress">Proses</option>
             <option value="harvested">Panen</option>
             <option value="failed">Gagal</option>
         </select>
         <button @click="showAddModal = true; addStep = 1; selectedPlantType = '';"
-           class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition">
+           class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition whitespace-nowrap text-center">
             + Tambah
         </button>
     </div>
