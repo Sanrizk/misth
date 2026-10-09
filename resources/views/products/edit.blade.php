@@ -11,6 +11,12 @@
             @method('PUT')
 
             <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Kode Batch (Dari Penanaman)</label>
+                <input type="text" value="{{ optional(optional($product->harvest)->planting)->batch_code ?? 'Tanpa Batch' }}" disabled
+                       class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-500 cursor-not-allowed">
+            </div>
+
+            <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Nama Produk</label>
                 <input type="text" name="name" value="{{ old('name', $product->name) }}"
                        class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 @error('name') border-red-400 @enderror">
