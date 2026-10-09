@@ -28,7 +28,34 @@ class StoreController extends Controller
         $products = $query->latest()->paginate(12);
         $plantTypes = PlantType::all();
 
-        return view('store.index', compact('products', 'plantTypes'));
+        // 1. Popular products
+        $popularProducts = Product::with('harvest.planting.plantType')
+            ->withCount('transactionDetails')
+            ->where('status', 'available')
+            ->where('stock', '>', 0)
+            ->orderByDesc('transaction_details_count')
+            ->take(12)
+            ->get();
+
+        // 2. Upcoming harvests (Plantings >= 70% progress)
+        $upcomingPlantings = \App\Models\Planting::with('plantType')
+            ->where('status', 'in_progress')
+            ->get()
+            ->filter(function ($planting) {
+                if (!$planting->plantType || !$planting->plantType->estimated_harvest_days) return false;
+                $estDays = $planting->plantType->estimated_harvest_days;
+                $start = $planting->start_date->timestamp;
+                $now = now()->timestamp;
+                $daysPassed = ($now - $start) / (60 * 60 * 24);
+                $progress = round(($daysPassed / $estDays) * 100);
+                if ($progress >= 70 && $progress < 100) {
+                    $planting->progress_percentage = $progress;
+                    return true;
+                }
+                return false;
+            })->take(12);
+
+        return view('store.index', compact('products', 'plantTypes', 'popularProducts', 'upcomingPlantings'));
     }
 
     public function show($id)
