@@ -4,10 +4,30 @@
 
 <div x-data="{ 
     showModal: false, 
+    showEditModal: false,
     selectedProduct: null,
+    editForm: {
+        id: null,
+        name: '',
+        price: 0,
+        status: 'available',
+        description: '',
+        batch_code: ''
+    },
     openModal(product) {
         this.selectedProduct = product;
         this.showModal = true;
+    },
+    openEditModal(product) {
+        this.editForm = { 
+            id: product.id,
+            name: product.name,
+            price: product.raw_price,
+            status: product.raw_status,
+            description: product.description,
+            batch_code: product.batch_code
+        };
+        this.showEditModal = true;
     }
 }">
 
@@ -23,10 +43,12 @@
                     'id' => $product->id,
                     'name' => $product->name,
                     'price' => 'Rp ' . number_format($product->price, 0, ',', '.'),
+                    'raw_price' => $product->price,
                     'stock' => $product->stock,
                     'status' => $product->status == 'available' ? 'Tersedia' : 'Habis',
+                    'raw_status' => $product->status,
                     'image_url' => $product->image_url,
-                    'description' => $product->description ?? 'Tidak ada deskripsi',
+                    'description' => $product->description ?? '',
                     'batch_code' => $batchCode
                 ];
             @endphp
@@ -68,9 +90,9 @@
                         <button type="button" @click="openModal({{ json_encode($productData) }})" class="cursor-pointer flex-1 text-center bg-sky-50 hover:bg-sky-100 text-sky-600 font-semibold py-2 rounded-xl text-sm transition">
                             Detail
                         </button>
-                        <a href="{{ route('products.edit', $product->id) }}" class="flex-1 text-center bg-yellow-50 hover:bg-yellow-100 text-yellow-600 font-semibold py-2 rounded-xl text-sm transition">
+                        <button type="button" @click="openEditModal({{ json_encode($productData) }})" class="cursor-pointer flex-1 text-center bg-yellow-50 hover:bg-yellow-100 text-yellow-600 font-semibold py-2 rounded-xl text-sm transition">
                             Edit
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -146,6 +168,80 @@
                             Tutup
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <!-- Edit Product Modal -->
+    <template x-teleport="body">
+        <div x-show="showEditModal" class="fixed inset-0 z-[100] overflow-y-auto" style="display: none;">
+            <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+                <div x-show="showEditModal" x-transition.opacity class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 backdrop-blur-sm" @click="showEditModal = false"></div>
+
+                <div x-show="showEditModal" 
+                     x-transition:enter="ease-out duration-300" 
+                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+                     x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" 
+                     x-transition:leave="ease-in duration-200" 
+                     x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" 
+                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+                     class="relative w-full max-w-lg p-6 my-8 overflow-hidden text-left transition-all transform bg-white shadow-2xl rounded-2xl">
+                    
+                    <div class="flex justify-between items-center mb-5">
+                        <h3 class="text-xl font-bold text-gray-900">Edit Produk</h3>
+                        <button @click="showEditModal = false" class="text-gray-400 hover:text-gray-500 focus:outline-none cursor-pointer">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    <form :action="'{{ url('products') }}/' + editForm.id" method="POST" class="space-y-4">
+                        @csrf
+                        @method('PUT')
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kode Batch (Dari Penanaman)</label>
+                            <input type="text" x-model="editForm.batch_code" disabled
+                                   class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-500 cursor-not-allowed">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Produk</label>
+                            <input type="text" name="name" x-model="editForm.name" required
+                                   class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Harga (Rp)</label>
+                                <input type="number" name="price" x-model="editForm.price" min="0" required
+                                       class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                <select name="status" x-model="editForm.status" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    <option value="available">Tersedia</option>
+                                    <option value="out_of_stock">Habis</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                            <textarea name="description" rows="4" x-model="editForm.description"
+                                      class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+                        </div>
+
+                        <div class="flex gap-3 pt-2">
+                            <button type="submit"
+                                    class="cursor-pointer flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 rounded-xl text-sm transition">
+                                Update Produk
+                            </button>
+                            <button type="button" @click="showEditModal = false"
+                               class="cursor-pointer flex-1 text-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl text-sm transition">
+                                Batal
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
