@@ -105,7 +105,7 @@
 
                     <div class="pt-6 flex justify-end">
                         <button type="submit"
-                                class="bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-2.5 rounded-lg transition shadow-sm">
+                                class="bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-2.5 rounded-lg transition shadow-sm cursor-pointer">
                             Simpan Perubahan
                         </button>
                     </div>
