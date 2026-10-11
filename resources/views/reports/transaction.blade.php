@@ -6,10 +6,18 @@
 
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 class="text-2xl font-bold text-gray-800">Laporan Penjualan</h2>
-        <button onclick="window.print()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2v4h10z"></path></svg>
-            Cetak Laporan
-        </button>
+        <div class="flex items-center gap-2">
+            <a href="{{ route('reports.transactions.pdf', request()->query()) }}" target="_blank" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 shadow-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Export PDF
+            </a>
+            <a href="{{ route('reports.transactions.pdf', array_merge(request()->query(), ['download' => 1])) }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-1.5" title="Download Langsung">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Unduh
+            </a>
+        </div>
     </div>
 
     {{-- Filter Form --}}
@@ -23,12 +31,14 @@
                 <label class="block text-xs font-medium text-gray-500 mb-1">Tanggal Akhir</label>
                 <input type="date" name="end_date" value="{{ request('end_date') }}" class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-green-500 focus:border-green-500">
             </div>
-            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
-                Filter
-            </button>
-            @if(request('start_date') || request('end_date'))
-                <a href="{{ route('reports.transactions') }}" class="text-sm text-gray-500 hover:text-gray-700 underline">Reset</a>
-            @endif
+            <div class="flex items-center gap-3">
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+                    Filter
+                </button>
+                @if(request('start_date') || request('end_date'))
+                    <a href="{{ route('reports.transactions') }}" class="text-sm text-gray-500 hover:text-gray-700 underline transition">Reset</a>
+                @endif
+            </div>
         </form>
     </div>
 
@@ -68,10 +78,16 @@
                             <td class="px-6 py-3">{{ optional($trx->user)->name ?? '-' }}</td>
                                                         <td class="px-6 py-3 font-medium">Rp {{ number_format($trx->total_amount, 0, ',', '.') }}</td>
                             <td class="px-6 py-3">
+                                @php
+                                    $status = strtolower($trx->status);
+                                    $isSuccess = in_array($status, ['terbayarkan', 'paid', 'completed', 'sukses']);
+                                    $isCancelled = in_array($status, ['batal', 'cancelled', 'cancel', 'failed']);
+                                    $isPending = in_array($status, ['pending', 'menunggu']);
+                                @endphp
                                 <span class="px-2 py-1 rounded text-xs font-medium 
-                                    {{ $trx->status === 'paid' || $trx->status === 'completed' ? 'bg-green-100 text-green-700' : 
-                                      ($trx->status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
-                                      ($trx->status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700')) }}">
+                                    {{ $isSuccess ? 'bg-green-100 text-green-700' : 
+                                      ($isCancelled ? 'bg-red-100 text-red-700' : 
+                                      ($isPending ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700')) }}">
                                     {{ ucfirst($trx->status) }}
                                 </span>
                             </td>

@@ -6,10 +6,18 @@
 
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 class="text-2xl font-bold text-gray-800">Laporan Penggunaan Bahan</h2>
-        <button onclick="window.print()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2v4h10z"></path></svg>
-            Cetak Laporan
-        </button>
+        <div class="flex items-center gap-2">
+            <a href="{{ route('reports.materials.pdf', request()->query()) }}" target="_blank" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 shadow-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Export PDF
+            </a>
+            <a href="{{ route('reports.materials.pdf', array_merge(request()->query(), ['download' => 1])) }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-1.5" title="Download Langsung">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Unduh
+            </a>
+        </div>
     </div>
 
     {{-- Filter Form --}}
@@ -23,12 +31,14 @@
                 <label class="block text-xs font-medium text-gray-500 mb-1">Tanggal Akhir</label>
                 <input type="date" name="end_date" value="{{ request('end_date') }}" class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-green-500 focus:border-green-500">
             </div>
-            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
-                Filter
-            </button>
-            @if(request('start_date') || request('end_date'))
-                <a href="{{ route('reports.materials') }}" class="text-sm text-gray-500 hover:text-gray-700 underline">Reset</a>
-            @endif
+            <div class="flex items-center gap-3">
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+                    Filter
+                </button>
+                @if(request('start_date') || request('end_date'))
+                    <a href="{{ route('reports.materials') }}" class="text-sm text-gray-500 hover:text-gray-700 underline transition">Reset</a>
+                @endif
+            </div>
         </form>
     </div>
 
@@ -61,7 +71,15 @@
                 <tbody class="divide-y divide-gray-50">
                     @forelse($usages as $usage)
                         <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-3">{{ optional(optional($usage->maintenanceLog)->activity_date)->format('d M Y') ?? '-' }}</td>
+                            <td class="px-6 py-3">
+                                @if($usage->maintenanceLog && $usage->maintenanceLog->activity_date)
+                                    {{ \Carbon\Carbon::parse($usage->maintenanceLog->activity_date)->format('d M Y') }}
+                                @elseif($usage->created_at)
+                                    {{ $usage->created_at->format('d M Y') }}
+                                @else
+                                    -
+                                @endif
+                            </td>
                             <td class="px-6 py-3 font-mono text-xs">{{ optional(optional($usage->maintenanceLog)->planting)->batch_code ?? '-' }}</td>
                             <td class="px-6 py-3">{{ optional($usage->material)->name ?? 'Bahan Dihapus' }}</td>
                             <td class="px-6 py-3 font-medium">{{ number_format($usage->quantity_used, 2) }} {{ optional($usage->material)->unit }}</td>

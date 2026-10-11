@@ -71,9 +71,13 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('reports')->name('reports.')->group(function () {
             Route::get('/', [\App\Http\Controllers\ReportController::class, 'index'])->name('index');
             Route::get('/plantings', [\App\Http\Controllers\ReportController::class, 'plantingReport'])->name('plantings');
+            Route::get('/plantings/pdf', [\App\Http\Controllers\ReportController::class, 'plantingPdf'])->name('plantings.pdf');
             Route::get('/harvests', [\App\Http\Controllers\ReportController::class, 'harvestReport'])->name('harvests');
+            Route::get('/harvests/pdf', [\App\Http\Controllers\ReportController::class, 'harvestPdf'])->name('harvests.pdf');
             Route::get('/transactions', [\App\Http\Controllers\ReportController::class, 'transactionReport'])->name('transactions');
+            Route::get('/transactions/pdf', [\App\Http\Controllers\ReportController::class, 'transactionPdf'])->name('transactions.pdf');
             Route::get('/materials', [\App\Http\Controllers\ReportController::class, 'materialReport'])->name('materials');
+            Route::get('/materials/pdf', [\App\Http\Controllers\ReportController::class, 'materialPdf'])->name('materials.pdf');
         });
 
         // (Scanner endpoints moved to TransactionController)

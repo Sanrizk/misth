@@ -21,6 +21,10 @@ class MaintenanceLog extends Model
         'notes',
     ];
 
+    protected $casts = [
+        'activity_date' => 'datetime',
+    ];
+
     public function planting(): BelongsTo
     {
         return $this->belongsTo(Planting::class, 'planting_id');
