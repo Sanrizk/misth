@@ -8,8 +8,16 @@
     <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <script>
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+    </script>
 </head>
-<body class="min-h-screen flex">
+<body class="min-h-screen flex bg-white dark:bg-gray-900 transition-colors">
 
     {{-- LEFT SIDE: Photo Slideshow --}}
     <div class="hidden lg:flex lg:w-1/2 relative overflow-hidden"
@@ -74,21 +82,24 @@
     </div>
 
     {{-- RIGHT SIDE: Register Form --}}
-    <div class="w-full lg:w-1/2 flex items-center justify-center bg-gray-50 p-6 overflow-y-auto max-h-screen">
+    <div class="w-full lg:w-1/2 flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-6 overflow-y-auto max-h-screen transition-colors">
         <div class="w-full max-w-sm py-8">
 
-            {{-- Mobile logo (only visible on mobile) --}}
-            <div class="text-center mb-8 lg:hidden">
-                <img src="{{ asset('images/logo.png') }}" alt="Misth Logo" class="w-16 h-16 rounded-full mx-auto mb-3 shadow-md object-cover ring-2 ring-green-600/20">
-                <h1 class="text-xl font-bold text-gray-800">Misth</h1>
+            {{-- Logo Header above form (visible on both desktop & mobile) --}}
+            <div class="text-center mb-6">
+                <a href="/" class="inline-block group">
+                    <img src="{{ asset('images/logo.png') }}" alt="Misth Logo" class="w-20 h-20 rounded-full mx-auto mb-2.5 shadow-md object-cover ring-4 ring-green-600/20 group-hover:scale-105 transition-transform duration-200">
+                </a>
+                <h1 class="text-2xl font-bold text-gray-800 dark:text-white tracking-tight">Misth</h1>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Sistem Monitoring & Inventori Hidroponik</p>
             </div>
 
             {{-- Form Card --}}
-            <div class="bg-white rounded-2xl shadow-sm p-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-8 border border-gray-100 dark:border-gray-700 transition-colors">
 
                 <div class="mb-6">
-                    <h2 class="text-xl font-bold text-gray-800">Buat Akun Baru</h2>
-                    <p class="text-sm text-gray-400 mt-1">Daftar sebagai customer Misth</p>
+                    <h2 class="text-xl font-bold text-gray-800 dark:text-white">Buat Akun Baru</h2>
+                    <p class="text-sm text-gray-400 dark:text-gray-400 mt-1">Daftar sebagai customer Misth</p>
                 </div>
 
                 <form action="{{ route('register.store') }}" method="POST" class="space-y-4">
@@ -96,11 +107,11 @@
 
                     {{-- Nama --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Nama Lengkap</label>
                         <input type="text" name="name" value="{{ old('name') }}"
                                placeholder="Nama lengkap Anda"
-                               class="w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500
-                                      {{ $errors->has('name') ? 'border-red-400' : 'border-gray-200' }}">
+                               class="w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-200 dark:border-gray-600 transition-colors
+                                      {{ $errors->has('name') ? 'border-red-400' : '' }}">
                         @error('name')
                         <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                         @enderror
@@ -108,11 +119,11 @@
 
                     {{-- Email --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Email</label>
                         <input type="email" name="email" value="{{ old('email') }}"
                                placeholder="email@misth.com"
-                               class="w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500
-                                      {{ $errors->has('email') ? 'border-red-400' : 'border-gray-200' }}">
+                               class="w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-200 dark:border-gray-600 transition-colors
+                                      {{ $errors->has('email') ? 'border-red-400' : '' }}">
                         @error('email')
                         <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                         @enderror
@@ -120,11 +131,11 @@
 
                     {{-- Phone --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nomor HP</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Nomor HP</label>
                         <input type="text" name="phone" value="{{ old('phone') }}"
                                placeholder="08xxxxxxxxxx"
-                               class="w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500
-                                      {{ $errors->has('phone') ? 'border-red-400' : 'border-gray-200' }}">
+                               class="w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-200 dark:border-gray-600 transition-colors
+                                      {{ $errors->has('phone') ? 'border-red-400' : '' }}">
                         @error('phone')
                         <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                         @enderror
@@ -132,14 +143,14 @@
 
                     {{-- Password --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Password</label>
                         <div class="relative" x-data="{ show: false }">
                             <input :type="show ? 'text' : 'password'" name="password"
                                    placeholder="Minimal 8 karakter"
-                                   class="w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 pr-10
-                                          {{ $errors->has('password') ? 'border-red-400' : 'border-gray-200' }}">
+                                   class="w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 pr-10 bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-200 dark:border-gray-600 transition-colors
+                                          {{ $errors->has('password') ? 'border-red-400' : '' }}">
                             <button type="button" @click="show = !show"
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                                 <svg x-show="!show" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -156,13 +167,13 @@
 
                     {{-- Konfirmasi Password --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Konfirmasi Password</label>
                         <div class="relative" x-data="{ show: false }">
                             <input :type="show ? 'text' : 'password'" name="password_confirmation"
                                    placeholder="Ulangi password"
-                                   class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 pr-10">
+                                   class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 pr-10 transition-colors">
                             <button type="button" @click="show = !show"
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                                 <svg x-show="!show" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -175,23 +186,26 @@
                     </div>
 
                     <button type="submit"
-                            class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 rounded-xl text-sm transition">
+                            class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 rounded-xl text-sm transition shadow-sm">
                         Daftar Sekarang
                     </button>
 
                 </form>
 
-                <p class="text-center text-xs text-gray-400 mt-5">
+                <p class="text-center text-xs text-gray-500 dark:text-gray-400 mt-5">
                     Sudah punya akun?
-                    <a href="{{ route('login') }}" class="text-green-600 font-medium hover:underline">Masuk di sini</a>
+                    <a href="{{ route('login') }}" class="text-green-600 dark:text-green-400 font-medium hover:underline">Masuk di sini</a>
                 </p>
 
             </div>
             
-            <p class="text-center text-xs text-gray-400 mt-4">© 2026 Misth. Semua hak dilindungi.</p>
+            <p class="text-center text-xs text-gray-400 dark:text-gray-500 mt-4">© 2026 Misth. Semua hak dilindungi.</p>
 
         </div>
     </div>
+
+    {{-- Floating Dark Mode Button --}}
+    @include('layouts.partials.dark-mode', ['position' => 'fixed bottom-6 right-6 z-50'])
 
 </body>
 </html>

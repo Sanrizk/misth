@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
+@custom-variant dark (&:where(.dark, .dark *));
 
 [x-cloak] { display: none !important; }
 
@@ -25,7 +26,7 @@ html.dark .text-gray-500 {
     color: #9ca3af !important; /* gray-400 */
 }
 html.dark .bg-gray-50 {
-    background-color: #374151 !important; /* gray-700 */
+    background-color: #111827 !important; /* gray-900 (page background) */
 }
 html.dark .bg-gray-100 {
     background-color: #111827 !important; /* gray-900 */

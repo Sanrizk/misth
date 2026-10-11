@@ -11,7 +11,7 @@
             }
         }
     }" 
-    class="fixed bottom-20 lg:bottom-6 right-4 lg:right-6 z-50">
+    class="{{ $position ?? 'fixed bottom-20 lg:bottom-6 right-4 lg:right-6 z-50' }}">
     <button @click="toggleTheme()"
             class="w-12 h-12 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all hover:scale-110 cursor-pointer">
         
