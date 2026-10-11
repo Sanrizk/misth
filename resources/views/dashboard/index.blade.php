@@ -75,7 +75,7 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
     {{-- Finance Chart --}}
     <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col">
-        <h2 class="text-sm font-semibold text-gray-700 mb-4">Pembelian Bahan vs Penjualan (6 Bulan Terakhir)</h2>
+        <h2 class="text-sm font-semibold text-gray-700 mb-4">Pembelian Bahan dan Penjualan (6 Bulan Terakhir)</h2>
         <div class="flex-1 flex items-center justify-center">
             <canvas id="financeChart" class="w-full" style="max-height: 300px;"></canvas>
         </div>
