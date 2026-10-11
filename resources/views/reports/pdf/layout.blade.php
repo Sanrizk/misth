@@ -129,8 +129,19 @@
     <table class="header-table" cellpadding="0" cellspacing="0">
         <tr>
             <td style="vertical-align: middle;">
-                <div class="company-name">Misth Management</div>
-                <div class="company-subtitle">Sistem Monitoring & Otomasi Pertanian Modern</div>
+                <table cellpadding="0" cellspacing="0">
+                    <tr>
+                        @if(file_exists(public_path('images/logo.png')))
+                        <td style="vertical-align: middle; padding-right: 10px;">
+                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png'))) }}" style="width: 36px; height: 36px; border-radius: 50%;">
+                        </td>
+                        @endif
+                        <td style="vertical-align: middle;">
+                            <div class="company-name">Misth Management</div>
+                            <div class="company-subtitle">Sistem Monitoring & Otomasi Pertanian Modern</div>
+                        </td>
+                    </tr>
+                </table>
             </td>
             <td class="report-title-cell" style="vertical-align: middle;">
                 <div class="report-title">@yield('report-title')</div>

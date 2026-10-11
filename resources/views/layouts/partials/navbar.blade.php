@@ -1,9 +1,12 @@
 <div class="flex items-center justify-between lg:justify-end px-4 lg:px-6 h-16">
 
-    {{-- Page title for mobile (optional) --}}
-    <h1 class="text-base font-bold text-green-800 lg:hidden flex-1">
-        Misth
-    </h1>
+    {{-- Page title for mobile --}}
+    <div class="flex items-center gap-2 lg:hidden flex-1">
+        <img src="{{ asset('images/logo.png') }}" alt="Misth Logo" class="w-7 h-7 rounded-full object-cover shadow-sm">
+        <h1 class="text-base font-bold text-green-800">
+            Misth
+        </h1>
+    </div>
 
     {{-- Page title for desktop --}}
     <h1 class="text-base font-semibold text-gray-700 hidden lg:block flex-1">

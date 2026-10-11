@@ -2,12 +2,10 @@
 
     {{-- Logo --}}
     <div class="px-6 py-5 border-b border-green-700">
-        <span class="text-xl font-bold tracking-wide flex items-center gap-2">
-            <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
-            </svg> 
-            Misth
-        </span>
+        <a href="{{ route('dashboard') }}" class="text-xl font-bold tracking-wide flex items-center gap-3">
+            <img src="{{ asset('images/logo.png') }}" alt="Misth Logo" class="w-8 h-8 rounded-full object-cover shadow-sm ring-2 ring-green-400/40">
+            <span>Misth</span>
+        </a>
     </div>
 
     {{-- Navigation --}}

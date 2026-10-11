@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title') — Misth</title>
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <script>
@@ -20,8 +22,8 @@
     <nav class="bg-white shadow-sm sticky top-0 z-10" role="navigation" aria-label="Main Navigation">
         <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
             <!-- Left: Logo -->
-            <a href="{{ route('store.index') }}" class="font-bold text-green-700 text-lg flex items-center gap-2">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            <a href="{{ route('store.index') }}" class="font-bold text-green-700 text-lg flex items-center gap-2.5">
+                <img src="{{ asset('images/logo.png') }}" alt="Misth Logo" class="w-8 h-8 rounded-full object-cover shadow-sm">
                 <span class="hidden lg:block">Misth</span>
             </a>
 

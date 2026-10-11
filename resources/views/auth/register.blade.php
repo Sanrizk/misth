@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar Akun — Misth</title>
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
@@ -41,8 +43,9 @@
         <div class="relative z-10 flex flex-col justify-between p-10 w-full">
 
             {{-- Logo --}}
-            <div>
-                <span class="text-white font-bold text-2xl"><i class="bi bi-flower1"></i> Misth</span>
+            <div class="flex items-center gap-3">
+                <img src="{{ asset('images/logo.png') }}" alt="Misth Logo" class="w-10 h-10 rounded-full object-cover shadow-sm ring-2 ring-white/30">
+                <span class="text-white font-bold text-2xl tracking-wide">Misth</span>
             </div>
 
             {{-- Quote --}}
@@ -76,12 +79,7 @@
 
             {{-- Mobile logo (only visible on mobile) --}}
             <div class="text-center mb-8 lg:hidden">
-                <div class="w-14 h-14 bg-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                    <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                    </svg>
-                </div>
+                <img src="{{ asset('images/logo.png') }}" alt="Misth Logo" class="w-16 h-16 rounded-full mx-auto mb-3 shadow-md object-cover ring-2 ring-green-600/20">
                 <h1 class="text-xl font-bold text-gray-800">Misth</h1>
             </div>
 
