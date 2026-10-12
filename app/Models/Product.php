@@ -23,6 +23,13 @@ class Product extends Model
 
     public function getImageUrlAttribute($value): ?string
     {
+        // 1. Prioritaskan foto dari Jenis Tanaman jika ada
+        $plantTypeImage = optional(optional($this->harvest)->planting)->plantType?->image_url;
+        if ($plantTypeImage) {
+            return $plantTypeImage;
+        }
+
+        // 2. Jika tidak ada foto jenis tanaman, gunakan foto bawaan produk
         if (!empty($value)) {
             if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://')) {
                 return $value;
@@ -30,8 +37,7 @@ class Product extends Model
             return asset('storage/' . $value);
         }
 
-        // Fallback ke foto jenis tanaman jika ada
-        return optional(optional($this->harvest)->planting)->plantType?->image_url;
+        return null;
     }
 
     public function harvest()
