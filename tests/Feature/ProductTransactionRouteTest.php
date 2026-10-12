@@ -26,16 +26,18 @@ class ProductTransactionRouteTest extends TestCase
 
     public function test_product_and_transaction_routes_accessible_to_authenticated_users()
     {
-        $roles = ['admin', 'petani', 'customer'];
+        $admin = $this->createUser('admin');
+        $petani = $this->createUser('petani');
+        $customer = $this->createUser('customer');
 
-        foreach ($roles as $roleName) {
-            $user = $this->createUser($roleName);
+        // Admin has full access
+        $this->actingAs($admin)->get('/products')->assertStatus(200);
+        $this->actingAs($admin)->get('/transactions')->assertStatus(200);
 
-            // Index routes should be 200 for everyone authenticated
-            $this->actingAs($user)->get('/products')->assertStatus(200);
-            $this->actingAs($user)->get('/transactions')->assertStatus(200);
-            
-            Auth()->logout();
-        }
+        // Petani and Customer are restricted (403)
+        $this->actingAs($petani)->get('/products')->assertStatus(403);
+        $this->actingAs($petani)->get('/transactions')->assertStatus(403);
+        $this->actingAs($customer)->get('/products')->assertStatus(403);
+        $this->actingAs($customer)->get('/transactions')->assertStatus(403);
     }
 }

@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('name', 100);
             $table->integer('estimated_harvest_days');
             $table->text('description');
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }

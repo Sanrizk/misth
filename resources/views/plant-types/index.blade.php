@@ -8,7 +8,8 @@
     links: {{ Js::from($plantTypes->toArray()['links']) }},
     showModal: false,
     modalMode: 'add',
-    form: { id: '', name: '', estimated_harvest_days: '', description: '' },
+    form: { id: '', name: '', estimated_harvest_days: '', description: '', image: '', image_url: '' },
+    imagePreview: null,
     
     fetchData(url = '{{ route('plant-types.index') }}') {
         const fetchUrl = url.includes('?') ? `${url}&search=${this.search}` : `${url}?search=${this.search}`;
@@ -31,14 +32,31 @@
         });
     },
 
+    previewFile(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.imagePreview = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            this.imagePreview = null;
+        }
+    },
+
     openAddModal() {
         this.modalMode = 'add';
-        this.form = { id: '', name: '', estimated_harvest_days: '', description: '' };
+        this.form = { id: '', name: '', estimated_harvest_days: '', description: '', image: '', image_url: '' };
+        this.imagePreview = null;
+        if (this.$refs.fileInput) this.$refs.fileInput.value = '';
         this.showModal = true;
     },
     openEditModal(plantType) {
         this.modalMode = 'edit';
         this.form = { ...plantType };
+        this.imagePreview = plantType.image_url || null;
+        if (this.$refs.fileInput) this.$refs.fileInput.value = '';
         this.showModal = true;
     },
     deleteItem(id) {
@@ -99,12 +117,29 @@
     </div>
     @endif
 
+    @if(session('error'))
+    <div class="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700 flex items-center gap-3 mb-4">
+        {{ session('error') }}
+    </div>
+    @endif
+
+    @if($errors->any())
+    <div class="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700 mb-4">
+        <ul class="list-disc list-inside">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
     <div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-4">
         <div class="overflow-x-auto">
             <table class="w-full text-sm text-left">
                 <thead class="bg-gray-50 border-b border-gray-100 text-gray-500 text-xs uppercase font-medium">
                     <tr>
                         <th class="py-3 px-4 w-12">No</th>
+                        <th class="py-3 px-4 w-20">Foto</th>
                         <th class="py-3 px-4">Nama</th>
                         <th class="py-3 px-4">Est. Panen</th>
                         <th class="py-3 px-4">Deskripsi</th>
@@ -115,6 +150,18 @@
                     <template x-for="(plantType, index) in plantTypes" :key="plantType.id">
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="py-3 px-4 text-gray-500" x-text="index + 1"></td>
+                            <td class="py-3 px-4">
+                                <template x-if="plantType.image_url">
+                                    <img :src="plantType.image_url" :alt="plantType.name" class="w-12 h-12 object-cover rounded-xl border border-gray-100 shadow-xs">
+                                </template>
+                                <template x-if="!plantType.image_url">
+                                    <div class="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400 border border-dashed border-gray-200">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </div>
+                                </template>
+                            </td>
                             <td class="py-3 px-4 font-semibold text-gray-800" x-text="plantType.name"></td>
                             <td class="py-3 px-4">
                                 <span class="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium" x-text="plantType.estimated_harvest_days + ' hari'">
@@ -140,7 +187,7 @@
                     </template>
                     
                     <tr x-show="plantTypes.length === 0" x-cloak>
-                        <td colspan="5" class="py-8 text-center text-gray-400 text-sm">Tidak ada data ditemukan.</td>
+                        <td colspan="6" class="py-8 text-center text-gray-400 text-sm">Tidak ada data ditemukan.</td>
                     </tr>
                 </tbody>
             </table>
@@ -170,7 +217,7 @@
              class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
              @click.self="showModal = false">
             <div class="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-xl flex flex-col">
-                    <form :action="modalMode === 'add' ? '{{ route('plant-types.store') }}' : '/plant-types/' + form.id" method="POST">
+                    <form :action="modalMode === 'add' ? '{{ route('plant-types.store') }}' : '/plant-types/' + form.id" method="POST" enctype="multipart/form-data">
                         @csrf
                         <template x-if="modalMode === 'edit'">
                             <input type="hidden" name="_method" value="PUT">
@@ -186,13 +233,28 @@
                             
                             <div class="space-y-4">
                                 <div>
-                                    <input type="text" name="name" x-model="form.name" placeholder="Nama Tanaman" required class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Nama Tanaman</label>
+                                    <input type="text" name="name" x-model="form.name" placeholder="Contoh: Selada Keriting" required class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
                                 </div>
                                 <div>
-                                    <input type="number" name="estimated_harvest_days" x-model="form.estimated_harvest_days" placeholder="Estimasi Panen (Hari)" required class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Estimasi Panen (Hari)</label>
+                                    <input type="number" name="estimated_harvest_days" x-model="form.estimated_harvest_days" placeholder="Contoh: 30" required class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
                                 </div>
                                 <div>
-                                    <textarea name="description" x-model="form.description" placeholder="Deskripsi" rows="3" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Deskripsi</label>
+                                    <textarea name="description" x-model="form.description" placeholder="Deskripsi tanaman..." rows="3" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Foto Tanaman / Buah</label>
+                                    <input type="file" name="image" x-ref="fileInput" @change="previewFile" accept="image/jpeg,image/png" class="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+                                    <p class="text-[11px] text-gray-400 mt-1">Format: JPG, PNG (Maks. 2MB)</p>
+                                    
+                                    <template x-if="imagePreview">
+                                        <div class="mt-2 relative inline-block">
+                                            <p class="text-[11px] text-gray-500 mb-1 font-medium">Preview Foto:</p>
+                                            <img :src="imagePreview" alt="Preview" class="w-24 h-24 object-cover rounded-xl border border-gray-200 shadow-xs">
+                                        </div>
+                                    </template>
                                 </div>
                             </div>
                         </div>

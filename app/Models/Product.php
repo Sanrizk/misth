@@ -21,6 +21,19 @@ class Product extends Model
         'status',
     ];
 
+    public function getImageUrlAttribute($value): ?string
+    {
+        if (!empty($value)) {
+            if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://')) {
+                return $value;
+            }
+            return asset('storage/' . $value);
+        }
+
+        // Fallback ke foto jenis tanaman jika ada
+        return optional(optional($this->harvest)->planting)->plantType?->image_url;
+    }
+
     public function harvest()
     {
         return $this->belongsTo(Harvest::class, 'harvest_id');

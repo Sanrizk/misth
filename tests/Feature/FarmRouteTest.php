@@ -68,8 +68,6 @@ class FarmRouteTest extends TestCase
             '/plant-types',
             '/plantings',
             '/materials',
-            '/suppliers',
-            '/purchases',
             '/reports',
             '/reports/plantings',
             '/reports/harvests',
@@ -81,6 +79,10 @@ class FarmRouteTest extends TestCase
             $this->actingAs($petani)->get($url)->assertStatus(200);
             Auth()->logout();
         }
+
+        // Suppliers and Purchases restricted to admin (403 for petani)
+        $this->actingAs($petani)->get('/suppliers')->assertStatus(403);
+        $this->actingAs($petani)->get('/purchases')->assertStatus(403);
     }
 
     public function test_farm_routes_authorization_for_admin()

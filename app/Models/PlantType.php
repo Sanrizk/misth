@@ -14,7 +14,18 @@ class PlantType extends Model
         'name',
         'estimated_harvest_days',
         'description',
+        'image',
     ];
+
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute(): ?string
+    {
+        if ($this->image) {
+            return asset('storage/' . $this->image);
+        }
+        return null;
+    }
 
     public function plantings(): HasMany
     {

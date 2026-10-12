@@ -4,13 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\PlantType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class PlantTypeController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-        public function index(Request $request)
+    public function index(Request $request)
     {
         $query = PlantType::query();
         
@@ -46,13 +48,22 @@ class PlantTypeController extends Controller
             'name' => 'required|string|max:100|unique:plant_types,name',
             'estimated_harvest_days' => 'required|integer|min:1',
             'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $validated['description'] = $validated['description'] ?? '';
+
+        if ($request->hasFile('image')) {
+            $extension = $request->file('image')->getClientOriginalExtension();
+            $randomName = Str::random(40) . '.' . $extension;
+            $path = $request->file('image')->storeAs('plant-types', $randomName, 'public');
+            $validated['image'] = $path;
+        }
+
         PlantType::create($validated);
 
         return redirect()->route('plant-types.index')
-            ->with('success', 'Plant type created successfully.');
+            ->with('success', 'Jenis tanaman berhasil ditambahkan.');
     }
 
     /**
@@ -75,13 +86,25 @@ class PlantTypeController extends Controller
             'name' => 'required|string|max:100|unique:plant_types,name,' . $plantType->id,
             'estimated_harvest_days' => 'required|integer|min:1',
             'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $validated['description'] = $validated['description'] ?? '';
+
+        if ($request->hasFile('image')) {
+            if ($plantType->image && Storage::disk('public')->exists($plantType->image)) {
+                Storage::disk('public')->delete($plantType->image);
+            }
+            $extension = $request->file('image')->getClientOriginalExtension();
+            $randomName = Str::random(40) . '.' . $extension;
+            $path = $request->file('image')->storeAs('plant-types', $randomName, 'public');
+            $validated['image'] = $path;
+        }
+
         $plantType->update($validated);
 
         return redirect()->route('plant-types.index')
-            ->with('success', 'Plant type updated successfully.');
+            ->with('success', 'Jenis tanaman berhasil diperbarui.');
     }
 
     /**
@@ -90,9 +113,14 @@ class PlantTypeController extends Controller
     public function destroy($id)
     {
         $plantType = PlantType::findOrFail($id);
+
+        if ($plantType->image && Storage::disk('public')->exists($plantType->image)) {
+            Storage::disk('public')->delete($plantType->image);
+        }
+
         $plantType->delete();
 
         return redirect()->route('plant-types.index')
-            ->with('success', 'Plant type deleted successfully.');
+            ->with('success', 'Jenis tanaman berhasil dihapus.');
     }
 }

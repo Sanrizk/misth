@@ -33,9 +33,9 @@ class AdminRouteTest extends TestCase
         $this->actingAs($customer)->get('/users')->assertStatus(403);
         $this->actingAs($customer)->get('/users/' . $testUser->id)->assertStatus(403);
 
-        // Petani (200)
-        $this->actingAs($petani)->get('/users')->assertStatus(200);
-        $this->actingAs($petani)->get('/users/' . $testUser->id)->assertStatus(200);
+        // Petani (403 - restricted to admin)
+        $this->actingAs($petani)->get('/users')->assertStatus(403);
+        $this->actingAs($petani)->get('/users/' . $testUser->id)->assertStatus(403);
 
         // Admin (200)
         $this->actingAs($admin)->get('/users')->assertStatus(200);
