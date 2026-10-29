@@ -184,18 +184,19 @@
                     </form>
                 </div>
 
-                {{-- Row 2: Perawatan, Kualitas Air, Panen ATAU Riwayat (khusus status harvested) --}}
-                <template x-if="planting.status === 'harvested'">
+                {{-- Row 2: Perawatan, Kualitas Air, Panen ATAU Riwayat (khusus status harvested / failed) --}}
+                <template x-if="planting.status === 'harvested' || planting.status === 'failed'">
                     <div>
                         <button @click="showRiwayat = true"
-                                class="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-green-50 hover:bg-green-100 text-green-700 transition text-xs font-semibold">
+                                class="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition text-xs font-semibold"
+                                :class="planting.status === 'harvested' ? 'bg-green-50 hover:bg-green-100 text-green-700' : 'bg-red-50 hover:bg-red-100 text-red-700'">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                             Riwayat
                         </button>
                     </div>
                 </template>
-                <template x-if="planting.status !== 'harvested'">
-                    <div class="grid gap-1" :class="planting.status === 'in_progress' ? 'grid-cols-3' : 'grid-cols-2'">
+                <template x-if="planting.status !== 'harvested' && planting.status !== 'failed'">
+                    <div class="grid grid-cols-3 gap-1">
                         <button @click="showPerawatan = true"
                                 class="flex flex-col items-center py-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-600 transition text-xs">
                             <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
@@ -206,13 +207,11 @@
                             <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                             Kualitas Air
                         </button>
-                        <template x-if="planting.status === 'in_progress'">
                             <button @click="showPanen = true"
                                     class="flex flex-col items-center py-1.5 rounded-lg bg-green-50 hover:bg-green-100 text-green-600 transition text-xs">
                                 <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                                 Panen
                             </button>
-                        </template>
                     </div>
                 </template>
 
@@ -581,15 +580,21 @@
             <div x-cloak x-show="showRiwayat" x-transition x-init="$watch('showRiwayat', val => document.body.style.overflow = val ? 'hidden' : '')"
                  class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
                  @click.self="showRiwayat = false">
-                <div class="bg-white rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto shadow-xl flex flex-col">
+                <div class="bg-white rounded-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl flex flex-col"
+                     :class="planting.status === 'failed' ? 'max-w-4xl' : 'max-w-6xl'">
                     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold text-sm">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm"
+                                 :class="planting.status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                             </div>
                             <div>
                                 <h3 class="font-bold text-gray-800 text-base">
-                                    Riwayat Lengkap — <span class="text-green-700" x-text="planting.plant_type ? planting.plant_type.name : ''"></span>
+                                    Riwayat — <span :class="planting.status === 'failed' ? 'text-red-700' : 'text-green-700'" x-text="planting.plant_type ? planting.plant_type.name : ''"></span>
+                                    <span class="text-xs px-2 py-0.5 rounded-full ml-1 font-semibold"
+                                          :class="planting.status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'"
+                                          x-text="planting.status === 'failed' ? 'Gagal' : 'Panen'">
+                                    </span>
                                 </h3>
                                 <p class="text-xs text-gray-400">
                                     Kode Batch: <span class="font-mono font-medium text-gray-600" x-text="planting.batch_code"></span> · Semai: <span x-text="formatDate(planting.start_date)"></span>
@@ -602,7 +607,8 @@
                     </div>
 
                     <div class="p-6">
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="grid grid-cols-1 gap-6"
+                             :class="planting.status === 'failed' ? 'lg:grid-cols-2' : 'lg:grid-cols-3'">
                             
                             {{-- KOLOM KIRI: Riwayat Perawatan --}}
                             <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 flex flex-col h-full">
@@ -712,78 +718,80 @@
                                 </div>
                             </div>
 
-                            {{-- KOLOM KANAN: Riwayat Panen --}}
-                            <div class="bg-green-50/50 border border-green-100 rounded-2xl p-4 flex flex-col h-full">
-                                <div class="flex items-center justify-between pb-3 mb-3 border-b border-green-200">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-7 h-7 rounded-lg bg-green-100 text-green-700 flex items-center justify-center">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                            {{-- KOLOM KANAN: Riwayat Panen (Khusus status yang bukan failed) --}}
+                            <template x-if="planting.status !== 'failed'">
+                                <div class="bg-green-50/50 border border-green-100 rounded-2xl p-4 flex flex-col h-full">
+                                    <div class="flex items-center justify-between pb-3 mb-3 border-b border-green-200">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-7 h-7 rounded-lg bg-green-100 text-green-700 flex items-center justify-center">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                                            </div>
+                                            <h4 class="text-sm font-bold text-gray-800">Riwayat Panen</h4>
                                         </div>
-                                        <h4 class="text-sm font-bold text-gray-800">Riwayat Panen</h4>
+                                        <span class="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-800 font-semibold">Tereksekusi</span>
                                     </div>
-                                    <span class="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-800 font-semibold">Tereksekusi</span>
-                                </div>
 
-                                <div class="space-y-3 overflow-y-auto max-h-[60vh] pr-1">
-                                    <template x-if="planting.harvest">
-                                        <div class="space-y-3">
-                                            <div class="bg-white rounded-xl p-4 shadow-xs border border-green-100 space-y-3">
-                                                <div class="flex items-center justify-between border-b border-gray-100 pb-2.5">
-                                                    <span class="text-xs text-gray-400">Tanggal Panen</span>
-                                                    <span class="text-xs font-bold text-gray-800" x-text="formatDate(planting.harvest.harvest_date)"></span>
+                                    <div class="space-y-3 overflow-y-auto max-h-[60vh] pr-1">
+                                        <template x-if="planting.harvest">
+                                            <div class="space-y-3">
+                                                <div class="bg-white rounded-xl p-4 shadow-xs border border-green-100 space-y-3">
+                                                    <div class="flex items-center justify-between border-b border-gray-100 pb-2.5">
+                                                        <span class="text-xs text-gray-400">Tanggal Panen</span>
+                                                        <span class="text-xs font-bold text-gray-800" x-text="formatDate(planting.harvest.harvest_date)"></span>
+                                                    </div>
+
+                                                    <div class="grid grid-cols-2 gap-2">
+                                                        <div class="bg-gray-50 p-2.5 rounded-lg">
+                                                            <p class="text-[11px] text-gray-400">Total Kuantitas</p>
+                                                            <p class="text-sm font-bold text-gray-800">
+                                                                <span x-text="planting.harvest.total_yield_quantity"></span> <span class="text-xs font-normal text-gray-500" x-text="planting.harvest.unit || 'unit'"></span>
+                                                            </p>
+                                                        </div>
+                                                        <div class="bg-gray-50 p-2.5 rounded-lg">
+                                                            <p class="text-[11px] text-gray-400">Total Berat</p>
+                                                            <p class="text-sm font-bold text-gray-800">
+                                                                <span x-text="planting.harvest.total_yield_weight"></span> <span class="text-xs font-normal text-gray-500">kg</span>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="flex items-center justify-between bg-gray-50 p-2.5 rounded-lg">
+                                                        <span class="text-xs text-gray-500 font-medium">Kualitas Grade</span>
+                                                        <span class="text-xs px-2 py-0.5 rounded-full font-bold"
+                                                              :class="{
+                                                                  'bg-green-100 text-green-700': planting.harvest.quality_grade === 'Grade A',
+                                                                  'bg-yellow-100 text-yellow-700': planting.harvest.quality_grade === 'Grade B',
+                                                                  'bg-red-100 text-red-700': planting.harvest.quality_grade !== 'Grade A' && planting.harvest.quality_grade !== 'Grade B'
+                                                              }"
+                                                              x-text="planting.harvest.quality_grade">
+                                                        </span>
+                                                    </div>
+
+                                                    <template x-if="planting.harvest.notes">
+                                                        <div class="bg-gray-50 p-2.5 rounded-lg">
+                                                            <p class="text-[11px] text-gray-400 mb-0.5">Catatan Panen:</p>
+                                                            <p class="text-xs text-gray-600 italic" x-text="planting.harvest.notes"></p>
+                                                        </div>
+                                                    </template>
                                                 </div>
 
-                                                <div class="grid grid-cols-2 gap-2">
-                                                    <div class="bg-gray-50 p-2.5 rounded-lg">
-                                                        <p class="text-[11px] text-gray-400">Total Kuantitas</p>
-                                                        <p class="text-sm font-bold text-gray-800">
-                                                            <span x-text="planting.harvest.total_yield_quantity"></span> <span class="text-xs font-normal text-gray-500" x-text="planting.harvest.unit || 'unit'"></span>
-                                                        </p>
-                                                    </div>
-                                                    <div class="bg-gray-50 p-2.5 rounded-lg">
-                                                        <p class="text-[11px] text-gray-400">Total Berat</p>
-                                                        <p class="text-sm font-bold text-gray-800">
-                                                            <span x-text="planting.harvest.total_yield_weight"></span> <span class="text-xs font-normal text-gray-500">kg</span>
-                                                        </p>
-                                                    </div>
+                                                <div class="bg-green-50 border border-green-200 rounded-xl p-3">
+                                                    <p class="text-xs text-green-800 flex items-center gap-1.5 font-medium">
+                                                        <svg class="w-4 h-4 shrink-0 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                        Hasil panen telah dikonversi menjadi produk toko.
+                                                    </p>
                                                 </div>
-
-                                                <div class="flex items-center justify-between bg-gray-50 p-2.5 rounded-lg">
-                                                    <span class="text-xs text-gray-500 font-medium">Kualitas Grade</span>
-                                                    <span class="text-xs px-2 py-0.5 rounded-full font-bold"
-                                                          :class="{
-                                                              'bg-green-100 text-green-700': planting.harvest.quality_grade === 'Grade A',
-                                                              'bg-yellow-100 text-yellow-700': planting.harvest.quality_grade === 'Grade B',
-                                                              'bg-red-100 text-red-700': planting.harvest.quality_grade !== 'Grade A' && planting.harvest.quality_grade !== 'Grade B'
-                                                          }"
-                                                          x-text="planting.harvest.quality_grade">
-                                                    </span>
-                                                </div>
-
-                                                <template x-if="planting.harvest.notes">
-                                                    <div class="bg-gray-50 p-2.5 rounded-lg">
-                                                        <p class="text-[11px] text-gray-400 mb-0.5">Catatan Panen:</p>
-                                                        <p class="text-xs text-gray-600 italic" x-text="planting.harvest.notes"></p>
-                                                    </div>
-                                                </template>
                                             </div>
-
-                                            <div class="bg-green-50 border border-green-200 rounded-xl p-3">
-                                                <p class="text-xs text-green-800 flex items-center gap-1.5 font-medium">
-                                                    <svg class="w-4 h-4 shrink-0 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                                    Hasil panen telah dikonversi menjadi produk toko.
-                                                </p>
+                                        </template>
+                                        <template x-if="!planting.harvest">
+                                            <div class="text-center py-10 bg-white rounded-xl border border-dashed border-gray-200">
+                                                <svg class="w-8 h-8 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                                <p class="text-xs text-gray-400">Data panen belum tercatat.</p>
                                             </div>
-                                        </div>
-                                    </template>
-                                    <template x-if="!planting.harvest">
-                                        <div class="text-center py-10 bg-white rounded-xl border border-dashed border-gray-200">
-                                            <svg class="w-8 h-8 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                                            <p class="text-xs text-gray-400">Data panen belum tercatat.</p>
-                                        </div>
-                                    </template>
+                                        </template>
+                                    </div>
                                 </div>
-                            </div>
+                            </template>
 
                         </div>
                     </div>
