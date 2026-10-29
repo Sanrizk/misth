@@ -59,8 +59,14 @@
         notes: '',
         items: []
     },
+    materialsList: {{ Js::from($materials->keyBy('id')) }},
     addItem() {
         this.form.items.push({ material_id: '', quantity: 1, unit_price: 0 });
+    },
+    onMaterialChange(item) {
+        if (item.material_id && this.materialsList[item.material_id]) {
+            item.unit_price = parseFloat(this.materialsList[item.material_id].price_per_unit || 0);
+        }
     },
     removeItem(index) {
         this.form.items.splice(index, 1);
@@ -283,10 +289,10 @@
                                 <template x-for="(item, index) in form.items" :key="index">
                                     <div class="flex flex-col sm:flex-row gap-3 mb-3 items-start sm:items-center">
                                         <div class="flex-1 w-full sm:w-auto">
-                                            <select :name="'items['+index+'][material_id]'" x-model="item.material_id" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                                            <select :name="'items['+index+'][material_id]'" x-model="item.material_id" @change="onMaterialChange(item)" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500" required>
                                                 <option value="">Pilih Bahan</option>
                                                 @foreach($materials as $material)
-                                                    <option value="{{ $material->id }}">{{ $material->name }}</option>
+                                                    <option value="{{ $material->id }}">{{ $material->name }} ({{ $material->unit }})</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -306,6 +312,10 @@
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                                     Tambah Item
                                 </button>
+                                <div class="flex items-center justify-between mt-4 p-3 bg-gray-50 rounded-xl">
+                                    <span class="text-sm font-semibold text-gray-700">Estimasi Total Pembelian:</span>
+                                    <span class="text-base font-bold text-green-700" x-text="'Rp ' + (form.items.reduce((sum, i) => sum + ((parseFloat(i.quantity) || 0) * (parseFloat(i.unit_price) || 0)), 0)).toLocaleString('id-ID')"></span>
+                                </div>
                             </div>
                             <div class="px-6 py-4 bg-gray-50 rounded-b-2xl sm:flex sm:flex-row-reverse border-t border-gray-100">
                                 <button type="submit" class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-xl shadow-sm hover:bg-green-700 focus:outline-none sm:ml-3 sm:w-auto">
@@ -355,10 +365,10 @@
                                 <template x-for="(item, index) in editForm.items" :key="index">
                                     <div class="flex flex-col sm:flex-row gap-3 mb-3 items-start sm:items-center">
                                         <div class="flex-1 w-full sm:w-auto">
-                                            <select :name="'items['+index+'][material_id]'" x-model="item.material_id" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                                            <select :name="'items['+index+'][material_id]'" x-model="item.material_id" @change="onMaterialChange(item)" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500" required>
                                                 <option value="">Pilih Bahan</option>
                                                 @foreach($materials as $material)
-                                                    <option value="{{ $material->id }}">{{ $material->name }}</option>
+                                                    <option value="{{ $material->id }}">{{ $material->name }} ({{ $material->unit }})</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -378,6 +388,10 @@
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                                     Tambah Item
                                 </button>
+                                <div class="flex items-center justify-between mt-4 p-3 bg-gray-50 rounded-xl">
+                                    <span class="text-sm font-semibold text-gray-700">Estimasi Total Pembelian:</span>
+                                    <span class="text-base font-bold text-green-700" x-text="'Rp ' + (form.items.reduce((sum, i) => sum + ((parseFloat(i.quantity) || 0) * (parseFloat(i.unit_price) || 0)), 0)).toLocaleString('id-ID')"></span>
+                                </div>
                             </div>
                             <div class="px-6 py-4 bg-gray-50 rounded-b-2xl sm:flex sm:flex-row-reverse border-t border-gray-100">
                                 <button type="submit" class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-xl shadow-sm hover:bg-green-700 focus:outline-none sm:ml-3 sm:w-auto">
