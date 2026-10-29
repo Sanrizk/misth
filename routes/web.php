@@ -91,6 +91,14 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/opname/{stockAdjustment}', [\App\Http\Controllers\StockController::class, 'destroyOpname'])->name('opname.destroy');
         });
 
+        // Finance / Kas
+        Route::prefix('finance')->name('finance.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\CashFlowController::class, 'index'])->name('index');
+            Route::post('/', [\App\Http\Controllers\CashFlowController::class, 'store'])->name('store');
+            Route::put('/{cashFlow}', [\App\Http\Controllers\CashFlowController::class, 'update'])->name('update');
+            Route::delete('/{cashFlow}', [\App\Http\Controllers\CashFlowController::class, 'destroy'])->name('destroy');
+        });
+
         // (Scanner endpoints moved to TransactionController)
         Route::post('transactions/scanner/find', [TransactionController::class, 'findForScanner'])->name('transactions.scanner.find');
         Route::patch('transactions/scanner/confirm/{transaction}', [TransactionController::class, 'confirmForScanner'])->name('transactions.scanner.confirm');

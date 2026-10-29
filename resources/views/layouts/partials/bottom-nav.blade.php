@@ -48,7 +48,7 @@
     </div>
 
     {{-- Transaksi --}}
-    <div class="relative flex flex-col items-center justify-center w-full h-full text-[10px] sm:text-xs font-medium transition-colors {{ request()->routeIs('purchases.*', 'plantings.*', 'products.*', 'transactions.*') ? 'text-white' : 'text-green-300 hover:text-white' }}"
+    <div class="relative flex flex-col items-center justify-center w-full h-full text-[10px] sm:text-xs font-medium transition-colors {{ request()->routeIs('purchases.*', 'plantings.*', 'products.*', 'transactions.*', 'finance.*') ? 'text-white' : 'text-green-300 hover:text-white' }}"
          @click.outside="if(activeMenu === 'trx') activeMenu = null">
         
         <button @click="activeMenu = activeMenu === 'trx' ? null : 'trx'" class="flex flex-col items-center justify-center w-full h-full outline-none focus:outline-none">
@@ -68,6 +68,9 @@
              x-transition:leave-end="opacity-0 scale-95 translate-y-2"
              class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-green-800 border border-green-700 rounded-2xl shadow-xl p-2 flex flex-col gap-1 z-50 text-left">
             <div class="px-2 py-1 text-[10px] font-bold text-green-300 uppercase tracking-wider">Transaksi</div>
+            <a href="{{ route('finance.index') }}" class="px-3 py-2 text-sm rounded-xl hover:bg-green-700 text-white flex items-center gap-3 transition-colors">
+                <svg class="w-4 h-4 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Keuangan (Kas)
+            </a>
             <a href="{{ route('purchases.index') }}" class="px-3 py-2 text-sm rounded-xl hover:bg-green-700 text-white flex items-center gap-3 transition-colors">
                 <svg class="w-4 h-4 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg> Pembelian
             </a>

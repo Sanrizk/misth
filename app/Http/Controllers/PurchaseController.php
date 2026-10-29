@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Purchase;
 use App\Models\Material;
 use App\Models\Supplier;
+use App\Models\CashFlow;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+
 
 class PurchaseController extends Controller
 {
@@ -157,6 +161,23 @@ class PurchaseController extends Controller
                     }
                     $material->save();
                 }
+
+                // Catat kas keluar otomatis jika belum ada
+                CashFlow::firstOrCreate(
+                    [
+                        'reference_type' => 'purchase',
+                        'reference_id' => $purchase->id,
+                    ],
+                    [
+                        'cash_number' => 'KAS-BELI-' . ($purchase->invoice_number ?: ('PO-' . $purchase->id)),
+                        'transaction_date' => $purchase->purchase_date ? Carbon::parse($purchase->purchase_date)->toDateString() : now()->toDateString(),
+                        'type' => 'out',
+                        'category' => 'Pembelian Bahan Baku',
+                        'amount' => $purchase->total_amount,
+                        'user_id' => Auth::id() ?? $purchase->user_id,
+                        'description' => 'Pembelian Bahan ke Supplier: ' . (optional($purchase->supplier)->name ?? '-') . ($purchase->invoice_number ? ' (No: ' . $purchase->invoice_number . ')' : ''),
+                    ]
+                );
             }
 
             // When status changes to cancelled from received
@@ -166,6 +187,11 @@ class PurchaseController extends Controller
                     $material->stock -= $item->quantity;
                     $material->save();
                 }
+
+                // Hapus kas keluar otomatis jika dibatalkan
+                CashFlow::where('reference_type', 'purchase')
+                    ->where('reference_id', $purchase->id)
+                    ->delete();
             }
 
             $purchase->update(['status' => $newStatus]);
