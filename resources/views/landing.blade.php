@@ -133,7 +133,7 @@
                 <p class="text-gray-500 dark:text-gray-400">Pilih dari berbagai sayuran segar hasil panen hidroponik kami hari ini.</p>
             </div>
             
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full">
                 @forelse($products as $product)
                 <div class="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden hover:-translate-y-1 hover:shadow-md transition duration-200 flex flex-col h-full">
                     @if($product->image_url)
