@@ -21,6 +21,14 @@ class Material extends Model
         return $this->hasMany(MaterialUsage::class, 'material_id');
     }
 
+    public function purchaseItems() {
+        return $this->hasMany(PurchaseItem::class, 'material_id');
+    }
+
+    public function stockAdjustments() {
+        return $this->hasMany(StockAdjustment::class, 'material_id');
+    }
+
     // Accessor: cek apakah stok di bawah minimum
     public function getIsLowStockAttribute() {
         return $this->stock <= $this->min_stock;

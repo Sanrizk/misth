@@ -80,6 +80,17 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/materials/pdf', [\App\Http\Controllers\ReportController::class, 'materialPdf'])->name('materials.pdf');
         });
 
+        // Stock Management (Cek Stok, Mutasi Stok, Stok Opname)
+        Route::prefix('stocks')->name('stocks.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\StockController::class, 'index'])->name('index');
+            Route::get('/summary', [\App\Http\Controllers\StockController::class, 'summary'])->name('summary');
+            Route::get('/mutations', [\App\Http\Controllers\StockController::class, 'mutations'])->name('mutations');
+            Route::get('/opname', [\App\Http\Controllers\StockController::class, 'opname'])->name('opname');
+            Route::post('/opname', [\App\Http\Controllers\StockController::class, 'storeOpname'])->name('opname.store');
+            Route::put('/opname/{stockAdjustment}', [\App\Http\Controllers\StockController::class, 'updateOpname'])->name('opname.update');
+            Route::delete('/opname/{stockAdjustment}', [\App\Http\Controllers\StockController::class, 'destroyOpname'])->name('opname.destroy');
+        });
+
         // (Scanner endpoints moved to TransactionController)
         Route::post('transactions/scanner/find', [TransactionController::class, 'findForScanner'])->name('transactions.scanner.find');
         Route::patch('transactions/scanner/confirm/{transaction}', [TransactionController::class, 'confirmForScanner'])->name('transactions.scanner.confirm');
