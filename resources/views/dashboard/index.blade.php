@@ -31,16 +31,16 @@
         </div>
     </div>
 
-    {{-- Card: Today Transactions --}}
+    {{-- Card: Total Materials --}}
     <div class="bg-white rounded-2xl p-5 shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center shrink-0">
-            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
+            <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
             </svg>
         </div>
         <div>
-            <p class="text-xs text-gray-500">Transaksi Hari Ini</p>
-            <p class="text-2xl font-bold text-gray-800">{{ $transactionsToday }}</p>
+            <p class="text-xs text-gray-500">Total Jenis Bahan</p>
+            <p class="text-2xl font-bold text-gray-800">{{ $totalMaterials }}</p>
         </div>
     </div>
 
@@ -59,66 +59,61 @@
 
 </div>
 
-{{-- Charts Row 1 --}}
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-    <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm p-6">
+{{-- Charts Row --}}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <div class="bg-white rounded-2xl shadow-sm p-6">
         <h2 class="text-sm font-semibold text-gray-700 mb-4">Tren Panen (6 Bulan Terakhir)</h2>
         <canvas id="harvestChart" class="w-full" style="max-height: 250px;"></canvas>
     </div>
-    <div class="bg-white rounded-2xl shadow-sm p-6">
-        <h2 class="text-sm font-semibold text-gray-700 mb-4">Produk Terlaris</h2>
-        <canvas id="productChart" class="w-full" style="max-height: 250px;"></canvas>
+    <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col">
+        <h2 class="text-sm font-semibold text-gray-700 mb-4">Tren Pembelian Bahan (6 Bulan Terakhir)</h2>
+        <div class="flex-1 flex items-center justify-center">
+            <canvas id="financeChart" class="w-full" style="max-height: 250px;"></canvas>
+        </div>
     </div>
 </div>
 
-{{-- Charts Row 2 & Recent Transactions --}}
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-    {{-- Finance Chart --}}
-    <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col">
-        <h2 class="text-sm font-semibold text-gray-700 mb-4">Pembelian Bahan dan Penjualan (6 Bulan Terakhir)</h2>
-        <div class="flex-1 flex items-center justify-center">
-            <canvas id="financeChart" class="w-full" style="max-height: 300px;"></canvas>
-        </div>
+{{-- Recent Purchases --}}
+<div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-semibold text-gray-700">Pembelian Bahan Terbaru</h2>
+        <a href="{{ route('purchases.index') }}" class="text-xs text-green-600 hover:text-green-700 font-medium">Lihat Semua &rarr;</a>
     </div>
-
-    {{-- Recent Transactions --}}
-    <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col">
-        <h2 class="text-sm font-semibold text-gray-700 mb-4">Transaksi Terbaru</h2>
-        <div class="overflow-x-auto flex-1">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b border-gray-100">
-                        <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">Invoice</th>
-                        <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">Customer</th>
-                        <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">Total</th>
-                        <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">Status</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    @forelse($recentTransactions as $trx)
-                    <tr class="hover:bg-gray-50">
-                        <td class="py-2.5 px-3 font-mono text-xs text-gray-600">{{ $trx->invoice_number }}</td>
-                        <td class="py-2.5 px-3">{{ optional($trx->user)->name }}</td>
-                        <td class="py-2.5 px-3 font-semibold">Rp {{ number_format($trx->total_amount, 0, ',', '.') }}</td>
-                        <td class="py-2.5 px-3">
-                            <span class="px-2 py-0.5 rounded-full text-xs font-medium
-                                @if($trx->status === 'completed') bg-green-100 text-green-700
-                                @elseif($trx->status === 'paid') bg-blue-100 text-blue-700
-                                @elseif($trx->status === 'shipping') bg-purple-100 text-purple-700
-                                @elseif($trx->status === 'cancelled') bg-red-100 text-red-700
-                                @else bg-yellow-100 text-yellow-700 @endif">
-                                {{ ucfirst($trx->status) }}
-                            </span>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="4" class="py-8 text-center text-gray-400 text-xs">Belum ada transaksi.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b border-gray-100">
+                    <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">No. Pembelian</th>
+                    <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">Supplier</th>
+                    <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">Tanggal</th>
+                    <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">Total</th>
+                    <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">Status</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+                @forelse($recentPurchases as $purchase)
+                <tr class="hover:bg-gray-50">
+                    <td class="py-2.5 px-3 font-mono text-xs text-gray-600">{{ $purchase->purchase_number }}</td>
+                    <td class="py-2.5 px-3">{{ optional($purchase->supplier)->name ?? '-' }}</td>
+                    <td class="py-2.5 px-3 text-gray-500 text-xs">{{ $purchase->purchase_date ? \Carbon\Carbon::parse($purchase->purchase_date)->format('d M Y') : '-' }}</td>
+                    <td class="py-2.5 px-3 font-semibold">Rp {{ number_format($purchase->total_amount, 0, ',', '.') }}</td>
+                    <td class="py-2.5 px-3">
+                        <span class="px-2 py-0.5 rounded-full text-xs font-medium
+                            @if($purchase->status === 'received') bg-green-100 text-green-700
+                            @elseif($purchase->status === 'ordered') bg-blue-100 text-blue-700
+                            @elseif($purchase->status === 'cancelled') bg-red-100 text-red-700
+                            @else bg-yellow-100 text-yellow-700 @endif">
+                            {{ ucfirst($purchase->status) }}
+                        </span>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="5" class="py-8 text-center text-gray-400 text-xs">Belum ada pembelian bahan.</td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -157,26 +152,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // 2. Product Pie Chart
-    new Chart(document.getElementById('productChart'), {
-        type: 'doughnut',
-        data: {
-            labels: @json($productChart['labels']),
-            datasets: [{
-                data: @json($productChart['data']),
-                backgroundColor: [
-                    '#16a34a', '#2563eb', '#d97706', '#9333ea', '#db2777'
-                ],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            ...chartOptions,
-            cutout: '60%'
-        }
-    });
-
-    // 3. Finance Bar Chart
+    // 2. Finance Bar Chart (Purchases)
     new Chart(document.getElementById('financeChart'), {
         type: 'bar',
         data: {
@@ -185,12 +161,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 {
                     label: 'Pembelian Bahan (Rp)',
                     data: @json($financeChart['purchases']),
-                    backgroundColor: '#dc2626',
-                    borderRadius: 4
-                },
-                {
-                    label: 'Penjualan (Rp)',
-                    data: @json($financeChart['sales']),
                     backgroundColor: '#16a34a',
                     borderRadius: 4
                 }

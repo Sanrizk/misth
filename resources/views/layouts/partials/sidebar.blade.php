@@ -9,7 +9,7 @@
     </div>
 
     {{-- Navigation --}}
-            <nav class="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
+    <nav class="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
 
         @php $role = Auth::user()->role->name ?? ''; @endphp
 
@@ -23,7 +23,6 @@
             Dashboard
         </a>
 
-        @if($role !== 'customer')
         {{-- Master Data Accordion --}}
         <div x-data="{ open: {{ request()->routeIs('suppliers.*', 'plant-types.*', 'materials.*', 'users.*') ? 'true' : 'false' }} }">
             <button @click="open = !open" class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition hover:bg-green-800 text-green-100">
@@ -38,7 +37,7 @@
                 </svg>
             </button>
             <div x-cloak x-show="open" x-transition:enter="transition-all ease-out duration-300"
-             x-transition:enter-start="opacity-0 max-h-0"
+             x-transition:enter-start="opacity-0 max-h-64"
              x-transition:enter-end="opacity-100 max-h-64"
              x-transition:leave="transition-all ease-in duration-200"
              x-transition:leave-start="opacity-100 max-h-64"
@@ -80,7 +79,7 @@
         </div>
 
         {{-- Transaksi Accordion --}}
-        <div x-data="{ open: {{ request()->routeIs('purchases.*', 'plantings.*', 'products.*', 'transactions.*', 'finance.*') ? 'true' : 'false' }} }">
+        <div x-data="{ open: {{ request()->routeIs('purchases.*', 'plantings.*', 'products.*', 'finance.*') ? 'true' : 'false' }} }">
             <button @click="open = !open" class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition hover:bg-green-800 text-green-100">
                 <div class="flex items-center gap-3">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -93,12 +92,19 @@
                 </svg>
             </button>
             <div x-cloak x-show="open" x-transition:enter="transition-all ease-out duration-300"
-             x-transition:enter-start="opacity-0 max-h-0"
+             x-transition:enter-start="opacity-0 max-h-64"
              x-transition:enter-end="opacity-100 max-h-64"
              x-transition:leave="transition-all ease-in duration-200"
              x-transition:leave-start="opacity-100 max-h-64"
              x-transition:leave-end="opacity-0 max-h-0"
              class="pl-4 pr-1 py-1 space-y-1 overflow-hidden">
+                <a href="{{ route('finance.index') }}"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('finance.*') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg> 
+                    Keuangan (Kas)
+                </a>
                 @if($role === 'admin')
                 <a href="{{ route('purchases.index') }}"
                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('purchases.*') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
@@ -123,58 +129,10 @@
                     </svg> 
                     Produk
                 </a>
-                <a href="{{ route('transactions.index') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('transactions.*') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg> 
-                    Pesanan
-                </a>
                 @endif
-                <a href="{{ route('finance.index') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('finance.*') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg> 
-                    Keuangan (Kas)
-                </a>
             </div>
         </div>
-        @endif
 
-        @if($role === 'customer')
-        {{-- Transaksi Accordion for Customer (Pesanan Saya) --}}
-        <div x-data="{ open: {{ request()->routeIs('store.orders.*') ? 'true' : 'false' }} }">
-            <button @click="open = !open" class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition hover:bg-green-800 text-green-100">
-                <div class="flex items-center gap-3">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                    </svg>
-                    Transaksi
-                </div>
-                <svg :class="{'rotate-180': open}" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-            <div x-cloak x-show="open" x-transition:enter="transition-all ease-out duration-300"
-             x-transition:enter-start="opacity-0 max-h-0"
-             x-transition:enter-end="opacity-100 max-h-64"
-             x-transition:leave="transition-all ease-in duration-200"
-             x-transition:leave-start="opacity-100 max-h-64"
-             x-transition:leave-end="opacity-0 max-h-0"
-             class="pl-4 pr-1 py-1 space-y-1 overflow-hidden">
-                <a href="{{ route('store.orders.index') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('store.orders.*') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
-                    </svg> 
-                    Pesanan Saya
-                </a>
-            </div>
-        </div>
-        @endif
-
-        @if($role !== 'customer')
         {{-- Menu Stok --}}
         <div x-data="{ open: {{ request()->routeIs('stocks.*') ? 'true' : 'false' }} }">
             <button @click="open = !open" class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition hover:bg-green-800 text-green-100">
@@ -189,7 +147,7 @@
                 </svg>
             </button>
             <div x-cloak x-show="open" x-transition:enter="transition-all ease-out duration-300"
-             x-transition:enter-start="opacity-0 max-h-0"
+             x-transition:enter-start="opacity-0 max-h-64"
              x-transition:enter-end="opacity-100 max-h-64"
              x-transition:leave="transition-all ease-in duration-200"
              x-transition:leave-start="opacity-100 max-h-64"
@@ -225,45 +183,16 @@
                 </a>
             </div>
         </div>
-        @endif
 
-        {{-- Lainnya Accordion --}}
-        <div x-data="{ open: {{ request()->routeIs('reports.*', 'store.index') ? 'true' : 'false' }} }">
-            <button @click="open = !open" class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition hover:bg-green-800 text-green-100">
-                <div class="flex items-center gap-3">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path>
-                    </svg>
-                    Lainnya
-                </div>
-                <svg :class="{'rotate-180': open}" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-            <div x-cloak x-show="open" x-transition:enter="transition-all ease-out duration-300"
-             x-transition:enter-start="opacity-0 max-h-0"
-             x-transition:enter-end="opacity-100 max-h-64"
-             x-transition:leave="transition-all ease-in duration-200"
-             x-transition:leave-start="opacity-100 max-h-64"
-             x-transition:leave-end="opacity-0 max-h-0"
-             class="pl-4 pr-1 py-1 space-y-1 overflow-hidden">
-                @if($role !== 'customer')
-                <a href="{{ route('reports.index') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('reports.*') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                    </svg> 
-                    Laporan
-                </a>
-                @endif
-                <a href="{{ route('store.index') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('store.index') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                    </svg> 
-                    Ke Toko
-                </a>
-            </div>
+        {{-- Laporan --}}
+        <div>
+            <a href="{{ route('reports.index') }}"
+               class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('reports.*') ? 'bg-green-700 text-white' : 'text-green-100 hover:bg-green-800' }}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg> 
+                Laporan
+            </a>
         </div>
 
     </nav>

@@ -28,35 +28,11 @@ class FarmRouteTest extends TestCase
             '/reports',
             '/reports/plantings',
             '/reports/harvests',
-            '/reports/transactions',
             '/reports/materials',
         ];
 
         foreach ($getRoutes as $url) {
             $this->get($url)->assertRedirect('/login');
-        }
-    }
-
-    public function test_farm_routes_authorization_for_customer()
-    {
-        $customer = $this->createUser('customer');
-
-        $getRoutes = [
-            '/plant-types',
-            '/plantings',
-            '/materials',
-            '/suppliers',
-            '/purchases',
-            '/reports',
-            '/reports/plantings',
-            '/reports/harvests',
-            '/reports/transactions',
-            '/reports/materials',
-        ];
-
-        foreach ($getRoutes as $url) {
-            $this->actingAs($customer)->get($url)->assertStatus(403);
-            Auth()->logout();
         }
     }
 
@@ -71,13 +47,12 @@ class FarmRouteTest extends TestCase
             '/reports',
             '/reports/plantings',
             '/reports/harvests',
-            '/reports/transactions',
             '/reports/materials',
         ];
 
         foreach ($getRoutes as $url) {
             $this->actingAs($petani)->get($url)->assertStatus(200);
-            Auth()->logout();
+            auth()->logout();
         }
 
         // Suppliers and Purchases restricted to admin (403 for petani)
@@ -98,13 +73,12 @@ class FarmRouteTest extends TestCase
             '/reports',
             '/reports/plantings',
             '/reports/harvests',
-            '/reports/transactions',
             '/reports/materials',
         ];
 
         foreach ($getRoutes as $url) {
             $this->actingAs($admin)->get($url)->assertStatus(200);
-            Auth()->logout();
+            auth()->logout();
         }
     }
 }

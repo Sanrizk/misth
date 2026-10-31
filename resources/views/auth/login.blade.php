@@ -148,10 +148,7 @@
 
                 </form>
 
-                <p class="text-center text-xs text-gray-500 dark:text-gray-400 mt-5">
-                    Belum punya akun?
-                    <a href="{{ route('register') }}" class="text-green-600 dark:text-green-400 font-medium hover:underline">Daftar sekarang</a>
-                </p>
+
 
             </div>
 

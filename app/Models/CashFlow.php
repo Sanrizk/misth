@@ -31,11 +31,6 @@ class CashFlow extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function transaction()
-    {
-        return $this->belongsTo(Transaction::class, 'reference_id');
-    }
-
     public function purchase()
     {
         return $this->belongsTo(Purchase::class, 'reference_id');
@@ -46,7 +41,6 @@ class CashFlow extends Model
      */
     public function getIsAutomaticAttribute(): bool
     {
-        return in_array($this->reference_type, ['order', 'purchase']);
+        return $this->reference_type === 'purchase';
     }
 }
-

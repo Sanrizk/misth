@@ -21,12 +21,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            $role = Auth::user()->role->name;
-
-            return match($role) {
-                'customer' => redirect()->route('store.index'),
-                default    => redirect()->route('dashboard'),
-            };
+            return redirect()->route('dashboard');
         }
 
         return back()->withErrors([
@@ -44,4 +39,3 @@ class AuthController extends Controller
         return redirect('/login');
     }
 }
-

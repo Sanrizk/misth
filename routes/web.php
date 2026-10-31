@@ -1,5 +1,5 @@
 <?php
-// semangat
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PlantTypeController;
 use App\Http\Controllers\PlantingController;
@@ -7,28 +7,22 @@ use App\Http\Controllers\MaintenanceLogController;
 use App\Http\Controllers\WaterQualityLogController;
 use App\Http\Controllers\HarvestController;
 use App\Http\Controllers\ProductController;
-use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MaterialUsageController;
-use App\Http\Controllers\LandingController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\PurchaseController;
 
-// Public routes
-Route::get('/', [LandingController::class, 'index'])->name('landing');
-
-use App\Http\Controllers\RegisterController;
+// Public root redirect
+Route::get('/', function () {
+    return auth()->check() ? redirect()->route('dashboard') : redirect()->route('login');
+});
 
 // Auth routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
-
-    // Customer registration
-    Route::get('/register', [RegisterController::class, 'show'])->name('register');
-    Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -65,8 +59,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('material-usages', [MaterialUsageController::class, 'store'])->name('material-usages.store');
         Route::delete('material-usages/{materialUsage}', [MaterialUsageController::class, 'destroy'])->name('material-usages.destroy');
 
-
-
         // Reports
         Route::prefix('reports')->name('reports.')->group(function () {
             Route::get('/', [\App\Http\Controllers\ReportController::class, 'index'])->name('index');
@@ -74,8 +66,6 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/plantings/pdf', [\App\Http\Controllers\ReportController::class, 'plantingPdf'])->name('plantings.pdf');
             Route::get('/harvests', [\App\Http\Controllers\ReportController::class, 'harvestReport'])->name('harvests');
             Route::get('/harvests/pdf', [\App\Http\Controllers\ReportController::class, 'harvestPdf'])->name('harvests.pdf');
-            Route::get('/transactions', [\App\Http\Controllers\ReportController::class, 'transactionReport'])->name('transactions');
-            Route::get('/transactions/pdf', [\App\Http\Controllers\ReportController::class, 'transactionPdf'])->name('transactions.pdf');
             Route::get('/materials', [\App\Http\Controllers\ReportController::class, 'materialReport'])->name('materials');
             Route::get('/materials/pdf', [\App\Http\Controllers\ReportController::class, 'materialPdf'])->name('materials.pdf');
         });
@@ -98,10 +88,6 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/{cashFlow}', [\App\Http\Controllers\CashFlowController::class, 'update'])->name('update');
             Route::delete('/{cashFlow}', [\App\Http\Controllers\CashFlowController::class, 'destroy'])->name('destroy');
         });
-
-        // (Scanner endpoints moved to TransactionController)
-        Route::post('transactions/scanner/find', [TransactionController::class, 'findForScanner'])->name('transactions.scanner.find');
-        Route::patch('transactions/scanner/confirm/{transaction}', [TransactionController::class, 'confirmForScanner'])->name('transactions.scanner.confirm');
     });
 
     Route::middleware(['role:admin'])->group(function () {
@@ -111,41 +97,6 @@ Route::middleware(['auth'])->group(function () {
         
         // Products
         Route::resource('products', ProductController::class)->only(['index', 'show', 'edit', 'update']);
-
-        // Transactions
-        Route::resource('transactions', TransactionController::class);
-        Route::patch('transactions/{transaction}/status', [TransactionController::class, 'updateStatus'])->name('transactions.updateStatus');
     });
 
-});
-
-use App\Http\Controllers\Customer\StoreController;
-use App\Http\Controllers\Customer\CartController;
-use App\Http\Controllers\Customer\CheckoutController;
-use App\Http\Controllers\Customer\OrderController;
-
-// Public Storefront (Bisa diakses guest dan semua role)
-Route::prefix('store')->name('store.')->group(function () {
-    Route::get('/', [StoreController::class, 'index'])->name('index');
-    Route::get('/product/{id}', [StoreController::class, 'show'])->name('product.show');
-});
-
-// Authenticated & Customer Only
-Route::middleware(['auth', 'role:customer'])->prefix('store')->name('store.')->group(function () {
-    // Keranjang
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-    Route::patch('/cart/update', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('/cart/remove/{productId}', [CartController::class, 'remove'])->name('cart.remove');
-    Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
-
-    // Checkout
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-    Route::get('/checkout/success/{transaction}', [CheckoutController::class, 'success'])->name('checkout.success');
-
-    // Riwayat Order
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{transaction}', [OrderController::class, 'show'])->name('orders.show');
-    Route::patch('/orders/{transaction}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 });

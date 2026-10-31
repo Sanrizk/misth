@@ -22,7 +22,6 @@ class ReportPdfTest extends TestCase
         $pdfRoutes = [
             '/reports/plantings/pdf',
             '/reports/harvests/pdf',
-            '/reports/transactions/pdf',
             '/reports/materials/pdf',
         ];
 
@@ -38,7 +37,6 @@ class ReportPdfTest extends TestCase
         $pdfRoutes = [
             '/reports/plantings/pdf',
             '/reports/harvests/pdf',
-            '/reports/transactions/pdf',
             '/reports/materials/pdf',
         ];
 
@@ -59,4 +57,3 @@ class ReportPdfTest extends TestCase
         $this->assertStringContainsString('attachment', $response->headers->get('content-disposition'));
     }
 }
-

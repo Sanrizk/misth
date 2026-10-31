@@ -42,14 +42,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(Planting::class);
     }
-
-    public function transactions(): HasMany
-    {
-        return $this->hasMany(Transaction::class);
-    }
-
-    public function cart()
-    {
-        return $this->hasOne(Cart::class);
-    }
 }

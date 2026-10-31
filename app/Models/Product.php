@@ -45,8 +45,4 @@ class Product extends Model
         return $this->belongsTo(Harvest::class, 'harvest_id');
     }
 
-    public function transactionDetails()
-    {
-        return $this->hasMany(TransactionDetail::class, 'product_id');
-    }
 }

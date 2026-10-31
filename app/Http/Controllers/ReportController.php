@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Planting;
 use App\Models\Harvest;
-use App\Models\Transaction;
 use App\Models\MaterialUsage;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -129,69 +128,6 @@ class ReportController extends Controller
             ->setPaper('a4', 'portrait');
 
         $filename = 'laporan-panen-' . now()->format('YmdHis') . '.pdf';
-
-        if ($request->get('download')) {
-            return $pdf->download($filename);
-        }
-
-        return $pdf->stream($filename);
-    }
-
-    public function transactionReport(Request $request)
-    {
-        if ($request->get('export') === 'pdf' || $request->has('pdf')) {
-            return $this->transactionPdf($request);
-        }
-
-        $startDate = $request->start_date;
-        $endDate = $request->end_date;
-
-        $query = Transaction::with('user');
-
-        if ($startDate && $endDate) {
-            $query->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
-        }
-
-        $transactions = $query->orderBy('created_at', 'desc')->get();
-
-        $summary = $transactions->groupBy(function ($item) {
-            return $item->created_at->format('Y-m');
-        })->map(function ($monthGroup) {
-            return [
-                'total_revenue' => $monthGroup->whereIn('status', ['paid', 'completed', 'shipping', 'terbayarkan'])->sum('total_amount'),
-                'total_transactions' => $monthGroup->count(),
-            ];
-        });
-
-        return view('reports.transaction', compact('transactions', 'summary', 'startDate', 'endDate'));
-    }
-
-    public function transactionPdf(Request $request)
-    {
-        $startDate = $request->start_date;
-        $endDate = $request->end_date;
-
-        $query = Transaction::with('user');
-
-        if ($startDate && $endDate) {
-            $query->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
-        }
-
-        $transactions = $query->orderBy('created_at', 'desc')->get();
-
-        $summary = $transactions->groupBy(function ($item) {
-            return $item->created_at->format('Y-m');
-        })->map(function ($monthGroup) {
-            return [
-                'total_revenue' => $monthGroup->whereIn('status', ['paid', 'completed', 'shipping', 'terbayarkan'])->sum('total_amount'),
-                'total_transactions' => $monthGroup->count(),
-            ];
-        });
-
-        $pdf = Pdf::loadView('reports.pdf.transaction', compact('transactions', 'summary', 'startDate', 'endDate'))
-            ->setPaper('a4', 'portrait');
-
-        $filename = 'laporan-penjualan-' . now()->format('YmdHis') . '.pdf';
 
         if ($request->get('download')) {
             return $pdf->download($filename);
