@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use App\Models\Product;
+use App\Models\CashFlow;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -122,9 +123,12 @@ class TransactionController extends Controller
             'status' => 'required|in:pending,terbayarkan,batal',
         ]);
 
-        // Jika dibatalkan dari paid, kembalikan stok
-        if ($request->status === 'batal' && $transaction->status !== 'batal') {
-            DB::transaction(function () use ($transaction, $request) {
+        $oldStatus = $transaction->status;
+        $newStatus = $request->status;
+
+        DB::transaction(function () use ($transaction, $oldStatus, $newStatus) {
+            // Jika dibatalkan, kembalikan stok
+            if ($newStatus === 'batal' && $oldStatus !== 'batal') {
                 foreach ($transaction->transactionDetails as $detail) {
                     $product = $detail->product;
                     if ($product) {
@@ -134,11 +138,35 @@ class TransactionController extends Controller
                         }
                     }
                 }
-                $transaction->update(['status' => $request->status]);
-            });
-        } else {
-            $transaction->update(['status' => $request->status]);
-        }
+            }
+
+            $transaction->update(['status' => $newStatus]);
+
+            // Sinkronisasi Kas Otomatis
+            if ($newStatus === 'terbayarkan' && $oldStatus !== 'terbayarkan') {
+                // Catat kas masuk jika belum ada
+                CashFlow::firstOrCreate(
+                    [
+                        'reference_type' => 'order',
+                        'reference_id' => $transaction->id,
+                    ],
+                    [
+                        'cash_number' => 'KAS-ORD-' . $transaction->invoice_number,
+                        'transaction_date' => now()->toDateString(),
+                        'type' => 'in',
+                        'category' => 'Penjualan Produk',
+                        'amount' => $transaction->total_amount,
+                        'user_id' => Auth::id(),
+                        'description' => 'Pendapatan Pesanan ' . $transaction->invoice_number . ' (Pelanggan: ' . (optional($transaction->user)->name ?? '-') . ')',
+                    ]
+                );
+            } elseif ($newStatus === 'batal' && $oldStatus === 'terbayarkan') {
+                // Hapus kas masuk jika dibatalkan
+                CashFlow::where('reference_type', 'order')
+                    ->where('reference_id', $transaction->id)
+                    ->delete();
+            }
+        });
 
         return redirect()->route('transactions.index')
                          ->with('success', 'Status transaksi berhasil diperbarui.');
@@ -205,10 +233,33 @@ class TransactionController extends Controller
                     }
                 }
                 $transaction->update(['status' => $request->status]);
+
+                // Hapus kas jika ada
+                CashFlow::where('reference_type', 'order')
+                    ->where('reference_id', $transaction->id)
+                    ->delete();
             });
             $message = 'Pesanan berhasil dibatalkan.';
         } else {
-            $transaction->update(['status' => 'terbayarkan']);
+            DB::transaction(function () use ($transaction) {
+                $transaction->update(['status' => 'terbayarkan']);
+
+                CashFlow::firstOrCreate(
+                    [
+                        'reference_type' => 'order',
+                        'reference_id' => $transaction->id,
+                    ],
+                    [
+                        'cash_number' => 'KAS-ORD-' . $transaction->invoice_number,
+                        'transaction_date' => now()->toDateString(),
+                        'type' => 'in',
+                        'category' => 'Penjualan Produk',
+                        'amount' => $transaction->total_amount,
+                        'user_id' => Auth::id(),
+                        'description' => 'Pendapatan Pesanan ' . $transaction->invoice_number . ' via Scanner',
+                    ]
+                );
+            });
             $message = 'Pembayaran berhasil dikonfirmasi.';
         }
 

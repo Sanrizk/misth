@@ -80,7 +80,7 @@
         </div>
 
         {{-- Transaksi Accordion --}}
-        <div x-data="{ open: {{ request()->routeIs('purchases.*', 'plantings.*', 'products.*', 'transactions.*') ? 'true' : 'false' }} }">
+        <div x-data="{ open: {{ request()->routeIs('purchases.*', 'plantings.*', 'products.*', 'transactions.*', 'finance.*') ? 'true' : 'false' }} }">
             <button @click="open = !open" class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition hover:bg-green-800 text-green-100">
                 <div class="flex items-center gap-3">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -99,6 +99,13 @@
              x-transition:leave-start="opacity-100 max-h-64"
              x-transition:leave-end="opacity-0 max-h-0"
              class="pl-4 pr-1 py-1 space-y-1 overflow-hidden">
+                <a href="{{ route('finance.index') }}"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('finance.*') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg> 
+                    Keuangan (Kas)
+                </a>
                 @if($role === 'admin')
                 <a href="{{ route('purchases.index') }}"
                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('purchases.*') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
@@ -162,6 +169,59 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
                     </svg> 
                     Pesanan Saya
+                </a>
+            </div>
+        </div>
+        @endif
+
+        @if($role !== 'customer')
+        {{-- Menu Stok --}}
+        <div x-data="{ open: {{ request()->routeIs('stocks.*') ? 'true' : 'false' }} }">
+            <button @click="open = !open" class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition hover:bg-green-800 text-green-100">
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                    </svg>
+                    Stok
+                </div>
+                <svg :class="{'rotate-180': open}" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+            <div x-cloak x-show="open" x-transition:enter="transition-all ease-out duration-300"
+             x-transition:enter-start="opacity-0 max-h-0"
+             x-transition:enter-end="opacity-100 max-h-64"
+             x-transition:leave="transition-all ease-in duration-200"
+             x-transition:leave-start="opacity-100 max-h-64"
+             x-transition:leave-end="opacity-0 max-h-0"
+             class="pl-4 pr-1 py-1 space-y-1 overflow-hidden">
+                <a href="{{ route('stocks.index') }}"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('stocks.index') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                    </svg> 
+                    Overview Stok
+                </a>
+                <a href="{{ route('stocks.summary') }}"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('stocks.summary') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg> 
+                    Stok Keseluruhan
+                </a>
+                <a href="{{ route('stocks.mutations') }}"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('stocks.mutations') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                    </svg> 
+                    Mutasi Stok
+                </a>
+                <a href="{{ route('stocks.opname') }}"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('stocks.opname') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg> 
+                    Stok Opname
                 </a>
             </div>
         </div>
