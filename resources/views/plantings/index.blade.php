@@ -594,15 +594,27 @@
                     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm"
-                                 :class="planting.status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'">
+                                 :class="{
+                                     'bg-blue-100 text-blue-700': planting.status === 'in_progress',
+                                     'bg-green-100 text-green-700': planting.status === 'harvested',
+                                     'bg-red-100 text-red-700': planting.status === 'failed'
+                                 }">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                             </div>
                             <div>
                                 <h3 class="font-bold text-gray-800 text-base">
-                                    Riwayat — <span :class="planting.status === 'failed' ? 'text-red-700' : 'text-green-700'" x-text="planting.plant_type ? planting.plant_type.name : ''"></span>
+                                    Riwayat — <span :class="{
+                                        'text-blue-700': planting.status === 'in_progress',
+                                        'text-green-700': planting.status === 'harvested',
+                                        'text-red-700': planting.status === 'failed'
+                                    }" x-text="planting.plant_type ? planting.plant_type.name : ''"></span>
                                     <span class="text-xs px-2 py-0.5 rounded-full ml-1 font-semibold"
-                                          :class="planting.status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'"
-                                          x-text="planting.status === 'failed' ? 'Gagal' : 'Panen'">
+                                          :class="{
+                                              'bg-blue-100 text-blue-700': planting.status === 'in_progress',
+                                              'bg-green-100 text-green-700': planting.status === 'harvested',
+                                              'bg-red-100 text-red-700': planting.status === 'failed'
+                                          }"
+                                          x-text="planting.status === 'in_progress' ? 'Proses' : (planting.status === 'harvested' ? 'Panen' : 'Gagal')">
                                     </span>
                                 </h3>
                                 <p class="text-xs text-gray-400">
@@ -787,7 +799,7 @@
                                                 <div class="bg-green-50 border border-green-200 rounded-xl p-3">
                                                     <p class="text-xs text-green-800 flex items-center gap-1.5 font-medium">
                                                         <svg class="w-4 h-4 shrink-0 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                                        Hasil panen telah dikonversi menjadi produk toko.
+                                                        Hasil panen telah berhasil dicatat ke sistem.
                                                     </p>
                                                 </div>
                                             </div>
