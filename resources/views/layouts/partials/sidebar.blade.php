@@ -13,7 +13,7 @@
 
         @php $role = Auth::user()->role->name ?? ''; @endphp
 
-        {{-- Dashboard --}}
+        {{-- Dashboard (Semua Role) --}}
         <a href="{{ route('dashboard') }}"
            class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition
                   {{ request()->routeIs('dashboard') ? 'bg-green-700 text-white' : 'text-green-100 hover:bg-green-800' }}">
@@ -23,7 +23,8 @@
             Dashboard
         </a>
 
-        {{-- Master Data Accordion --}}
+        {{-- Master Data Accordion (Admin & Persediaan) --}}
+        @if(in_array($role, ['admin', 'persediaan']))
         <div x-data="{ open: {{ request()->routeIs('suppliers.*', 'plant-types.*', 'materials.*', 'users.*') ? 'true' : 'false' }} }">
             <button @click="open = !open" class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition hover:bg-green-800 text-green-100">
                 <div class="flex items-center gap-3">
@@ -43,7 +44,6 @@
              x-transition:leave-start="opacity-100 max-h-64"
              x-transition:leave-end="opacity-0 max-h-0"
              class="pl-4 pr-1 py-1 space-y-1 overflow-hidden">
-                @if($role === 'admin')
                 <a href="{{ route('suppliers.index') }}"
                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('suppliers.*') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,7 +51,7 @@
                     </svg> 
                     Supplier
                 </a>
-                @endif
+                @if($role === 'admin')
                 <a href="{{ route('plant-types.index') }}"
                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('plant-types.*') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,12 +59,13 @@
                     </svg> 
                     Jenis Tanaman
                 </a>
+                @endif
                 <a href="{{ route('materials.index') }}"
                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('materials.*') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                     </svg> 
-                    Bahan
+                    Bahan Baku
                 </a>
                 @if($role === 'admin')
                 <a href="{{ route('users.index') }}"
@@ -77,8 +78,10 @@
                 @endif
             </div>
         </div>
+        @endif
 
-        {{-- Transaksi Accordion --}}
+        {{-- Transaksi / Operasional Accordion --}}
+        @if(in_array($role, ['admin', 'petani', 'persediaan', 'keuangan', 'pimpinan']))
         <div x-data="{ open: {{ request()->routeIs('purchases.*', 'plantings.*', 'finance.*') ? 'true' : 'false' }} }">
             <button @click="open = !open" class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition hover:bg-green-800 text-green-100">
                 <div class="flex items-center gap-3">
@@ -98,6 +101,7 @@
              x-transition:leave-start="opacity-100 max-h-64"
              x-transition:leave-end="opacity-0 max-h-0"
              class="pl-4 pr-1 py-1 space-y-1 overflow-hidden">
+                @if(in_array($role, ['admin', 'keuangan', 'pimpinan']))
                 <a href="{{ route('finance.index') }}"
                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('finance.*') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -105,7 +109,8 @@
                     </svg> 
                     Keuangan (Kas)
                 </a>
-                @if($role === 'admin')
+                @endif
+                @if(in_array($role, ['admin', 'persediaan']))
                 <a href="{{ route('purchases.index') }}"
                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('purchases.*') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,6 +119,7 @@
                     Pembelian
                 </a>
                 @endif
+                @if(in_array($role, ['admin', 'petani', 'pimpinan']))
                 <a href="{{ route('plantings.index') }}"
                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('plantings.*') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,11 +127,13 @@
                     </svg> 
                     Penanaman
                 </a>
-
+                @endif
             </div>
         </div>
+        @endif
 
-        {{-- Menu Stok --}}
+        {{-- Menu Stok (Admin, Persediaan, Pimpinan) --}}
+        @if(in_array($role, ['admin', 'persediaan', 'pimpinan']))
         <div x-data="{ open: {{ request()->routeIs('stocks.*') ? 'true' : 'false' }} }">
             <button @click="open = !open" class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition hover:bg-green-800 text-green-100">
                 <div class="flex items-center gap-3">
@@ -175,8 +183,10 @@
                 </a>
             </div>
         </div>
+        @endif
 
-        {{-- Laporan --}}
+        {{-- Laporan (Admin & Pimpinan) --}}
+        @if(in_array($role, ['admin', 'pimpinan']))
         <div>
             <a href="{{ route('reports.index') }}"
                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('reports.*') ? 'bg-green-700 text-white' : 'text-green-100 hover:bg-green-800' }}">
@@ -186,6 +196,7 @@
                 Laporan
             </a>
         </div>
+        @endif
 
     </nav>
 
