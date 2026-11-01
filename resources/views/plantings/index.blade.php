@@ -510,8 +510,8 @@
 
                         <template x-if="!planting.harvest && planting.status === 'in_progress'">
                         <div>
-                            <div class="bg-yellow-50 border border-yellow-100 rounded-xl p-3 mb-4">
-                                <p class="text-xs text-yellow-700">Menyimpan panen akan otomatis membuat produk di toko dan mengubah status penanaman menjadi harvested.</p>
+                            <div class="bg-green-50 border border-green-100 rounded-xl p-3 mb-4">
+                                <p class="text-xs text-green-700">Menyimpan panen akan mencatat data hasil panen dan mengubah status penanaman menjadi panen (harvested).</p>
                             </div>
 
                             <form action="{{ route('harvests.store') }}" method="POST" class="space-y-3">
@@ -542,11 +542,6 @@
                                     <div>
                                         <label class="block text-xs font-medium text-gray-600 mb-1">Berat (kg)</label>
                                         <input type="number" name="total_yield_weight" step="0.01" min="0"
-                                               class="w-full px-3 py-2 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-green-500" required>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-medium text-gray-600 mb-1">Harga/Unit (Rp)</label>
-                                        <input type="number" name="price" min="0"
                                                class="w-full px-3 py-2 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-green-500" required>
                                     </div>
                                     <div>

@@ -51,7 +51,7 @@
     </div>
 
     {{-- Transaksi --}}
-    <div class="relative flex flex-col items-center justify-center w-full h-full text-[10px] sm:text-xs font-medium transition-colors {{ request()->routeIs('purchases.*', 'plantings.*', 'products.*', 'finance.*') ? 'text-white' : 'text-green-300 hover:text-white' }}"
+    <div class="relative flex flex-col items-center justify-center w-full h-full text-[10px] sm:text-xs font-medium transition-colors {{ request()->routeIs('purchases.*', 'plantings.*', 'finance.*') ? 'text-white' : 'text-green-300 hover:text-white' }}"
          @click.outside="if(activeMenu === 'trx') activeMenu = null">
         
         <button @click="activeMenu = activeMenu === 'trx' ? null : 'trx'" class="flex flex-col items-center justify-center w-full h-full outline-none focus:outline-none">
@@ -82,11 +82,7 @@
             <a href="{{ route('plantings.index') }}" class="px-3 py-2 text-sm rounded-xl hover:bg-green-700 text-white flex items-center gap-3 transition-colors">
                 <svg class="w-4 h-4 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Penanaman
             </a>
-            @if($role === 'admin')
-            <a href="{{ route('products.index') }}" class="px-3 py-2 text-sm rounded-xl hover:bg-green-700 text-white flex items-center gap-3 transition-colors">
-                <svg class="w-4 h-4 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg> Produk
-            </a>
-            @endif
+
         </div>
     </div>
 

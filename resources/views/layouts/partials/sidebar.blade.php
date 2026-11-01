@@ -79,7 +79,7 @@
         </div>
 
         {{-- Transaksi Accordion --}}
-        <div x-data="{ open: {{ request()->routeIs('purchases.*', 'plantings.*', 'products.*', 'finance.*') ? 'true' : 'false' }} }">
+        <div x-data="{ open: {{ request()->routeIs('purchases.*', 'plantings.*', 'finance.*') ? 'true' : 'false' }} }">
             <button @click="open = !open" class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition hover:bg-green-800 text-green-100">
                 <div class="flex items-center gap-3">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,15 +121,7 @@
                     </svg> 
                     Penanaman
                 </a>
-                @if($role === 'admin')
-                <a href="{{ route('products.index') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('products.*') ? 'bg-green-700 text-white' : 'text-green-200 hover:text-white hover:bg-green-800' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-                    </svg> 
-                    Produk
-                </a>
-                @endif
+
             </div>
         </div>
 

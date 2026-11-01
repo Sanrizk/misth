@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Planting;
-use App\Models\Product;
 use App\Models\Harvest;
 use App\Models\Purchase;
 use App\Models\Material;
@@ -15,7 +14,7 @@ class DashboardController extends Controller
     public function index()
     {
         $activePlantings = Planting::where('status', 'in_progress')->count();
-        $availableProducts = Product::where('status', 'available')->where('stock', '>', 0)->count();
+        $harvestedPlantings = Planting::where('status', 'harvested')->count();
         $totalMaterials = Material::count();
         $harvestsThisMonth = Harvest::whereMonth('harvest_date', Carbon::now()->month)->count();
 
@@ -57,7 +56,7 @@ class DashboardController extends Controller
 
         return view('dashboard.index', compact(
             'activePlantings', 
-            'availableProducts', 
+            'harvestedPlantings', 
             'totalMaterials', 
             'harvestsThisMonth', 
             'recentPurchases',

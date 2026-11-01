@@ -6,7 +6,6 @@ use App\Http\Controllers\PlantingController;
 use App\Http\Controllers\MaintenanceLogController;
 use App\Http\Controllers\WaterQualityLogController;
 use App\Http\Controllers\HarvestController;
-use App\Http\Controllers\ProductController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MaterialController;
@@ -95,8 +94,6 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('purchases', PurchaseController::class)->except(['create', 'edit']);
         Route::patch('purchases/{purchase}/status', [PurchaseController::class, 'updateStatus'])->name('purchases.updateStatus');
         
-        // Products
-        Route::resource('products', ProductController::class)->only(['index', 'show', 'edit', 'update']);
     });
 
 });

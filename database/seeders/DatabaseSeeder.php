@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder {
             MaterialUsageSeeder::class,
             WaterQualityLogSeeder::class,
             HarvestSeeder::class,
-            ProductSeeder::class,
         ]);
         DB::statement('SET FOREIGN_KEY_CHECKS=1');
     }

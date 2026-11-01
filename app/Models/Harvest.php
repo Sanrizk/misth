@@ -24,9 +24,4 @@ class Harvest extends Model
     {
         return $this->belongsTo(Planting::class, 'planting_id');
     }
-
-    public function product()
-    {
-        return $this->hasOne(Product::class, 'harvest_id');
-    }
 }

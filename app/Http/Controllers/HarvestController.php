@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Harvest;
 use App\Models\Planting;
-use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -30,42 +29,30 @@ class HarvestController extends Controller
             'total_yield_quantity' => 'required|integer|min:1',
             'total_yield_weight' => 'required|numeric|min:0',
             'quality_grade' => 'required|in:Grade A,Grade B,Grade C',
-            'unit' => 'required|string|in:kg,ons,ikat,pcs,gram',
-            'price' => 'required|numeric|min:0',
+            'unit' => 'nullable|string|in:kg,ons,ikat,pcs,gram',
             'notes' => 'nullable|string',
         ]);
 
         DB::transaction(function () use ($validated) {
-            $harvest = Harvest::create([
+            Harvest::create([
                 'planting_id' => $validated['planting_id'],
                 'harvest_date' => $validated['harvest_date'],
                 'total_yield_quantity' => $validated['total_yield_quantity'],
                 'total_yield_weight' => $validated['total_yield_weight'],
                 'quality_grade' => $validated['quality_grade'],
-                'unit' => $validated['unit'],
-                'notes' => $validated['notes'],
+                'notes' => $validated['notes'] ?? null,
             ]);
 
             $planting = Planting::with('plantType')->findOrFail($validated['planting_id']);
             $planting->update(['status' => 'harvested']);
-
-            $productName = optional($planting->plantType)->name . ' Segar Hidroponik';
-
-            Product::create([
-                'name' => $productName,
-                'stock' => $validated['total_yield_quantity'],
-                'price' => $validated['price'],
-                'status' => 'available',
-                'harvest_id' => $harvest->id,
-            ]);
         });
 
-        return redirect()->back()->with('success', 'Data panen berhasil disimpan dan produk telah ditambahkan.');
+        return redirect()->back()->with('success', 'Data panen berhasil disimpan.');
     }
 
     public function show($id)
     {
-        $harvest = Harvest::with(['planting.plantType', 'product'])->findOrFail($id);
+        $harvest = Harvest::with(['planting.plantType'])->findOrFail($id);
         return view('harvests.show', compact('harvest'));
     }
 
