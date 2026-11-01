@@ -28,61 +28,14 @@ class FarmRouteTest extends TestCase
             '/reports',
             '/reports/plantings',
             '/reports/harvests',
-            '/reports/transactions',
             '/reports/materials',
+            '/stocks',
+            '/finance',
         ];
 
         foreach ($getRoutes as $url) {
             $this->get($url)->assertRedirect('/login');
         }
-    }
-
-    public function test_farm_routes_authorization_for_customer()
-    {
-        $customer = $this->createUser('customer');
-
-        $getRoutes = [
-            '/plant-types',
-            '/plantings',
-            '/materials',
-            '/suppliers',
-            '/purchases',
-            '/reports',
-            '/reports/plantings',
-            '/reports/harvests',
-            '/reports/transactions',
-            '/reports/materials',
-        ];
-
-        foreach ($getRoutes as $url) {
-            $this->actingAs($customer)->get($url)->assertStatus(403);
-            Auth()->logout();
-        }
-    }
-
-    public function test_farm_routes_authorization_for_petani()
-    {
-        $petani = $this->createUser('petani');
-
-        $getRoutes = [
-            '/plant-types',
-            '/plantings',
-            '/materials',
-            '/reports',
-            '/reports/plantings',
-            '/reports/harvests',
-            '/reports/transactions',
-            '/reports/materials',
-        ];
-
-        foreach ($getRoutes as $url) {
-            $this->actingAs($petani)->get($url)->assertStatus(200);
-            Auth()->logout();
-        }
-
-        // Suppliers and Purchases restricted to admin (403 for petani)
-        $this->actingAs($petani)->get('/suppliers')->assertStatus(403);
-        $this->actingAs($petani)->get('/purchases')->assertStatus(403);
     }
 
     public function test_farm_routes_authorization_for_admin()
@@ -98,13 +51,126 @@ class FarmRouteTest extends TestCase
             '/reports',
             '/reports/plantings',
             '/reports/harvests',
-            '/reports/transactions',
             '/reports/materials',
+            '/stocks',
+            '/finance',
         ];
 
         foreach ($getRoutes as $url) {
             $this->actingAs($admin)->get($url)->assertStatus(200);
-            Auth()->logout();
+            auth()->logout();
+        }
+    }
+
+    public function test_farm_routes_authorization_for_petani()
+    {
+        $petani = $this->createUser('petani');
+
+        // Petani bisa akses penanaman
+        $this->actingAs($petani)->get('/plantings')->assertStatus(200);
+
+        // Petani tidak bisa akses supplier, purchases, plant-types, materials, reports, finance
+        $restrictedRoutes = [
+            '/suppliers',
+            '/purchases',
+            '/plant-types',
+            '/materials',
+            '/reports',
+            '/finance',
+        ];
+
+        foreach ($restrictedRoutes as $url) {
+            $this->actingAs($petani)->get($url)->assertStatus(403);
+            auth()->logout();
+        }
+    }
+
+    public function test_farm_routes_authorization_for_persediaan()
+    {
+        $persediaan = $this->createUser('persediaan');
+
+        // Persediaan bisa akses: suppliers, purchases, materials, stocks
+        $allowedRoutes = [
+            '/suppliers',
+            '/purchases',
+            '/materials',
+            '/stocks',
+        ];
+
+        foreach ($allowedRoutes as $url) {
+            $this->actingAs($persediaan)->get($url)->assertStatus(200);
+            auth()->logout();
+        }
+
+        // Persediaan tidak bisa akses: plant-types, plantings, reports, finance
+        $restrictedRoutes = [
+            '/plant-types',
+            '/plantings',
+            '/reports',
+            '/finance',
+        ];
+
+        foreach ($restrictedRoutes as $url) {
+            $this->actingAs($persediaan)->get($url)->assertStatus(403);
+            auth()->logout();
+        }
+    }
+
+    public function test_farm_routes_authorization_for_keuangan()
+    {
+        $keuangan = $this->createUser('keuangan');
+
+        // Keuangan bisa akses: finance
+        $this->actingAs($keuangan)->get('/finance')->assertStatus(200);
+
+        // Keuangan tidak bisa akses: plant-types, plantings, suppliers, purchases, materials, reports, stocks
+        $restrictedRoutes = [
+            '/plant-types',
+            '/plantings',
+            '/suppliers',
+            '/purchases',
+            '/materials',
+            '/reports',
+            '/stocks',
+        ];
+
+        foreach ($restrictedRoutes as $url) {
+            $this->actingAs($keuangan)->get($url)->assertStatus(403);
+            auth()->logout();
+        }
+    }
+
+    public function test_farm_routes_authorization_for_pimpinan()
+    {
+        $pimpinan = $this->createUser('pimpinan');
+
+        // Pimpinan bisa melihat: plantings, stocks, finance, reports
+        $allowedRoutes = [
+            '/plantings',
+            '/stocks',
+            '/finance',
+            '/reports',
+            '/reports/plantings',
+            '/reports/harvests',
+            '/reports/materials',
+        ];
+
+        foreach ($allowedRoutes as $url) {
+            $this->actingAs($pimpinan)->get($url)->assertStatus(200);
+            auth()->logout();
+        }
+
+        // Pimpinan tidak bisa akses: suppliers, purchases, materials, plant-types
+        $restrictedRoutes = [
+            '/suppliers',
+            '/purchases',
+            '/materials',
+            '/plant-types',
+        ];
+
+        foreach ($restrictedRoutes as $url) {
+            $this->actingAs($pimpinan)->get($url)->assertStatus(403);
+            auth()->logout();
         }
     }
 }

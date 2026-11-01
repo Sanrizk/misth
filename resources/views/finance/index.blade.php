@@ -80,6 +80,7 @@
             </p>
         </div>
 
+        @if(in_array(Auth::user()->role->name, ['admin', 'keuangan']))
         <div class="flex items-center gap-2">
             <button @click="openCreateModal('in')" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl shadow-sm transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,6 +89,7 @@
                 Tambah Data Kas
             </button>
         </div>
+        @endif
     </div>
 
     {{-- Cards Summary --}}
@@ -270,7 +272,7 @@
                             {{ $cash->user->name ?? '-' }}
                         </td>
                         <td class="py-3 px-4 text-center">
-                            @if($cash->reference_type === 'manual')
+                            @if(in_array(Auth::user()->role->name, ['admin', 'keuangan']) && $cash->reference_type === 'manual')
                             <div class="flex items-center justify-center gap-1.5">
                                 {{-- Tombol Edit --}}
                                 <button type="button" 

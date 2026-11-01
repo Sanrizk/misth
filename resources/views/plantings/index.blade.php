@@ -90,10 +90,12 @@
             <option value="harvested">Panen</option>
             <option value="failed">Gagal</option>
         </select>
+        @if(in_array(Auth::user()->role->name, ['admin', 'petani']))
         <button @click="showAddModal = true; addStep = 1; selectedPlantType = '';"
            class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition whitespace-nowrap text-center">
             + Tambah
         </button>
+        @endif
     </div>
 </div>
 
@@ -167,6 +169,7 @@
 
             <div class="border-t border-gray-100 px-4 py-3 space-y-2">
 
+                @if(in_array(Auth::user()->role->name, ['admin', 'petani']))
                 {{-- Row 1: Edit, Delete --}}
                 <div class="grid grid-cols-2 gap-1">
                     <button @click="showEdit = true"
@@ -183,8 +186,18 @@
                         </button>
                     </form>
                 </div>
+                @endif
 
-                {{-- Row 2: Perawatan, Kualitas Air, Panen ATAU Riwayat (khusus status harvested / failed) --}}
+                {{-- Row 2: Perawatan, Kualitas Air, Panen ATAU Riwayat --}}
+                @if(Auth::user()->role->name === 'pimpinan')
+                <div>
+                    <button @click="showRiwayat = true"
+                            class="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition text-xs font-semibold bg-green-50 hover:bg-green-100 text-green-700">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                        Lihat Riwayat & Detail
+                    </button>
+                </div>
+                @else
                 <template x-if="planting.status === 'harvested' || planting.status === 'failed'">
                     <div>
                         <button @click="showRiwayat = true"
@@ -214,6 +227,7 @@
                             </button>
                     </div>
                 </template>
+                @endif
 
             </div>
 

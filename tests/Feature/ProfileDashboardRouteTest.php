@@ -11,7 +11,7 @@ class ProfileDashboardRouteTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function createUser($roleName = 'customer')
+    private function createUser($roleName)
     {
         $role = Role::firstOrCreate(['name' => $roleName]);
         return User::factory()->create(['role_id' => $role->id]);
@@ -23,31 +23,25 @@ class ProfileDashboardRouteTest extends TestCase
         $this->get('/profile')->assertRedirect('/login');
     }
 
-    public function test_dashboard_accessible_to_admin_and_petani()
+    public function test_dashboard_accessible_to_all_roles()
     {
-        $admin = $this->createUser('admin');
-        $this->actingAs($admin)->get('/dashboard')->assertStatus(200);
+        $roles = ['admin', 'petani', 'pimpinan', 'persediaan', 'keuangan'];
 
-        Auth()->logout();
-
-        $petani = $this->createUser('petani');
-        $this->actingAs($petani)->get('/dashboard')->assertStatus(200);
-    }
-
-    public function test_dashboard_redirects_customer_to_store()
-    {
-        $customer = $this->createUser('customer');
-        $this->actingAs($customer)->get('/dashboard')->assertRedirect(route('store.index'));
+        foreach ($roles as $roleName) {
+            $user = $this->createUser($roleName);
+            $this->actingAs($user)->get('/dashboard')->assertStatus(200);
+            auth()->logout();
+        }
     }
 
     public function test_profile_accessible_to_all_authenticated_users()
     {
-        $roles = ['admin', 'petani', 'customer'];
+        $roles = ['admin', 'petani', 'pimpinan', 'persediaan', 'keuangan'];
 
         foreach ($roles as $roleName) {
             $user = $this->createUser($roleName);
             $this->actingAs($user)->get('/profile')->assertStatus(200);
-            Auth()->logout();
+            auth()->logout();
         }
     }
 }

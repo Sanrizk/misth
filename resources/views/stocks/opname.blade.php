@@ -98,6 +98,7 @@
                 Pencatatan selisih fisik bahan baku untuk menjaga akurasi pembukuan stok kebun hidroponik.
             </p>
         </div>
+        @if(in_array(Auth::user()->role->name, ['admin', 'persediaan']))
         <div class="flex items-center gap-2">
             <button @click="openCreateModal()" class="inline-flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl shadow-sm transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,6 +107,7 @@
                 Tambah Penyesuaian Baru
             </button>
         </div>
+        @endif
     </div>
 
     {{-- Filter Form --}}
@@ -207,6 +209,7 @@
                             {{ $adj->user->name ?? '-' }}
                         </td>
                         <td class="py-3 px-4 text-center">
+                            @if(in_array(Auth::user()->role->name, ['admin', 'persediaan']))
                             <div class="flex items-center justify-center gap-1.5">
                                 {{-- Tombol Edit --}}
                                 <button type="button" 
@@ -237,6 +240,9 @@
                                     </button>
                                 </form>
                             </div>
+                            @else
+                            <span class="text-xs text-gray-400 italic">Hanya lihat</span>
+                            @endif
                         </td>
                     </tr>
                     @empty
