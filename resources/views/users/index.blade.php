@@ -6,12 +6,35 @@
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-lg font-semibold text-gray-700">Manajemen User</h2>
         @if(Auth::user()->role->name === 'admin')
-        <a href="{{ route('users.create') }}"
-           class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition">
-            + Tambah User
-        </a>
+        <button type="button" @click="openCreateModal()"
+                class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition flex items-center gap-2 cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Tambah User
+        </button>
         @endif
     </div>
+
+    @if(session('success'))
+    <div class="bg-green-50 border border-green-200 rounded-xl p-3 text-sm text-green-700 flex items-center gap-3 mb-4">
+        {{ session('success') }}
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700 flex items-center gap-3 mb-4">
+        {{ session('error') }}
+    </div>
+    @endif
+
+    @if($errors->any())
+    <div class="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700 mb-4">
+        <ul class="list-disc list-inside">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
 
     {{-- Filters & Search --}}
     <div class="flex flex-col sm:flex-row gap-3 mb-4">
@@ -141,40 +164,47 @@
                 <button @click="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
-                <h3 class="text-lg font-bold text-gray-800 mb-4" x-text="modalMode === 'edit' ? 'Edit User' : 'Detail User'"></h3>
+                <h3 class="text-lg font-bold text-gray-800 mb-4" x-text="modalMode === 'create' ? 'Tambah User Baru' : (modalMode === 'edit' ? 'Edit User' : 'Detail User')"></h3>
                 
-                <template x-if="modalMode === 'edit'">
-                    <form :action="`/users/${form.id}`" method="POST">
+                <template x-if="modalMode === 'create' || modalMode === 'edit'">
+                    <form :action="modalMode === 'create' ? '{{ route('users.store') }}' : `/users/${form.id}`" method="POST">
                         @csrf
-                        @method('PUT')
+                        <template x-if="modalMode === 'edit'">
+                            <input type="hidden" name="_method" value="PUT">
+                        </template>
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
-                                <input type="text" name="name" x-model="form.name" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                                <input type="text" name="name" x-model="form.name" required placeholder="Nama lengkap" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                <input type="email" name="email" x-model="form.email" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                                <input type="email" name="email" x-model="form.email" required placeholder="email@contoh.com" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">No HP</label>
-                                <input type="text" name="phone" x-model="form.phone" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                                <input type="text" name="phone" x-model="form.phone" required placeholder="08xxxxxxxxxx" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
                                 <select name="role_id" x-model="form.role_id" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                                    <option value="">-- Pilih Role --</option>
                                     <template x-for="role in roles" :key="role.id">
-                                        <option :value="role.id" x-text="role.name"></option>
+                                        <option :value="role.id" x-text="role.name ? role.name.charAt(0).toUpperCase() + role.name.slice(1) : ''"></option>
                                     </template>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Password (Kosongkan jika tidak diubah)</label>
-                                <input type="password" name="password" x-model="form.password" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                                <label class="block text-sm font-medium text-gray-700 mb-1" x-text="modalMode === 'create' ? 'Password' : 'Password (Kosongkan jika tidak diubah)'"></label>
+                                <input type="password" name="password" x-model="form.password" :required="modalMode === 'create'" placeholder="Minimal 8 karakter" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password</label>
+                                <input type="password" name="password_confirmation" x-model="form.password_confirmation" :required="modalMode === 'create' || (form.password && form.password.length > 0)" placeholder="Ulangi password" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
                             </div>
                             <div class="flex justify-end gap-2 mt-6">
                                 <button type="button" @click="closeModal()" class="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 cursor-pointer">Batal</button>
-                                <button type="submit" class="px-4 py-2 text-sm text-white bg-green-600 rounded-xl hover:bg-green-700 cursor-pointer">Simpan</button>
+                                <button type="submit" class="px-4 py-2 text-sm text-white bg-green-600 rounded-xl hover:bg-green-700 cursor-pointer" x-text="modalMode === 'create' ? 'Simpan User' : 'Simpan Perubahan'"></button>
                             </div>
                         </div>
                     </form>
@@ -226,6 +256,19 @@ function userIndex() {
         },
         roles: {{ Js::from(App\Models\Role::all()) }},
         
+        openCreateModal() {
+            this.modalMode = 'create';
+            this.form = {
+                id: null,
+                name: '',
+                email: '',
+                phone: '',
+                role_id: this.roles.length > 0 ? this.roles[0].id : '',
+                password: '',
+                password_confirmation: ''
+            };
+            this.showModal = true;
+        },
         openEditModal(user) {
             this.modalMode = 'edit';
             this.form = {

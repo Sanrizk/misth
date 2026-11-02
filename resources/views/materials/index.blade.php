@@ -5,12 +5,28 @@
 <div x-data="materialIndex()" class="space-y-6">
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-lg font-semibold text-gray-700">Daftar Bahan & Nutrisi</h2>
-        <a href="{{ route('materials.create') }}"
-           class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition flex items-center gap-2">
+        <button type="button" @click="openCreateModal()"
+                class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition flex items-center gap-2 cursor-pointer">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
             Tambah Bahan
-        </a>
+        </button>
     </div>
+
+    @if(session('success'))
+    <div class="bg-green-50 border border-green-200 rounded-xl p-3 text-sm text-green-700 flex items-center gap-3 mb-4">
+        {{ session('success') }}
+    </div>
+    @endif
+
+    @if($errors->any())
+    <div class="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700 mb-4">
+        <ul class="list-disc list-inside">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
 
     @if($materials->contains(fn($m) => $m->is_low_stock))
     <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-3 text-sm text-yellow-700 flex items-center gap-3 mb-4">
@@ -156,40 +172,44 @@
                 <button @click="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
-                <h3 class="text-lg font-bold text-gray-800 mb-4" x-text="modalMode === 'edit' ? 'Edit Bahan' : 'Detail Bahan'"></h3>
+                <h3 class="text-lg font-bold text-gray-800 mb-4" x-text="modalMode === 'create' ? 'Tambah Bahan' : (modalMode === 'edit' ? 'Edit Bahan' : 'Detail Bahan')"></h3>
                 
-                <template x-if="modalMode === 'edit'">
-                    <form :action="`/materials/${form.id}`" method="POST">
+                <template x-if="modalMode === 'create' || modalMode === 'edit'">
+                    <form :action="modalMode === 'create' ? '{{ route('materials.store') }}' : `/materials/${form.id}`" method="POST">
                         @csrf
-                        @method('PUT')
+                        <template x-if="modalMode === 'edit'">
+                            <input type="hidden" name="_method" value="PUT">
+                        </template>
                         <div class="space-y-4">
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Kode Bahan</label>
-                                    <input type="text" name="code" x-model="form.code" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
-                                </div>
+                            <div :class="modalMode === 'edit' ? 'grid grid-cols-2 gap-4' : ''">
+                                <template x-if="modalMode === 'edit'">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Kode Bahan</label>
+                                        <input type="text" name="code" x-model="form.code" class="w-full px-4 py-2 bg-gray-100 border border-gray-200 rounded-xl text-sm text-gray-600 outline-none cursor-not-allowed" readonly>
+                                    </div>
+                                </template>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Nama Bahan</label>
-                                    <input type="text" name="name" x-model="form.name" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                                    <input type="text" name="name" x-model="form.name" required placeholder="Contoh: AB Mix Sayur" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
                                     <select name="category" x-model="form.category" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
-                                        <option value="nutrient">Nutrisi</option>
+                                        <option value="nutrient">Nutrisi / Pupuk</option>
                                         <option value="pesticide">Pestisida</option>
                                         <option value="operational">Operasional</option>
                                     </select>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Satuan</label>
-                                    <input type="text" name="unit" x-model="form.unit" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                                    <input type="text" name="unit" x-model="form.unit" required placeholder="Contoh: Kg, Liter, Pack" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Stok Saat Ini</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1" x-text="modalMode === 'create' ? 'Stok Awal' : 'Stok Saat Ini'"></label>
                                     <input type="number" step="0.01" name="stock" x-model="form.stock" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
                                 </div>
                                 <div>
@@ -199,7 +219,7 @@
                             </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Harga per Unit</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Harga per Unit (Rp)</label>
                                     <input type="number" step="0.01" name="price_per_unit" x-model="form.price_per_unit" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
                                 </div>
                                 <div>
@@ -211,12 +231,12 @@
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
-                                <textarea name="description" x-model="form.description" rows="2" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none"></textarea>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi (opsional)</label>
+                                <textarea name="description" x-model="form.description" rows="2" placeholder="Catatan atau keterangan bahan..." class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none"></textarea>
                             </div>
                             <div class="flex justify-end gap-2 mt-6">
                                 <button type="button" @click="closeModal()" class="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 cursor-pointer">Batal</button>
-                                <button type="submit" class="px-4 py-2 text-sm text-white bg-green-600 rounded-xl hover:bg-green-700 cursor-pointer">Simpan Perubahan</button>
+                                <button type="submit" class="px-4 py-2 text-sm text-white bg-green-600 rounded-xl hover:bg-green-700 cursor-pointer" x-text="modalMode === 'create' ? 'Simpan Bahan' : 'Simpan Perubahan'"></button>
                             </div>
                         </div>
                     </form>
@@ -295,6 +315,22 @@ function materialIndex() {
             price_per_unit: 0,
             status: 'active',
             description: ''
+        },
+        openCreateModal() {
+            this.modalMode = 'create';
+            this.form = {
+                id: null,
+                name: '',
+                code: '',
+                category: 'nutrient',
+                unit: 'Kg',
+                stock: 0,
+                min_stock: 0,
+                price_per_unit: 0,
+                status: 'active',
+                description: ''
+            };
+            this.showModal = true;
         },
         openEditModal(material) {
             this.modalMode = 'edit';
