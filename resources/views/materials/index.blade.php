@@ -181,17 +181,9 @@
                             <input type="hidden" name="_method" value="PUT">
                         </template>
                         <div class="space-y-4">
-                            <div :class="modalMode === 'edit' ? 'grid grid-cols-2 gap-4' : ''">
-                                <template x-if="modalMode === 'edit'">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Kode Bahan</label>
-                                        <input type="text" name="code" x-model="form.code" class="w-full px-4 py-2 bg-gray-100 border border-gray-200 rounded-xl text-sm text-gray-600 outline-none cursor-not-allowed" readonly>
-                                    </div>
-                                </template>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Bahan</label>
-                                    <input type="text" name="name" x-model="form.name" required placeholder="Contoh: AB Mix Sayur" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
-                                </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nama Bahan</label>
+                                <input type="text" name="name" x-model="form.name" required placeholder="Contoh: AB Mix Sayur" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
                             </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
