@@ -30,7 +30,13 @@
     },
     openEditModal(cash) {
         if (cash.reference_type !== 'manual') {
-            alert('Transaksi otomatis dari sistem (pesanan/pembelian) tidak dapat diedit secara manual di sini.');
+            window.dispatchEvent(new CustomEvent('add-toast', {
+                detail: {
+                    type: 'warning',
+                    title: 'Peringatan',
+                    message: 'Transaksi otomatis dari sistem (pesanan/pembelian) tidak dapat diedit secara manual di sini.'
+                }
+            }));
             return;
         }
         this.modalMode = 'edit';
@@ -46,25 +52,6 @@
         this.modalOpen = true;
     }
 }" class="space-y-6">
-
-    {{-- Flash Notifications --}}
-    @if(session('success'))
-    <div class="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-sm flex items-center gap-3">
-        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-        </svg>
-        <span>{{ session('success') }}</span>
-    </div>
-    @endif
-
-    @if(session('error'))
-    <div class="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300 text-sm flex items-center gap-3">
-        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
-        <span>{{ session('error') }}</span>
-    </div>
-    @endif
 
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
