@@ -163,15 +163,9 @@
                         @csrf
                         @method('PUT')
                         <div class="space-y-4">
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Kode Bahan</label>
-                                    <input type="text" name="code" x-model="form.code" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Bahan</label>
-                                    <input type="text" name="name" x-model="form.name" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
-                                </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nama Bahan</label>
+                                <input type="text" name="name" x-model="form.name" required placeholder="Contoh: AB Mix Sayur" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
                             </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
