@@ -1,11 +1,11 @@
 <div x-data="toastManager()" 
      @add-toast.window="addToast($event.detail)"
-     class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 w-full max-w-sm pointer-events-none">
+     class="fixed top-5 left-1/2 -translate-x-1/2 sm:left-auto sm:right-5 sm:translate-x-0 z-[9999] flex flex-col items-center sm:items-end gap-3 w-full max-w-sm px-4 sm:px-0 pointer-events-none">
     
     <template x-for="toast in toasts" :key="toast.id">
         <div x-show="toast.visible"
              x-transition:enter="transform ease-out duration-300 transition"
-             x-transition:enter-start="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-full"
+             x-transition:enter-start="-translate-y-4 opacity-0 sm:translate-y-0 sm:translate-x-full"
              x-transition:enter-end="translate-y-0 opacity-100 sm:translate-x-0"
              x-transition:leave="transition ease-in duration-100"
              x-transition:leave-start="opacity-100"
