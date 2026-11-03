@@ -131,9 +131,25 @@
             <td style="vertical-align: middle;">
                 <table cellpadding="0" cellspacing="0">
                     <tr>
-                        @if(file_exists(public_path('images/logo.png')))
+                        @php
+                            $logoPath = null;
+                            $candidatePaths = [
+                                function_exists('public_path') ? public_path('images/logo.png') : null,
+                                base_path('public/images/logo.png'),
+                                base_path('../public_html/images/logo.png'),
+                                base_path('public_html/images/logo.png'),
+                                isset($_SERVER['DOCUMENT_ROOT']) ? $_SERVER['DOCUMENT_ROOT'] . '/images/logo.png' : null,
+                            ];
+                            foreach ($candidatePaths as $path) {
+                                if ($path && @file_exists($path)) {
+                                    $logoPath = $path;
+                                    break;
+                                }
+                            }
+                        @endphp
+                        @if($logoPath)
                         <td style="vertical-align: middle; padding-right: 10px;">
-                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png'))) }}" style="width: 36px; height: 36px; border-radius: 50%;">
+                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents($logoPath)) }}" style="width: 36px; height: 36px; border-radius: 50%;">
                         </td>
                         @endif
                         <td style="vertical-align: middle;">

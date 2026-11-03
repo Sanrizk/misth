@@ -15,7 +15,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Deteksi lokasi folder public secara otomatis (kompatibel untuk Local & Hosting / cPanel public_html)
+        $this->app->bind('path.public', function () {
+            if (isset($_SERVER['DOCUMENT_ROOT']) && is_dir($_SERVER['DOCUMENT_ROOT'])) {
+                return $_SERVER['DOCUMENT_ROOT'];
+            }
+            if (is_dir(base_path('../public_html'))) {
+                return base_path('../public_html');
+            }
+            if (is_dir(base_path('public_html'))) {
+                return base_path('public_html');
+            }
+            return base_path('public');
+        });
     }
 
     /**
