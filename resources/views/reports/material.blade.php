@@ -42,16 +42,6 @@
         </form>
     </div>
 
-    {{-- Summary Grid --}}
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        @foreach($summary as $materialName => $data)
-            <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-green-500">
-                <p class="text-xs text-gray-500 font-medium mb-1 truncate" title="{{ $materialName }}">{{ $materialName }}</p>
-                <p class="text-xl font-bold text-gray-800">{{ number_format($data['total_quantity'], 2) }} <span class="text-xs font-normal text-gray-400">{{ $data['unit'] }}</span></p>
-            </div>
-        @endforeach
-    </div>
-
     {{-- Data Table --}}
     <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
