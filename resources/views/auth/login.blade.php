@@ -19,7 +19,7 @@
         }
     </script>
 </head>
-<body class="min-h-screen flex bg-white dark:bg-gray-900 transition-colors">
+<body class="min-h-screen flex bg-white dark:bg-gray-900 transition-colors" x-data="{ showAlert: false }">
 
     {{-- LEFT SIDE: Photo Slideshow --}}
     <div class="hidden lg:flex lg:w-1/2 relative overflow-hidden"
@@ -74,7 +74,7 @@
                     <template x-for="(photo, index) in photos" :key="index">
                         <button @click="current = index"
                                 :class="current === index ? 'bg-white w-6' : 'bg-white/40 w-2'"
-                                class="h-2 rounded-full transition-all duration-300">
+                                class="h-2 rounded-full transition-all duration-300 cursor-pointer">
                         </button>
                     </template>
                 </div>
@@ -126,7 +126,7 @@
                                    placeholder="••••••••"
                                    class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 pr-10 transition-colors">
                             <button type="button" @click="show = !show"
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer">
                                 <svg x-show="!show" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                           d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -142,18 +142,79 @@
                     </div>
 
                     <button type="submit"
-                            class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 rounded-xl text-sm transition shadow-sm">
+                            class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 rounded-xl text-sm transition shadow-sm cursor-pointer">
                         Masuk
                     </button>
 
+                    <div class="flex items-center justify-between text-xs pt-1">
+                        <span class="text-gray-500 dark:text-gray-400">Belum punya akun?</span>
+                        <button type="button"
+                                @click="showAlert = true"
+                                class="font-semibold text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline transition cursor-pointer">
+                            Daftar
+                        </button>
+                    </div>
+
                 </form>
-
-
 
             </div>
 
             <p class="text-center text-xs text-gray-400 dark:text-gray-500 mt-4">© 2026 Misth. Semua hak dilindungi.</p>
 
+        </div>
+    </div>
+
+    {{-- Modal Alert Hubungi Admin --}}
+    <div x-cloak
+         x-show="showAlert"
+         class="fixed inset-0 z-50 overflow-y-auto"
+         aria-labelledby="modal-title"
+         role="dialog"
+         aria-modal="true">
+        
+        {{-- Backdrop --}}
+        <div x-show="showAlert"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+             @click="showAlert = false"></div>
+
+        <div class="flex min-h-full items-center justify-center p-4 text-center">
+            <div x-show="showAlert"
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100 scale-100"
+                 x-transition:leave-end="opacity-0 scale-95"
+                 class="relative transform overflow-hidden rounded-3xl bg-white dark:bg-gray-800 p-6 sm:p-7 text-center shadow-2xl transition-all my-8 w-full max-w-sm border border-gray-100 dark:border-gray-700">
+                
+                {{-- Decorative Icon --}}
+                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-green-500/20 to-emerald-500/10 text-green-600 dark:text-green-400 ring-8 ring-green-50 dark:ring-green-950/40 mb-4">
+                    <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.199l-.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                    </svg>
+                </div>
+
+                {{-- Title & Message --}}
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2" id="modal-title">
+                    Pendaftaran Akun
+                </h3>
+                <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
+                    Silakan hubungi <span class="font-semibold text-green-600 dark:text-green-400">admin</span> untuk mendaftar akun dan mendapatkan hak akses ke dalam sistem.
+                </p>
+
+                {{-- Action Button --}}
+                <button type="button"
+                        @click="showAlert = false"
+                        class="w-full inline-flex justify-center items-center py-2.5 px-4 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl shadow-md shadow-green-600/20 transition-all focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 cursor-pointer">
+                    Mengerti
+                </button>
+            </div>
         </div>
     </div>
 
