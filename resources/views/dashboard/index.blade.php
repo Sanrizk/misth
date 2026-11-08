@@ -83,7 +83,7 @@
         <table class="w-full text-sm">
             <thead>
                 <tr class="border-b border-gray-100">
-                    <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">No. Pembelian</th>
+                    <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">No. Invoice</th>
                     <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">Supplier</th>
                     <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">Tanggal</th>
                     <th class="text-left py-2 px-3 text-xs font-medium text-gray-500">Total</th>
@@ -93,7 +93,7 @@
             <tbody class="divide-y divide-gray-50">
                 @forelse($recentPurchases as $purchase)
                 <tr class="hover:bg-gray-50">
-                    <td class="py-2.5 px-3 font-mono text-xs text-gray-600">{{ $purchase->purchase_number }}</td>
+                    <td class="py-2.5 px-3 font-mono text-xs text-gray-600">{{ $purchase->invoice_number ?? $purchase->purchase_number ?? '-' }}</td>
                     <td class="py-2.5 px-3">{{ optional($purchase->supplier)->name ?? '-' }}</td>
                     <td class="py-2.5 px-3 text-gray-500 text-xs">{{ $purchase->purchase_date ? \Carbon\Carbon::parse($purchase->purchase_date)->format('d M Y') : '-' }}</td>
                     <td class="py-2.5 px-3 font-semibold">Rp {{ number_format($purchase->total_amount, 0, ',', '.') }}</td>

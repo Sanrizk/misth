@@ -147,7 +147,7 @@ class StockController extends Controller
                 ->map(function ($item) {
                     return (object) [
                         'date' => Carbon::parse($item->purchase->purchase_date),
-                        'reference' => $item->purchase->purchase_number,
+                        'reference' => $item->purchase->invoice_number ?? $item->purchase->purchase_number ?? ('PO-' . $item->purchase->id),
                         'source' => 'purchase',
                         'category' => 'Pembelian Masuk',
                         'in_quantity' => (float) $item->quantity,

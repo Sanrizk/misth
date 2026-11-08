@@ -17,7 +17,7 @@ class UserSeeder extends Seeder {
         User::create([
             'role_id' => $adminRole,
             'name' => 'Admin Misth',
-            'email' => 'admin@misth.com',
+            'email' => 'admin@misth.my.id',
             'password' => bcrypt('password'),
             'phone' => '081234567890'
         ]);
@@ -26,7 +26,7 @@ class UserSeeder extends Seeder {
         User::create([
             'role_id' => $pimpinanRole,
             'name' => 'Pimpinan Misth',
-            'email' => 'pimpinan@misth.com',
+            'email' => 'pimpinan@misth.my.id',
             'password' => bcrypt('password'),
             'phone' => '081234567891'
         ]);
@@ -35,7 +35,7 @@ class UserSeeder extends Seeder {
         User::create([
             'role_id' => $persediaanRole,
             'name' => 'Staf Persediaan',
-            'email' => 'persediaan@misth.com',
+            'email' => 'persediaangit@misth.my.id',
             'password' => bcrypt('password'),
             'phone' => '081234567892'
         ]);
@@ -44,7 +44,7 @@ class UserSeeder extends Seeder {
         User::create([
             'role_id' => $keuanganRole,
             'name' => 'Staf Keuangan',
-            'email' => 'keuangan@misth.com',
+            'email' => 'keuangan@misth.my.id',
             'password' => bcrypt('password'),
             'phone' => '081234567893'
         ]);
@@ -54,7 +54,7 @@ class UserSeeder extends Seeder {
             User::create([
                 'role_id' => $petaniRole,
                 'name' => 'Petani ' . $i,
-                'email' => "petani{$i}@misth.com",
+                'email' => "petani{$i}@misth.my.id",
                 'password' => bcrypt('password'),
                 'phone' => '08123456789' . ($i + 3)
             ]);
