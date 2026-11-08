@@ -11,6 +11,7 @@ use App\Models\Supplier;
 use App\Models\CashFlow;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 class PurchaseController extends Controller
@@ -208,5 +209,21 @@ class PurchaseController extends Controller
 
         $purchase->delete();
         return redirect()->route('purchases.index')->with('success', 'Pembelian berhasil dihapus.');
+    }
+
+    public function printOrder(Request $request, Purchase $purchase)
+    {
+        $purchase->load(['supplier', 'user.role', 'purchaseItems.material']);
+
+        $pdf = Pdf::loadView('purchases.pdf.order', compact('purchase'))
+            ->setPaper('a4', 'portrait');
+
+        $filename = 'PO-' . ($purchase->invoice_number ?: $purchase->id) . '.pdf';
+
+        if ($request->get('download')) {
+            return $pdf->download($filename);
+        }
+
+        return $pdf->stream($filename);
     }
 }

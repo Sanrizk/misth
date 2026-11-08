@@ -51,6 +51,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:admin,persediaan'])->group(function () {
         Route::resource('suppliers', SupplierController::class)->except(['create', 'edit', 'show']);
         Route::resource('purchases', PurchaseController::class)->except(['create', 'edit']);
+        Route::get('purchases/{purchase}/print', [PurchaseController::class, 'printOrder'])->name('purchases.print');
         Route::patch('purchases/{purchase}/status', [PurchaseController::class, 'updateStatus'])->name('purchases.updateStatus');
         Route::resource('materials', MaterialController::class)->except(['show']);
     });
