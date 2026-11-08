@@ -69,13 +69,13 @@ class PlantingController extends Controller
             'start_date'    => 'required|date',
         ]);
 
-        // Generate unique batch code: BATCH-{PLANTTYPE}-{YEAR}-{INCREMENT}
-        $plantType = PlantType::findOrFail($validated['plant_type_id']);
+        // Generate unique batch code: BATCH-{UNIQUE_4_ALPHANUM}-{YEAR}-{INCREMENT_OR_NUMBER} (contoh: BATCH-TW19-2026-57)
         $year = now()->year;
-        $base = 'BATCH-' . Str::upper(Str::slug($plantType->name, '_')) . "-{$year}";
-        $latest = Planting::where('batch_code', 'like', "$base-%")->latest('id')->first();
-        $increment = $latest ? ((int) Str::afterLast($latest->batch_code, '-') + 1) : 1;
-        $batchCode = $base . '-' . str_pad($increment, 2, '0', STR_PAD_LEFT);
+        do {
+            $uniqueStr = Str::upper(Str::random(2)) . rand(10, 99); // 2 huruf + 2 angka (misal: TW19)
+            $suffix = str_pad(rand(1, 99), 2, '0', STR_PAD_LEFT);
+            $batchCode = "BATCH-{$uniqueStr}-{$year}-{$suffix}";
+        } while (Planting::where('batch_code', $batchCode)->exists());
 
         Planting::create(array_merge($validated, [
             'batch_code' => $batchCode,
