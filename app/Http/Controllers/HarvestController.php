@@ -31,20 +31,25 @@ class HarvestController extends Controller
             'quality_grade' => 'required|in:Grade A,Grade B,Grade C',
             'unit' => 'nullable|string|in:kg,ons,ikat,pcs,gram',
             'notes' => 'nullable|string',
+            'is_finished' => 'nullable|boolean',
         ]);
 
-        DB::transaction(function () use ($validated) {
+        DB::transaction(function () use ($validated, $request) {
             Harvest::create([
                 'planting_id' => $validated['planting_id'],
                 'harvest_date' => $validated['harvest_date'],
                 'total_yield_quantity' => $validated['total_yield_quantity'],
                 'total_yield_weight' => $validated['total_yield_weight'],
                 'quality_grade' => $validated['quality_grade'],
+                'unit' => $validated['unit'] ?? 'kg',
                 'notes' => $validated['notes'] ?? null,
             ]);
 
-            $planting = Planting::with('plantType')->findOrFail($validated['planting_id']);
-            $planting->update(['status' => 'harvested']);
+            // Jika checkbox panen habis dicentang, update status penanaman menjadi 'harvested'
+            if ($request->boolean('is_finished')) {
+                $planting = Planting::with('plantType')->findOrFail($validated['planting_id']);
+                $planting->update(['status' => 'harvested']);
+            }
         });
 
         return redirect()->back()->with('success', 'Data panen berhasil disimpan.');

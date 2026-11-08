@@ -50,5 +50,10 @@ class Planting extends Model
     {
         return $this->hasOne(Harvest::class);
     }
+
+    public function harvests(): HasMany
+    {
+        return $this->hasMany(Harvest::class);
+    }
 }
 

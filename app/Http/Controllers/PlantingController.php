@@ -23,6 +23,7 @@ class PlantingController extends Controller
             'maintenanceLogs.materialUsages.material',
             'waterQualityLogs',
             'harvest',
+            'harvests',
         ])->latest();
 
         if ($request->filled('search')) {
