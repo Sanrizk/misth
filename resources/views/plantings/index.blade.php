@@ -109,12 +109,25 @@
                 showEdit: false,
                 actionType: '',
                 useMaterials: false,
-                manualRows: [],
-                addManualRow() {
-                    this.manualRows.push(Date.now());
+                materialRows: [{ id: Date.now(), material_id: '', quantity: '' }],
+                addMaterialRow() {
+                    this.materialRows.push({ id: Date.now() + Math.random(), material_id: '', quantity: '' });
                 },
-                removeManualRow(id) {
-                    this.manualRows = this.manualRows.filter(r => r !== id);
+                removeMaterialRow(id) {
+                    this.materialRows = this.materialRows.filter(r => r.id !== id);
+                },
+                getMaterial(id) {
+                    return $data.materials.find(m => String(m.id) === String(id));
+                },
+                isRowExceeded(row) {
+                    if (!this.useMaterials || !row.material_id || !row.quantity) return false;
+                    const mat = this.getMaterial(row.material_id);
+                    if (!mat) return false;
+                    return parseFloat(row.quantity) > parseFloat(mat.stock);
+                },
+                hasExceededStock() {
+                    if (!this.useMaterials) return false;
+                    return this.materialRows.some(row => this.isRowExceeded(row));
                 }
              }"
              class="bg-white rounded-2xl shadow-sm overflow-hidden hover:-translate-y-1 hover:shadow-md transition duration-200 flex flex-col h-full">
@@ -284,42 +297,56 @@
                             <div x-show="useMaterials" x-transition class="bg-gray-50/70 border border-gray-200 rounded-xl p-3">
                                 <div class="flex items-center justify-between mb-2">
                                     <label class="block text-xs font-semibold text-gray-700">Bahan yang Digunakan</label>
-                                    <button type="button" @click="addManualRow()"
+                                    <button type="button" @click="addMaterialRow()"
                                             class="inline-flex items-center gap-1 px-2.5 py-1 bg-green-100 text-green-700 hover:bg-green-200 rounded-lg text-xs font-medium transition cursor-pointer">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                                         Tambah Bahan
                                     </button>
                                 </div>
                                 <div class="space-y-2">
-                                    <div class="flex gap-2 items-center">
-                                        <select name="material_ids[]" :required="useMaterials" class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs bg-white">
-                                            <option value="">-- Pilih Bahan --</option>
-                                            <template x-for="m in $data.materials" :key="m.id">
-                                                <option :value="m.id" x-text="m.name + ' (' + m.unit + ') - Stok: ' + m.stock"></option>
-                                            </template>
-                                        </select>
-                                        <input type="number" name="quantities[]" :required="useMaterials" class="w-24 px-3 py-1.5 border border-gray-200 rounded-lg text-xs bg-white" placeholder="Jumlah" step="0.01" min="0.01">
-                                    </div>
-                                    <template x-for="rowId in manualRows" :key="rowId">
-                                        <div class="flex gap-2 items-center">
-                                            <select name="material_ids[]" :required="useMaterials" class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs bg-white">
-                                                <option value="">-- Pilih Bahan --</option>
-                                                <template x-for="m in $data.materials" :key="m.id">
-                                                    <option :value="m.id" x-text="m.name + ' (' + m.unit + ') - Stok: ' + m.stock"></option>
+                                    <template x-for="(row, idx) in materialRows" :key="row.id">
+                                        <div class="space-y-1">
+                                            <div class="flex gap-2 items-center">
+                                                <select name="material_ids[]"
+                                                        x-model="row.material_id"
+                                                        :required="useMaterials"
+                                                        class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-green-500">
+                                                    <option value="">-- Pilih Bahan --</option>
+                                                    <template x-for="m in $data.materials" :key="m.id">
+                                                        <option :value="m.id" x-text="m.name + ' (' + m.unit + ') - Stok: ' + m.stock"></option>
+                                                    </template>
+                                                </select>
+                                                <input type="number"
+                                                       name="quantities[]"
+                                                       x-model="row.quantity"
+                                                       :required="useMaterials"
+                                                       :class="isRowExceeded(row) ? 'border-red-500 bg-red-50 text-red-700 ring-1 ring-red-400 focus:ring-red-500' : 'border-gray-200 bg-white focus:ring-green-500'"
+                                                       class="w-24 px-3 py-1.5 border rounded-lg text-xs focus:outline-none transition-colors"
+                                                       placeholder="Jumlah"
+                                                       step="0.01"
+                                                       min="0.01">
+                                                <template x-if="materialRows.length > 1">
+                                                    <button type="button" @click="removeMaterialRow(row.id)"
+                                                            class="p-1.5 bg-red-100 text-red-600 rounded-lg text-xs hover:bg-red-200 transition cursor-pointer" title="Hapus Baris">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                    </button>
                                                 </template>
-                                            </select>
-                                            <input type="number" name="quantities[]" :required="useMaterials" class="w-24 px-3 py-1.5 border border-gray-200 rounded-lg text-xs bg-white" placeholder="Jumlah" step="0.01" min="0.01">
-                                            <button type="button" @click="removeManualRow(rowId)"
-                                                    class="p-1.5 bg-red-100 text-red-600 rounded-lg text-xs hover:bg-red-200 transition cursor-pointer" title="Hapus Baris">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                            </button>
+                                            </div>
+                                            <template x-if="isRowExceeded(row)">
+                                                <p class="text-[11px] text-red-600 flex items-center gap-1 font-medium pl-1">
+                                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                                    <span x-text="'Jumlah melebihi stok yang tersedia (Maks: ' + (getMaterial(row.material_id)?.stock || 0) + ' ' + (getMaterial(row.material_id)?.unit || '') + ')'"></span>
+                                                </p>
+                                            </template>
                                         </div>
                                     </template>
                                 </div>
                             </div>
 
                             <button type="submit"
-                                    class="w-full bg-gray-700 hover:bg-gray-800 text-white text-xs font-semibold py-2.5 rounded-xl transition">
+                                    :disabled="hasExceededStock()"
+                                    :class="hasExceededStock() ? 'opacity-50 cursor-not-allowed bg-gray-400' : 'bg-gray-700 hover:bg-gray-800 cursor-pointer'"
+                                    class="w-full text-white text-xs font-semibold py-2.5 rounded-xl transition">
                                 Simpan Perawatan
                             </button>
                         </form>

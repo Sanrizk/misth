@@ -56,6 +56,30 @@ class MaintenanceLogController extends Controller
             'quantities.*'   => 'numeric|min:0.01',
         ]);
 
+        // Validasi ketersediaan stok bahan terlebih dahulu sebelum memproses
+        if (!empty($validated['material_ids'])) {
+            $aggregatedQty = [];
+            foreach ($validated['material_ids'] as $index => $materialId) {
+                $qty = (float) ($validated['quantities'][$index] ?? 0);
+                if ($qty <= 0) continue;
+                $aggregatedQty[$materialId] = ($aggregatedQty[$materialId] ?? 0) + $qty;
+            }
+
+            foreach ($aggregatedQty as $materialId => $totalNeeded) {
+                $material = Material::find($materialId);
+                if (!$material) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', 'Bahan yang dipilih tidak ditemukan.');
+                }
+                if ($material->stock < $totalNeeded) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', "Stok {$material->name} tidak mencukupi (Tersedia: {$material->stock} {$material->unit}, Dibutuhkan: {$totalNeeded} {$material->unit}).");
+                }
+            }
+        }
+
         DB::transaction(function () use ($validated, $request) {
             $validated['user_id'] = Auth::id();
 
@@ -64,14 +88,10 @@ class MaintenanceLogController extends Controller
 
             if (!empty($validated['material_ids'])) {
                 foreach ($validated['material_ids'] as $index => $materialId) {
-                    $qty = $validated['quantities'][$index] ?? 0;
+                    $qty = (float) ($validated['quantities'][$index] ?? 0);
                     if ($qty <= 0) continue;
 
-                    $material = Material::findOrFail($materialId);
-
-                    if ($material->stock < $qty) {
-                        throw new \Exception("Stok {$material->name} tidak mencukupi.");
-                    }
+                    $material = Material::lockForUpdate()->findOrFail($materialId);
 
                     MaterialUsage::create([
                         'maintenance_log_id' => $log->id,
