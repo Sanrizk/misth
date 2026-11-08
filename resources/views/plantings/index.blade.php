@@ -676,15 +676,15 @@
                              :class="planting.status === 'failed' ? 'lg:grid-cols-2' : 'lg:grid-cols-3'">
                             
                             {{-- KOLOM KIRI: Riwayat Perawatan --}}
-                            <div class="bg-gray-50/70 border border-gray-100 rounded-2xl p-4 flex flex-col h-full">
-                                <div class="flex items-center justify-between pb-3 mb-3 border-b border-gray-200">
+                            <div class="bg-amber-50/40 border border-amber-100 rounded-2xl p-4 flex flex-col h-full">
+                                <div class="flex items-center justify-between pb-3 mb-3 border-b border-amber-200">
                                     <div class="flex items-center gap-2">
-                                        <div class="w-7 h-7 rounded-lg bg-gray-200 text-gray-700 flex items-center justify-center">
+                                        <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                                         </div>
                                         <h4 class="text-sm font-bold text-gray-800">Riwayat Perawatan</h4>
                                     </div>
-                                    <span class="text-xs px-2 py-0.5 rounded-full bg-white border border-gray-200 text-gray-600 font-semibold"
+                                    <span class="text-xs px-2 py-0.5 rounded-full bg-white border border-amber-200 text-amber-700 font-semibold"
                                           x-text="(planting.maintenance_logs || []).length + ' Log'">
                                     </span>
                                 </div>

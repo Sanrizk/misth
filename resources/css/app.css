@@ -62,6 +62,11 @@ html.dark .border-green-200, html.dark .border-green-100 {
 }
 
 /* Accent Colors */
+html.dark .bg-amber-50 { background-color: #451a03 !important; }
+html.dark .bg-amber-100 { background-color: #78350f !important; }
+html.dark .text-amber-600, html.dark .text-amber-700 { color: #fbbf24 !important; }
+html.dark .border-amber-200, html.dark .border-amber-100 { border-color: #78350f !important; }
+
 html.dark .bg-yellow-50 { background-color: #422006 !important; }
 html.dark .bg-yellow-100 { background-color: #713f12 !important; }
 html.dark .text-yellow-600, html.dark .text-yellow-700 { color: #facc15 !important; }
@@ -160,6 +165,15 @@ html.dark .hover\:bg-gray-50\/30:hover {
 }
 
 /* Fractional Backgrounds Overrides */
+html.dark .bg-amber-50\/40, html.dark .bg-amber-50\/50, html.dark .bg-amber-50\/70 {
+    background-color: rgba(69, 26, 3, 0.4) !important;
+}
+html.dark .bg-blue-50\/40, html.dark .bg-blue-50\/50 {
+    background-color: rgba(23, 37, 84, 0.4) !important;
+}
+html.dark .bg-green-50\/50 {
+    background-color: rgba(2, 44, 34, 0.5) !important;
+}
 html.dark .bg-yellow-50\/30 {
     background-color: rgba(66, 32, 6, 0.5) !important;
 }
