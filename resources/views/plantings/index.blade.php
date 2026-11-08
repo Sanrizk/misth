@@ -108,13 +108,8 @@
                 showRiwayat: false,
                 showEdit: false,
                 actionType: '',
+                useMaterials: false,
                 manualRows: [],
-                get mappedMaterials() {
-                    if (!this.actionType) return [];
-                    const mapped = $data.actionMaterialMap[this.actionType];
-                    if (mapped === null) return null; // manual
-                    return mapped.map(name => $data.materials.find(m => m.name === name)).filter(m => m);
-                },
                 addManualRow() {
                     this.manualRows.push(Date.now());
                 },
@@ -260,15 +255,9 @@
                                 </div>
                                 <div>
                                     <label class="block text-xs font-medium text-gray-600 mb-1">Jenis Tindakan</label>
-                                    <select name="action_type" x-model="actionType"
-                                            class="w-full px-3 py-2 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-green-500" required>
-                                        <option value="">-- Pilih --</option>
-                                        <option value="Pemberian Nutrisi AB Mix">Pemberian Nutrisi AB Mix</option>
-                                        <option value="Penyemprotan Pestisida Nabati">Penyemprotan Pestisida Nabati</option>
-                                        <option value="Pengecekan Akar">Pengecekan Akar</option>
-                                        <option value="Pemangkasan Daun">Pemangkasan Daun</option>
-                                        <option value="Lainnya">Lainnya</option>
-                                    </select>
+                                    <input type="text" name="action_type" x-model="actionType"
+                                           placeholder="Contoh: Pemberian Nutrisi, Pemangkasan..."
+                                           class="w-full px-3 py-2 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-green-500" required>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-medium text-gray-600 mb-1">Nutrisi PPM</label>
@@ -282,46 +271,48 @@
                                 </div>
                             </div>
 
+                            {{-- Checkbox Gunakan Bahan --}}
+                            <div class="pt-1">
+                                <label class="inline-flex items-center gap-2 cursor-pointer text-xs font-medium text-gray-700">
+                                    <input type="checkbox" x-model="useMaterials"
+                                           class="w-4 h-4 rounded text-green-600 border-gray-300 focus:ring-green-500 cursor-pointer">
+                                    <span>Gunakan Bahan / Pupuk / Nutrisi</span>
+                                </label>
+                            </div>
+
                             {{-- Bahan Section --}}
-                            <div x-show="actionType && (mappedMaterials !== null ? mappedMaterials.length > 0 : true)">
-                                <label class="block text-xs font-medium text-gray-600 mb-1">Bahan Digunakan</label>
+                            <div x-show="useMaterials" x-transition class="bg-gray-50/70 border border-gray-200 rounded-xl p-3">
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="block text-xs font-semibold text-gray-700">Bahan yang Digunakan</label>
+                                    <button type="button" @click="addManualRow()"
+                                            class="inline-flex items-center gap-1 px-2.5 py-1 bg-green-100 text-green-700 hover:bg-green-200 rounded-lg text-xs font-medium transition cursor-pointer">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                        Tambah Bahan
+                                    </button>
+                                </div>
                                 <div class="space-y-2">
-                                    <template x-if="mappedMaterials !== null">
-                                        <template x-for="mat in mappedMaterials" :key="mat.id">
-                                            <div class="flex gap-2 items-center mt-2">
-                                                <input type="hidden" name="material_ids[]" :value="mat.id">
-                                                <input type="text" class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50" :value="mat.name + ' (' + mat.unit + ')'" readonly>
-                                                <input type="number" name="quantities[]" class="w-24 px-3 py-1.5 border border-gray-200 rounded-lg text-xs" placeholder="Qty" step="0.01" min="0.01" required>
-                                                <span class="text-xs text-gray-400 whitespace-nowrap" x-text="'Stok: ' + mat.stock"></span>
-                                            </div>
-                                        </template>
-                                    </template>
-                                    <template x-if="mappedMaterials === null">
-                                        <div>
-                                            <div class="flex gap-2 items-center mt-2">
-                                                <select name="material_ids[]" class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs">
-                                                    <option value="">-- Pilih Bahan --</option>
-                                                    <template x-for="m in $data.materials" :key="m.id">
-                                                        <option :value="m.id" x-text="m.name + ' (' + m.unit + ')'"></option>
-                                                    </template>
-                                                </select>
-                                                <input type="number" name="quantities[]" class="w-24 px-3 py-1.5 border border-gray-200 rounded-lg text-xs" placeholder="Qty" step="0.01" min="0.01">
-                                                <button type="button" @click="addManualRow()"
-                                                        class="px-2 py-1.5 bg-green-100 text-green-700 rounded-lg text-xs hover:bg-green-200">+</button>
-                                            </div>
-                                            <template x-for="rowId in manualRows" :key="rowId">
-                                                <div class="flex gap-2 items-center mt-2">
-                                                    <select name="material_ids[]" class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs">
-                                                        <option value="">-- Pilih Bahan --</option>
-                                                        <template x-for="m in $data.materials" :key="m.id">
-                                                            <option :value="m.id" x-text="m.name + ' (' + m.unit + ')'"></option>
-                                                        </template>
-                                                    </select>
-                                                    <input type="number" name="quantities[]" class="w-24 px-3 py-1.5 border border-gray-200 rounded-lg text-xs" placeholder="Qty" step="0.01" min="0.01">
-                                                    <button type="button" @click="removeManualRow(rowId)"
-                                                            class="px-2 py-1.5 bg-red-100 text-red-600 rounded-lg text-xs hover:bg-red-200">−</button>
-                                                </div>
+                                    <div class="flex gap-2 items-center">
+                                        <select name="material_ids[]" :required="useMaterials" class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs bg-white">
+                                            <option value="">-- Pilih Bahan --</option>
+                                            <template x-for="m in $data.materials" :key="m.id">
+                                                <option :value="m.id" x-text="m.name + ' (' + m.unit + ') - Stok: ' + m.stock"></option>
                                             </template>
+                                        </select>
+                                        <input type="number" name="quantities[]" :required="useMaterials" class="w-24 px-3 py-1.5 border border-gray-200 rounded-lg text-xs bg-white" placeholder="Jumlah" step="0.01" min="0.01">
+                                    </div>
+                                    <template x-for="rowId in manualRows" :key="rowId">
+                                        <div class="flex gap-2 items-center">
+                                            <select name="material_ids[]" :required="useMaterials" class="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs bg-white">
+                                                <option value="">-- Pilih Bahan --</option>
+                                                <template x-for="m in $data.materials" :key="m.id">
+                                                    <option :value="m.id" x-text="m.name + ' (' + m.unit + ') - Stok: ' + m.stock"></option>
+                                                </template>
+                                            </select>
+                                            <input type="number" name="quantities[]" :required="useMaterials" class="w-24 px-3 py-1.5 border border-gray-200 rounded-lg text-xs bg-white" placeholder="Jumlah" step="0.01" min="0.01">
+                                            <button type="button" @click="removeManualRow(rowId)"
+                                                    class="p-1.5 bg-red-100 text-red-600 rounded-lg text-xs hover:bg-red-200 transition cursor-pointer" title="Hapus Baris">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                            </button>
                                         </div>
                                     </template>
                                 </div>

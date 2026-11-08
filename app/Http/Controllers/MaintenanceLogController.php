@@ -104,10 +104,24 @@ class MaintenanceLogController extends Controller
      */
     public function destroy($id)
     {
-        $maintenanceLog = MaintenanceLog::findOrFail($id);
-        $maintenanceLog->delete();
+        DB::transaction(function () use ($id) {
+            $maintenanceLog = MaintenanceLog::with('materialUsages')->findOrFail($id);
+
+            // Kembalikan stok bahan yang pernah digunakan pada log perawatan ini
+            foreach ($maintenanceLog->materialUsages as $usage) {
+                if ($usage->material_id && $usage->quantity_used > 0) {
+                    $material = Material::lockForUpdate()->find($usage->material_id);
+                    if ($material) {
+                        $material->increment('stock', $usage->quantity_used);
+                    }
+                }
+                $usage->delete();
+            }
+
+            $maintenanceLog->delete();
+        });
 
         return redirect()->back()
-            ->with('success', 'Log perawatan berhasil dihapus.');
+            ->with('success', 'Log perawatan berhasil dihapus dan stok bahan telah dikembalikan.');
     }
 }
