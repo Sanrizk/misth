@@ -145,13 +145,13 @@
 
         {{-- Floating Menu --}}
         <div x-cloak x-show="activeMenu === 'reports'" 
-             x-transition:enter="transition ease-out duration-200 origin-bottom"
+             x-transition:enter="transition ease-out duration-200 origin-bottom-right"
              x-transition:enter-start="opacity-0 scale-95 translate-y-2"
              x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-             x-transition:leave="transition ease-in duration-150 origin-bottom"
+             x-transition:leave="transition ease-in duration-150 origin-bottom-right"
              x-transition:leave-start="opacity-100 scale-100 translate-y-0"
              x-transition:leave-end="opacity-0 scale-95 translate-y-2"
-             class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 bg-green-800 border border-green-700 rounded-2xl shadow-xl p-2 flex flex-col gap-1 z-50 text-left">
+             class="absolute bottom-full right-1 mb-2 w-52 bg-green-800 border border-green-700 rounded-2xl shadow-xl p-2 flex flex-col gap-1 z-50 text-left">
             <div class="px-2 py-1 text-[10px] font-bold text-green-300 uppercase tracking-wider">Laporan</div>
             <a href="{{ route('reports.plantings') }}" class="px-3 py-2 text-sm rounded-xl hover:bg-green-700 text-white flex items-center gap-3 transition-colors">
                 <svg class="w-4 h-4 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Penanaman
