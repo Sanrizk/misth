@@ -300,7 +300,7 @@
                                             <input type="number" step="0.01" :name="'items['+index+'][quantity]'" x-model="item.quantity" placeholder="Qty" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500" required>
                                         </div>
                                         <div class="w-full sm:w-48">
-                                            <input type="number" step="0.01" :name="'items['+index+'][unit_price]'" x-model="item.unit_price" placeholder="Harga Satuan" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                                            <input type="number" step="0.01" :name="'items['+index+'][unit_price]'" x-model="item.unit_price" placeholder="Harga Satuan" readonly class="w-full px-4 py-2 bg-gray-100 text-gray-500 border border-gray-200 rounded-xl text-sm focus:outline-none cursor-not-allowed" required title="Harga satuan otomatis diambil dari data bahan baku">
                                         </div>
                                         <button type="button" @click="removeItem(index)" class="p-2 text-red-500 hover:text-red-700 bg-red-50 rounded-lg hover:bg-red-100" x-show="form.items.length > 1" title="Hapus Item">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -376,7 +376,7 @@
                                             <input type="number" step="0.01" :name="'items['+index+'][quantity]'" x-model="item.quantity" placeholder="Qty" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500" required>
                                         </div>
                                         <div class="w-full sm:w-48">
-                                            <input type="number" step="0.01" :name="'items['+index+'][unit_price]'" x-model="item.unit_price" placeholder="Harga Satuan" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                                            <input type="number" step="0.01" :name="'items['+index+'][unit_price]'" x-model="item.unit_price" placeholder="Harga Satuan" readonly class="w-full px-4 py-2 bg-gray-100 text-gray-500 border border-gray-200 rounded-xl text-sm focus:outline-none cursor-not-allowed" required title="Harga satuan otomatis diambil dari data bahan baku">
                                         </div>
                                         <button type="button" @click="removeEditItem(index)" class="p-2 text-red-500 hover:text-red-700 bg-red-50 rounded-lg hover:bg-red-100" title="Hapus Item">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -390,7 +390,7 @@
                                 </button>
                                 <div class="flex items-center justify-between mt-4 p-3 bg-gray-50 rounded-xl">
                                     <span class="text-sm font-semibold text-gray-700">Estimasi Total Pembelian:</span>
-                                    <span class="text-base font-bold text-green-700" x-text="'Rp ' + (form.items.reduce((sum, i) => sum + ((parseFloat(i.quantity) || 0) * (parseFloat(i.unit_price) || 0)), 0)).toLocaleString('id-ID')"></span>
+                                    <span class="text-base font-bold text-green-700" x-text="'Rp ' + (editForm.items.reduce((sum, i) => sum + ((parseFloat(i.quantity) || 0) * (parseFloat(i.unit_price) || 0)), 0)).toLocaleString('id-ID')"></span>
                                 </div>
                             </div>
                             <div class="px-6 py-4 bg-gray-50 rounded-b-2xl sm:flex sm:flex-row-reverse border-t border-gray-100">

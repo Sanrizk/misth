@@ -58,9 +58,12 @@ class UserController extends Controller
         $validated = $request->validate([
             'name'     => 'required|string|max:100',
             'email'    => 'required|email|unique:users,email',
-            'phone'    => 'required|string|max:20',
+            'phone'    => 'required|numeric|digits_between:8,20',
             'role_id'  => 'required|exists:roles,id',
             'password' => 'required|string|min:8|confirmed',
+        ], [
+            'phone.numeric' => 'Nomor HP harus berupa angka.',
+            'phone.digits_between' => 'Nomor HP harus terdiri dari 8 hingga 20 digit angka.',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -84,9 +87,12 @@ class UserController extends Controller
         $validated = $request->validate([
             'name'    => 'required|string|max:100',
             'email'   => 'required|email|unique:users,email,' . $user->id,
-            'phone'   => 'required|string|max:20',
+            'phone'   => 'required|numeric|digits_between:8,20',
             'role_id' => 'required|exists:roles,id',
             'password' => 'nullable|string|min:8|confirmed',
+        ], [
+            'phone.numeric' => 'Nomor HP harus berupa angka.',
+            'phone.digits_between' => 'Nomor HP harus terdiri dari 8 hingga 20 digit angka.',
         ]);
 
         if (!empty($validated['password'])) {

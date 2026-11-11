@@ -56,7 +56,7 @@ class PurchaseController extends Controller
             'items' => 'required|array|min:1',
             'items.*.material_id' => 'required|exists:materials,id',
             'items.*.quantity' => 'required|numeric|min:0.01',
-            'items.*.unit_price' => 'required|numeric|min:0',
+            'items.*.unit_price' => 'nullable|numeric|min:0',
         ]);
 
         DB::transaction(function () use ($validated) {
@@ -69,15 +69,22 @@ class PurchaseController extends Controller
                 'invoice_number' => 'INV-' . time(),
             ]);
 
+            // Ambil data bahan baku dari database agar harga satuan akurat dan terverifikasi dari backend
+            $materialIds = collect($validated['items'])->pluck('material_id')->unique();
+            $materials = Material::whereIn('id', $materialIds)->get()->keyBy('id');
+
             $totalAmount = 0;
             foreach ($validated['items'] as $item) {
-                $subtotal = $item['quantity'] * $item['unit_price'];
+                $material = $materials->get($item['material_id']);
+                // Gunakan harga satuan resmi dari database bahan baku
+                $unitPrice = $material ? (float) $material->price_per_unit : 0;
+                $subtotal = $item['quantity'] * $unitPrice;
                 $totalAmount += $subtotal;
 
                 $purchase->purchaseItems()->create([
                     'material_id' => $item['material_id'],
                     'quantity' => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
+                    'unit_price' => $unitPrice,
                     'subtotal' => $subtotal,
                 ]);
             }
@@ -107,7 +114,7 @@ class PurchaseController extends Controller
             'items' => 'required|array|min:1',
             'items.*.material_id' => 'required|exists:materials,id',
             'items.*.quantity' => 'required|numeric|min:0.01',
-            'items.*.unit_price' => 'required|numeric|min:0',
+            'items.*.unit_price' => 'nullable|numeric|min:0',
         ]);
 
         DB::transaction(function () use ($validated, $purchase) {
@@ -119,15 +126,22 @@ class PurchaseController extends Controller
 
             $purchase->purchaseItems()->delete();
 
+            // Ambil data bahan baku dari database agar harga satuan akurat dan terverifikasi dari backend
+            $materialIds = collect($validated['items'])->pluck('material_id')->unique();
+            $materials = Material::whereIn('id', $materialIds)->get()->keyBy('id');
+
             $totalAmount = 0;
             foreach ($validated['items'] as $item) {
-                $subtotal = $item['quantity'] * $item['unit_price'];
+                $material = $materials->get($item['material_id']);
+                // Gunakan harga satuan resmi dari database bahan baku
+                $unitPrice = $material ? (float) $material->price_per_unit : 0;
+                $subtotal = $item['quantity'] * $unitPrice;
                 $totalAmount += $subtotal;
 
                 $purchase->purchaseItems()->create([
                     'material_id' => $item['material_id'],
                     'quantity' => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
+                    'unit_price' => $unitPrice,
                     'subtotal' => $subtotal,
                 ]);
             }

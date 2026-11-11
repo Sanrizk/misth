@@ -30,8 +30,11 @@ class SupplierController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
-            'phone' => 'nullable|string|max:20',
+            'phone' => 'nullable|numeric|digits_between:8,20',
             'address' => 'nullable|string',
+        ], [
+            'phone.numeric' => 'Nomor telepon harus berupa angka.',
+            'phone.digits_between' => 'Nomor telepon harus terdiri dari 8 hingga 20 digit angka.',
         ]);
 
         \App\Models\Supplier::create($validated);
@@ -42,8 +45,11 @@ class SupplierController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
-            'phone' => 'nullable|string|max:20',
+            'phone' => 'nullable|numeric|digits_between:8,20',
             'address' => 'nullable|string',
+        ], [
+            'phone.numeric' => 'Nomor telepon harus berupa angka.',
+            'phone.digits_between' => 'Nomor telepon harus terdiri dari 8 hingga 20 digit angka.',
         ]);
 
         $supplier->update($validated);

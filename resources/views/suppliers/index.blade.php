@@ -184,7 +184,7 @@
                                     <input type="text" name="name" x-model="form.name" placeholder="Nama Supplier" required class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
                                 </div>
                                 <div>
-                                    <input type="text" name="phone" x-model="form.phone" placeholder="Nomor Telepon" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    <input type="number" name="phone" x-model="form.phone" placeholder="Nomor Telepon" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
                                 </div>
                                 <div>
                                     <textarea name="address" x-model="form.address" placeholder="Alamat" rows="3" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
